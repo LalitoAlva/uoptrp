@@ -1,0 +1,29 @@
+{
+  "name": "NYC · US Open 2026",
+  "short_name": "NYC & US Open",
+  "description": "Itinerario interactivo, seguimiento de sesiones Arthur Ashe, Go City Pass y recomendaciones para Nueva York 2026",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0F17",
+  "theme_color": "#0B0F17",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

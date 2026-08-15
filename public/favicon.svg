@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B0F17"/>
+      <stop offset="100%" stop-color="#1A2234"/>
+    </linearGradient>
+    <linearGradient id="tennis" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D9F99D"/>
+      <stop offset="50%" stop-color="#CCFF00"/>
+      <stop offset="100%" stop-color="#84CC16"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Card -->
+  <rect width="512" height="512" rx="128" fill="url(#bg)"/>
+  <!-- Outer Ring Glow -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#CCFF00" stroke-width="8" opacity="0.25"/>
+  <!-- Tennis Ball Base -->
+  <circle cx="256" cy="256" r="160" fill="url(#tennis)"/>
+  <!-- Ball Seams -->
+  <path d="M140,140 Q256,220 140,372" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" opacity="0.9"/>
+  <path d="M372,140 Q256,220 372,372" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" opacity="0.9"/>
+  <!-- Skyline Cutout Silhouette inside ball center -->
+  <path d="M200,320 L200,240 L220,240 L220,220 L235,220 L235,170 L245,170 L245,150 L250,150 L250,135 L255,135 L255,150 L260,150 L260,170 L270,170 L270,230 L290,230 L290,260 L310,260 L310,320 Z" fill="#0B0F17" opacity="0.92"/>
+</svg>

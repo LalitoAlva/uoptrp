@@ -6,6 +6,7 @@ import ItineraryView from './components/ItineraryView';
 import ActivityModal from './components/ActivityModal';
 import PendingModal from './components/PendingModal';
 import PendingListView from './components/PendingListView';
+import NearbyAlerts from './components/NearbyAlerts';
 import RecommendationsView from './components/RecommendationsView';
 import RecommendationModal from './components/RecommendationModal';
 import ImportExportModal from './components/ImportExportModal';
@@ -23,6 +24,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LocationProvider } from './context/LocationContext';
 import { loadTripData, saveTripData } from './utils/storage';
 import { confirmAction, notify } from './utils/alerts';
 import ReminderSettingsSheet from './components/ReminderSettingsSheet';
@@ -406,6 +408,14 @@ function MainAppContent() {
               onNavigateTab={setCurrentTab}
             />
 
+            {/* Condensed location suggestions. The full three-section version
+                lives on En Vivo; here it's a nudge, not the main event. */}
+            <NearbyAlerts
+              recommendations={tripData.recommendations}
+              day={tripData.days[0]}
+              variant="compact"
+            />
+
             <ItineraryView
               tripData={tripData}
               onChangeActivityStatus={handleChangeActivityStatus}
@@ -585,7 +595,12 @@ export default function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <AuthProvider>
-          <MainAppContent />
+          {/* Inside AuthProvider so the location prompt only appears once
+              someone is actually signed in and looking at the trip, rather
+              than firing behind the login gate. */}
+          <LocationProvider>
+            <MainAppContent />
+          </LocationProvider>
         </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>

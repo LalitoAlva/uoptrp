@@ -191,7 +191,7 @@ export default function LiveTripCompanion({ tripData, onChangeActivityStatus, on
       )}
 
       {/* ── What's around me right now ───────────────────────────────── */}
-      <NearbyAlerts recommendations={tripData.recommendations} />
+      <NearbyAlerts recommendations={tripData.recommendations} day={currentDay} />
 
       {/* ── Up next ──────────────────────────────────────────────────── */}
       {upNext.length > 0 && (

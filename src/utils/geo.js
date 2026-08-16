@@ -40,6 +40,127 @@ export const TRIP_ANCHORS = [
   { id: 'anchor-highline', name: 'The High Line', zone: 'Chelsea & Meatpacking', kind: 'sights', lat: 40.7480, lon: -74.0048 }
 ];
 
+/**
+ * Keyword → coordinates for the venues this specific trip actually visits.
+ *
+ * Itinerary stops carry a title and sometimes an address, but never lat/lng,
+ * so placing them on the map means matching text. Keys are lowercase
+ * substrings checked against `title + address`; the most specific entries are
+ * listed first because the first match wins. Anything unmatched stays
+ * unplaced rather than being guessed at — a stop with no coordinates is
+ * simply excluded from route calculations.
+ */
+const LANDMARK_COORDS = [
+  ['arthur ashe', { lat: 40.7498, lon: -73.8448 }],
+  ['flushing meadows', { lat: 40.7498, lon: -73.8448 }],
+  ['flushing', { lat: 40.7595, lon: -73.8300 }],
+  ['marriott marquis', { lat: 40.7590, lon: -73.9857 }],
+  ['times square', { lat: 40.7580, lon: -73.9855 }],
+  ['grand central', { lat: 40.7527, lon: -73.9772 }],
+  ['penn station', { lat: 40.7506, lon: -73.9935 }],
+  ['ewr', { lat: 40.6895, lon: -74.1745 }],
+  ['newark', { lat: 40.6895, lon: -74.1745 }],
+  ['jfk', { lat: 40.6413, lon: -73.7781 }],
+  ['intrepid', { lat: 40.7645, lon: -74.0000 }],
+  ['top of the rock', { lat: 40.7593, lon: -73.9794 }],
+  ['rockefeller', { lat: 40.7587, lon: -73.9787 }],
+  ['moma', { lat: 40.7614, lon: -73.9776 }],
+  ['museum of modern art', { lat: 40.7614, lon: -73.9776 }],
+  ['high line', { lat: 40.7480, lon: -74.0048 }],
+  ['chelsea market', { lat: 40.7424, lon: -74.0061 }],
+  ['strand', { lat: 40.7332, lon: -73.9907 }],
+  ['katz', { lat: 40.7223, lon: -73.9874 }],
+  ["joe's pizza", { lat: 40.7302, lon: -74.0027 }],
+  ['carmine st', { lat: 40.7302, lon: -74.0027 }],
+  ['keens', { lat: 40.7501, lon: -73.9857 }],
+  ['village vanguard', { lat: 40.7359, lon: -74.0016 }],
+  ['birdland', { lat: 40.7583, lon: -73.9899 }],
+  ['red lion', { lat: 40.7288, lon: -74.0016 }],
+  ['55 bar', { lat: 40.7340, lon: -74.0021 }],
+  ['blue note', { lat: 40.7307, lon: -74.0007 }],
+  ['central park', { lat: 40.7812, lon: -73.9665 }],
+  ['levain', { lat: 40.7796, lon: -73.9803 }],
+  ['bluestone lane', { lat: 40.7620, lon: -73.9770 }],
+  ['burger joint', { lat: 40.7644, lon: -73.9776 }],
+  ['parker hotel', { lat: 40.7644, lon: -73.9776 }],
+  ['apple store', { lat: 40.7638, lon: -73.9729 }],
+  ['5ta avenida', { lat: 40.7638, lon: -73.9729 }],
+  ['yankee', { lat: 40.8296, lon: -73.9262 }],
+  ['bronx', { lat: 40.8296, lon: -73.9262 }],
+  ['dumbo', { lat: 40.7033, lon: -73.9881 }],
+  ['brooklyn flea', { lat: 40.7033, lon: -73.9881 }],
+  ['other half', { lat: 40.7228, lon: -73.9573 }],
+  ['williamsburg', { lat: 40.7141, lon: -73.9614 }],
+  ['cold spring', { lat: 41.4200, lon: -73.9550 }],
+  ['beacon', { lat: 41.5048, lon: -73.9696 }],
+  ['bleecker', { lat: 40.7310, lon: -74.0030 }],
+  ['west village', { lat: 40.7358, lon: -74.0036 }],
+  ['greenwich', { lat: 40.7336, lon: -74.0027 }],
+  ['lower east side', { lat: 40.7180, lon: -73.9880 }],
+  ['chinatown', { lat: 40.7158, lon: -73.9970 }],
+  ['soho', { lat: 40.7233, lon: -74.0020 }],
+  ["hell's kitchen", { lat: 40.7638, lon: -73.9918 }],
+  ['9na avenida', { lat: 40.7620, lon: -73.9905 }],
+  ['9th ave', { lat: 40.7620, lon: -73.9905 }],
+  ['chelsea', { lat: 40.7465, lon: -74.0014 }],
+  ['midtown', { lat: 40.7549, lon: -73.9840 }],
+  ['broadway', { lat: 40.7590, lon: -73.9845 }],
+  ['queens', { lat: 40.7644, lon: -73.9235 }],
+  ['brooklyn', { lat: 40.6782, lon: -73.9442 }],
+  ['manhattan', { lat: 40.7580, lon: -73.9855 }]
+];
+
+/**
+ * Best-effort coordinates for an itinerary stop or recommendation.
+ *
+ * Tries the record's zone first (that's structured data), then falls back to
+ * keyword-matching the title and address. Returns null when nothing matches,
+ * which callers must handle — never a default "somewhere in Manhattan", since
+ * a wrong location is worse than no location when the whole point is "¿me
+ * queda de camino?".
+ */
+export function resolveCoords(place) {
+  if (!place) return null;
+
+  if (place.zone && ZONE_COORDS[place.zone]) return ZONE_COORDS[place.zone];
+
+  const haystack = `${place.title || place.name || ''} ${place.address || ''} ${place.sub || ''}`.toLowerCase();
+  if (!haystack.trim()) return null;
+
+  for (const [keyword, coords] of LANDMARK_COORDS) {
+    if (haystack.includes(keyword)) return coords;
+  }
+  return null;
+}
+
+/**
+ * Perpendicular distance from a point to the segment A→B, in kilometres.
+ *
+ * Projects onto a local flat plane (longitude scaled by cos(lat)), which is
+ * accurate well past the few kilometres this app ever measures. The clamp on
+ * `t` is what makes it a *segment* rather than an infinite line: a bar two
+ * neighbourhoods past your destination shouldn't count as "on the way".
+ */
+export function distanceToSegmentKm(p, a, b) {
+  const kx = 111.32 * Math.cos(toRad((a.lat + b.lat) / 2));
+  const ky = 110.57;
+
+  const ax = a.lon * kx, ay = a.lat * ky;
+  const bx = b.lon * kx, by = b.lat * ky;
+  const px = p.lon * kx, py = p.lat * ky;
+
+  const dx = bx - ax, dy = by - ay;
+  const lenSq = dx * dx + dy * dy;
+
+  // Degenerate segment (you're already at the destination) → plain distance.
+  if (lenSq === 0) return distanceKm(p, a);
+
+  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lenSq));
+  const cx = ax + t * dx, cy = ay + t * dy;
+
+  return Math.hypot(px - cx, py - cy);
+}
+
 const EARTH_RADIUS_KM = 6371;
 const toRad = (deg) => (deg * Math.PI) / 180;
 
@@ -57,8 +178,16 @@ export function distanceKm(a, b) {
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(h));
 }
 
-/** "450 m" / "1.8 km" — the unit people actually think in while walking. */
+/**
+ * "450 m" / "1.8 km" — the unit people actually think in while walking.
+ *
+ * Anything under 50 m rounds to "0 m", which reads like a bug rather than
+ * "you're standing on it", so that band gets its own wording. Worth being
+ * careful here: these are neighbourhood-level estimates, and a confident
+ * "0 m" would overstate the precision we actually have.
+ */
 export function formatDistance(km) {
+  if (km < 0.05) return 'a unos pasos';
   if (km < 1) return `${Math.round(km / 0.05) * 50} m`;
   if (km < 10) return `${km.toFixed(1)} km`;
   return `${Math.round(km)} km`;
@@ -82,17 +211,9 @@ export function findNearbySpots(recommendations = [], here, { limit = 6, maxKm =
   const fromRecs = recommendations
     .filter(rec => !rec.visited)
     .map(rec => {
-      const coords = ZONE_COORDS[rec.zone];
+      const coords = resolveCoords(rec);
       if (!coords) return null;
-      return {
-        id: rec.id,
-        name: rec.name,
-        zone: rec.zone,
-        kind: rec.category,
-        mustTry: rec.mustTry || rec.mustOrder,
-        mapsUrl: rec.mapsUrl,
-        km: distanceKm(here, coords)
-      };
+      return toSpot(rec, { km: distanceKm(here, coords) });
     })
     .filter(Boolean);
 
@@ -113,3 +234,98 @@ export function findNearbySpots(recommendations = [], here, { limit = 6, maxKm =
 
 /** Distance under which something is worth interrupting the user about. */
 export const ALERT_RADIUS_KM = 0.8;
+
+/** Turns one recommendation into the shape the nearby lists render. */
+function toSpot(rec, extra = {}) {
+  return {
+    id: rec.id,
+    name: rec.name,
+    zone: rec.zone,
+    kind: rec.category,
+    mustTry: rec.mustTry || rec.mustOrder,
+    mapsUrl: rec.mapsUrl,
+    ...extra
+  };
+}
+
+/**
+ * Spots that sit inside a corridor along the way from `from` to `to`.
+ *
+ * This is the "¿qué me queda de paso?" list. A spot qualifies when it is
+ * within `corridorKm` of the straight line between the two points AND the
+ * detour is small relative to the trip itself — otherwise on a long haul
+ * (Manhattan → Flushing) the corridor would sweep up half of Queens.
+ *
+ * Results are ranked by detour cost, not raw distance: the question is "how
+ * much extra walking does this cost me", not "how close is it to my hotel".
+ */
+export function findRouteSpots(recommendations = [], from, to, { corridorKm = 1, limit = 5, excludeIds = [] } = {}) {
+  if (!from || !to) return [];
+
+  const legKm = distanceKm(from, to);
+  if (legKm < 0.3) return []; // Already there — "on the way" is meaningless.
+
+  const skip = new Set(excludeIds);
+
+  return recommendations
+    .filter(rec => !rec.visited && !skip.has(rec.id))
+    .map(rec => {
+      const coords = resolveCoords(rec);
+      if (!coords) return null;
+
+      const offRouteKm = distanceToSegmentKm(coords, from, to);
+      if (offRouteKm > corridorKm) return null;
+
+      // Detour = walk to it, then on to the destination, minus going direct.
+      const detourKm = distanceKm(from, coords) + distanceKm(coords, to) - legKm;
+
+      return toSpot(rec, { km: distanceKm(from, coords), offRouteKm, detourKm });
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.detourKm - b.detourKm)
+    .slice(0, limit);
+}
+
+/**
+ * Spots clustered around today's remaining stops.
+ *
+ * Answers "cuando llegue a donde voy, ¿qué hay alrededor?" — useful before
+ * you set off, which is when the route list is still empty. Each result
+ * records which stop it is near so the UI can say so.
+ */
+export function findSpotsNearPlan(recommendations = [], stops = [], { radiusKm = 1.2, limit = 6, excludeIds = [] } = {}) {
+  const placedStops = stops
+    .map(stop => ({ stop, coords: resolveCoords(stop) }))
+    .filter(entry => entry.coords);
+
+  if (placedStops.length === 0) return [];
+
+  const skip = new Set(excludeIds);
+  const seen = new Set();
+  const results = [];
+
+  for (const rec of recommendations) {
+    if (rec.visited || skip.has(rec.id) || seen.has(rec.id)) continue;
+
+    const coords = resolveCoords(rec);
+    if (!coords) continue;
+
+    // Nearest stop of the day wins the label.
+    let best = null;
+    for (const { stop, coords: stopCoords } of placedStops) {
+      const km = distanceKm(coords, stopCoords);
+      if (!best || km < best.km) best = { km, stop };
+    }
+
+    if (best && best.km <= radiusKm) {
+      seen.add(rec.id);
+      results.push(toSpot(rec, {
+        km: best.km,
+        nearStopTitle: best.stop.title,
+        nearStopTime: best.stop.time
+      }));
+    }
+  }
+
+  return results.sort((a, b) => a.km - b.km).slice(0, limit);
+}

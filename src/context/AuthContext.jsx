@@ -1,26 +1,31 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { notify } from '../utils/alerts';
+import { decodeGoogleCredential } from '../config/googleAuth';
 
 const AuthContext = createContext();
 
+// The `email` on each entry IS the access control — only these real Gmail
+// accounts can sign in with Google and reach the app. To grant someone
+// access, add them here (or via the "Usuarios" panel once an admin is
+// signed in); to revoke access, remove them.
 const INITIAL_USERS = [
   {
     id: 'user-1',
     name: 'Lalo',
-    email: 'lalo@travelnyc.com',
+    email: 'kasimiromiramontes@gmail.com',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
     role: 'admin', // admin, editor, viewer
     isOwner: true,
-    lastLogin: '2026-08-15'
+    lastLogin: null
   },
   {
     id: 'user-2',
     name: 'Fefe',
-    email: 'fefe@travelnyc.com',
+    email: 'ealvatorres59@gmail.com',
     avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80',
     role: 'editor',
     isOwner: false,
-    lastLogin: '2026-08-15'
+    lastLogin: null
   }
 ];
 
@@ -57,38 +62,46 @@ export function AuthProvider({ children }) {
     }
   }, [currentUser]);
 
-  const loginWithGoogle = (email = 'lalo@travelnyc.com', customName = 'Lalo') => {
-    // Check if user exists or create new
-    let user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (!user) {
-      user = {
-        id: `user-${Date.now()}`,
-        name: customName || email.split('@')[0],
-        email: email,
-        avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(email)}`,
-        role: users.length === 0 ? 'admin' : 'editor',
-        isOwner: false,
-        lastLogin: new Date().toISOString().slice(0, 10)
-      };
-      setUsers(prev => [...prev, user]);
-    } else {
-      user = { ...user, lastLogin: new Date().toISOString().slice(0, 10) };
+  /**
+   * Verifies a real Google Sign-In credential and, only if the verified
+   * email matches someone on the `users` whitelist, logs them in as that
+   * profile (keeping our friendly name, adopting their real Google photo).
+   * Returns the logged-in user on success, or null (with a toast explaining
+   * why) on failure.
+   */
+  const loginWithGoogleCredential = (credential) => {
+    const payload = decodeGoogleCredential(credential);
+    if (!payload || !payload.email) {
+      notify('No se pudo leer tu cuenta de Google. Intenta de nuevo.', 'error');
+      return null;
     }
-    setCurrentUser(user);
-    return user;
-  };
+    if (!payload.email_verified) {
+      notify('Tu correo de Google no está verificado.', 'error');
+      return null;
+    }
 
-  const switchUser = (userId) => {
-    const user = users.find(u => u.id === userId);
-    if (user) {
-      setCurrentUser(user);
+    const email = payload.email.toLowerCase();
+    const matched = users.find(u => u.email.toLowerCase() === email);
+
+    if (!matched) {
+      notify(`${payload.email} no tiene acceso a este viaje. Pídele a Lalo que te agregue en Usuarios.`, 'error');
+      return null;
     }
+
+    const updated = {
+      ...matched,
+      avatar: payload.picture || matched.avatar,
+      lastLogin: new Date().toISOString().slice(0, 10)
+    };
+    setUsers(prev => prev.map(u => (u.id === updated.id ? updated : u)));
+    setCurrentUser(updated);
+    return updated;
   };
 
   const logout = () => {
     // Clear the session entirely — no silent fallback to a guest profile.
     // The app gates all content behind the login screen until someone
-    // explicitly picks a profile again (Lalo, Fefe, or Invitado).
+    // signs in with Google again.
     setCurrentUser(null);
   };
 
@@ -100,7 +113,7 @@ export function AuthProvider({ children }) {
       avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(userData.email)}`,
       role: userData.role || 'editor',
       isOwner: false,
-      lastLogin: 'Pendiente'
+      lastLogin: null
     };
     setUsers(prev => [...prev, newUser]);
   };
@@ -122,8 +135,7 @@ export function AuthProvider({ children }) {
     if (users.length <= 1) return notify('No puedes eliminar al único usuario.', 'warning');
     setUsers(prev => prev.filter(u => u.id !== userId));
     if (currentUser?.id === userId) {
-      const remaining = users.filter(u => u.id !== userId);
-      setCurrentUser(remaining[0] || null);
+      setCurrentUser(null);
     }
   };
 
@@ -136,8 +148,7 @@ export function AuthProvider({ children }) {
       users,
       isAdmin,
       canEdit,
-      loginWithGoogle,
-      switchUser,
+      loginWithGoogleCredential,
       logout,
       addUser,
       updateUserRole,

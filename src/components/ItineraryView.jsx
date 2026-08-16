@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import DayCard from './DayCard';
-import { TennisBall, Beer, Utensils, Landmark, BookOpen, Plane, Lock, Lightbulb, CheckCircle2, CircleXmark } from '../utils/icons';
+import { TennisBall, Beer, Utensils, Landmark, BookOpen, Plane, Lock, Lightbulb, CheckCircle2, CircleXmark, Calendar } from '../utils/icons';
 
 export default function ItineraryView({
   tripData,
@@ -57,39 +57,43 @@ export default function ItineraryView({
       {/* Top Filter Bar with ample padding */}
       <div className="spa-card p-6 sm:p-8 space-y-5">
         
-        {/* Day Selector Pills — larger, more prominent touch targets */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
+        {/* Day Selector — compact tall tiles instead of wide pills, so more
+            days fit before needing to scroll and the row reads as a proper
+            day-picker strip rather than stretched-out buttons. */}
+        <div className="flex items-stretch gap-2 overflow-x-auto pb-1">
           {tripData.days.map((day) => {
             const isSelected = selectedDayTab === day.dayNumber;
+            const [weekday, dayNum] = day.date.split(' ');
             return (
               <button
                 key={day.dayNumber}
                 onClick={() => setSelectedDayTab(day.dayNumber)}
-                className={`flex items-center gap-2.5 px-5 py-3 rounded-lg text-sm sm:text-base font-bold transition-colors whitespace-nowrap ${
+                className={`flex flex-col items-center justify-center gap-1.5 w-[72px] sm:w-[84px] flex-shrink-0 py-4 rounded-lg font-bold transition-colors ${
                   isSelected
                     ? 'bg-[var(--accent-primary)] text-white shadow-sm'
                     : 'bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] border border-[var(--border-subtle)]'
                 }`}
               >
-                <span className={`w-7 h-7 rounded flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-black ${
                   isSelected ? 'bg-white text-[var(--accent-primary-text)]' : 'bg-[var(--border-medium)] text-[var(--text-primary)]'
                 }`}>
                   {day.dayNumber}
                 </span>
-                <span>D{day.dayNumber} · {day.date.split(',')[0]}</span>
+                <span className="text-[11px] uppercase tracking-wide whitespace-nowrap">{weekday?.slice(0, 3)} {dayNum}</span>
               </button>
             );
           })}
 
           <button
             onClick={() => setSelectedDayTab('all')}
-            className={`px-5 py-3 rounded-lg text-sm sm:text-base font-bold transition-colors whitespace-nowrap ${
+            className={`flex flex-col items-center justify-center gap-1.5 w-[84px] flex-shrink-0 py-4 rounded-lg font-bold text-[11px] transition-colors ${
               selectedDayTab === 'all'
                 ? 'bg-[var(--accent-primary)] text-white shadow-sm'
                 : 'bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] border border-[var(--border-subtle)]'
             }`}
           >
-            Ver Todo el Viaje (Días 1-7)
+            <Calendar className="w-4 h-4" />
+            <span className="uppercase tracking-wide">Ver Todo</span>
           </button>
         </div>
 

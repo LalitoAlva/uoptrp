@@ -19,7 +19,7 @@ import { confirmAction, notify } from '../utils/alerts';
 import confetti from 'canvas-confetti';
 
 export default function UserManagementView({ onOpenLoginModal }) {
-  const { users, currentUser, addUser, updateUserRole, deleteUser, isAdmin, switchUser, logout } = useAuth();
+  const { users, currentUser, addUser, updateUserRole, deleteUser, isAdmin, logout } = useAuth();
   const [newEmail, setNewEmail] = useState('');
   const [newName, setNewName] = useState('');
   const [newRole, setNewRole] = useState('editor');
@@ -111,7 +111,7 @@ export default function UserManagementView({ onOpenLoginModal }) {
               className="px-3.5 py-1.5 rounded bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-rose-500 flex items-center gap-1.5 transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Cerrar Sesión (Modo Lector)</span>
+              <span>Cerrar Sesión</span>
             </button>
           </div>
         </div>
@@ -232,7 +232,7 @@ export default function UserManagementView({ onOpenLoginModal }) {
                   Usuarios con Acceso Autorizado ({users.length})
                 </h3>
                 <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                  Haz clic en cualquier usuario para cambiar de perfil instantáneamente
+                  Cada uno entra con su propia cuenta de Google — esta lista solo controla quién tiene permiso
                 </p>
               </div>
             </div>
@@ -291,16 +291,6 @@ export default function UserManagementView({ onOpenLoginModal }) {
                           {u.role === 'admin' ? <Crown className="w-3.5 h-3.5" /> : u.role === 'editor' ? <Edit3 className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                           {u.role === 'admin' ? 'Admin' : u.role === 'editor' ? 'Editor' : 'Lector'}
                         </span>
-                      )}
-
-                      {!isCurrent && (
-                        <button
-                          onClick={() => switchUser(u.id)}
-                          className="px-3 py-1.5 rounded bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--accent-primary-text)] flex items-center gap-1 transition-colors"
-                        >
-                          <span>Usar</span>
-                          <ArrowRight className="w-3 h-3" />
-                        </button>
                       )}
 
                       {isAdmin && !u.isOwner && (

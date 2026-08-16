@@ -391,7 +391,7 @@ function MainAppContent() {
 
         {/* Tab 2: En Vivo Dedicated View */}
         {currentTab === 'live' && (
-          <div className="space-y-12 w-full max-w-5xl mx-auto">
+          <div className="space-y-12 w-full">
             <LiveTripCompanion
               tripData={tripData}
               onChangeActivityStatus={handleChangeActivityStatus}

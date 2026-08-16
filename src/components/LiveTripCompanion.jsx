@@ -199,7 +199,7 @@ export default function LiveTripCompanion({
           <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] block">
             Siguientes paradas de hoy:
           </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
             {nextActivities.map((nextAct) => (
               <div
                 key={nextAct.id}
@@ -215,6 +215,37 @@ export default function LiveTripCompanion({
           </div>
         </div>
       )}
+
+      {/* Full day-at-a-glance — gives this screen real content instead of
+          just one card floating on an otherwise empty page. */}
+      <div className="pt-4 border-t border-[var(--border-subtle)] space-y-2.5">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] block">
+          Todo el Día {activeDayNum}:
+        </span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {currentDay.timeline.map((act) => {
+            const status = act.status || (act.completed ? 'hecho' : 'pendiente');
+            const cfg = STATUS_CONFIG[status];
+            const isCurrent = act.id === currentActivity?.id;
+            return (
+              <button
+                key={act.id}
+                type="button"
+                onClick={() => onEditActivity(currentDay.dayNumber, act)}
+                className={`p-2.5 rounded text-left flex items-center gap-2 transition-colors ${
+                  isCurrent
+                    ? 'bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30'
+                    : 'bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)]'
+                }`}
+              >
+                <cfg.icon className={`w-3.5 h-3.5 flex-shrink-0 ${status === 'hecho' ? 'text-emerald-500' : status === 'fijo' ? 'text-indigo-500' : status === 'opcional' ? 'text-amber-500' : status === 'no_hecho' ? 'text-rose-500' : 'text-[var(--text-muted)]'}`} />
+                <span className="font-mono text-[11px] font-bold text-[var(--text-muted)] flex-shrink-0">{act.time}</span>
+                <span className={`text-xs font-semibold truncate ${status === 'no_hecho' ? 'line-through text-[var(--text-muted)]' : 'text-[var(--text-primary)]'}`}>{act.title}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
     </div>
   );

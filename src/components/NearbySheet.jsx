@@ -115,10 +115,13 @@ export default function NearbySheet({ isOpen, onClose, data }) {
 
   const [typeFilter, setTypeFilter] = useState('all');
 
-  // "Siempre a la mano" starts closed on purpose: it's the consulate and the
-  // airports, useful to know is there but not what you opened the sheet for.
+  // Two groups start closed. "Siempre a la mano" because it's reference
+  // material — the consulate and the airports, useful to know is there but
+  // not what you opened the sheet for. "De camino" because it only makes
+  // sense once you're actually heading somewhere; collapsed, it keeps the
+  // list short and "A la vuelta" — the thing you're standing next to — first.
   const [openGroups, setOpenGroups] = useState({
-    essentials: false, route: true, nearby: true, plan: true
+    essentials: false, route: false, nearby: true, plan: true
   });
   const toggleGroup = (key) => setOpenGroups(g => ({ ...g, [key]: !g[key] }));
 

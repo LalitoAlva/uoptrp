@@ -2,6 +2,24 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
+/**
+ * Text size steps, as a real root font-size.
+ *
+ * Everything in the app is sized in rem, so changing the root scales the
+ * whole interface proportionally rather than only the body copy. 90% is the
+ * starting point: the redesign is generous with spacing and at 100% a lot of
+ * screens need more scrolling than they should on a phone.
+ */
+export const FONT_SCALES = {
+  small: { px: '14.4px', label: 'Chica (90%)', step: 1 },
+  normal: { px: '16px', label: 'Normal (100%)', step: 2 },
+  large: { px: '17.5px', label: 'Mediana (110%)', step: 3 },
+  xlarge: { px: '19.5px', label: 'Grande (120%)', step: 4 }
+};
+
+export const FONT_SIZE_ORDER = ['small', 'normal', 'large', 'xlarge'];
+export const DEFAULT_FONT_SIZE = 'small';
+
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     try {
@@ -16,9 +34,11 @@ export function ThemeProvider({ children }) {
   const [fontSize, setFontSize] = useState(() => {
     try {
       const saved = localStorage.getItem('nyc_app_font_scale');
-      return saved || 'normal'; // 'normal', 'large', 'xlarge'
+      // A saved preference always wins — this default only applies to someone
+      // who has never touched the control.
+      return (saved && FONT_SCALES[saved]) ? saved : DEFAULT_FONT_SIZE;
     } catch {
-      return 'normal';
+      return DEFAULT_FONT_SIZE;
     }
   });
 
@@ -49,13 +69,7 @@ export function ThemeProvider({ children }) {
 
     // Font Scale handling on root html element
     root.setAttribute('data-font-size', fontSize);
-    if (fontSize === 'xlarge') {
-      root.style.fontSize = '19.5px';
-    } else if (fontSize === 'large') {
-      root.style.fontSize = '17.5px';
-    } else {
-      root.style.fontSize = '16px';
-    }
+    root.style.fontSize = (FONT_SCALES[fontSize] || FONT_SCALES[DEFAULT_FONT_SIZE]).px;
 
     localStorage.setItem('nyc_app_theme', theme);
     localStorage.setItem('nyc_app_font_scale', fontSize);
@@ -65,11 +79,11 @@ export function ThemeProvider({ children }) {
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  /** Steps through the scale and wraps back to the smallest. */
   const cycleFontSize = () => {
     setFontSize(prev => {
-      if (prev === 'normal') return 'large';
-      if (prev === 'large') return 'xlarge';
-      return 'normal';
+      const i = FONT_SIZE_ORDER.indexOf(prev);
+      return FONT_SIZE_ORDER[(i + 1) % FONT_SIZE_ORDER.length];
     });
   };
 
@@ -80,6 +94,8 @@ export function ThemeProvider({ children }) {
       toggleTheme, 
       isDark: theme === 'dark',
       fontSize,
+      fontSizeLabel: (FONT_SCALES[fontSize] || FONT_SCALES[DEFAULT_FONT_SIZE]).label,
+      fontSizeStep: (FONT_SCALES[fontSize] || FONT_SCALES[DEFAULT_FONT_SIZE]).step,
       setFontSize,
       cycleFontSize
     }}>

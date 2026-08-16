@@ -93,7 +93,7 @@ export default function Navbar({
   nearbyCount = 0,
   nearbyActive = false
 }) {
-  const { isDark, toggleTheme, fontSize, cycleFontSize } = useTheme();
+  const { isDark, toggleTheme, cycleFontSize, fontSizeLabel, fontSizeStep } = useTheme();
   const { currentUser, logout } = useAuth();
   const [cdmxTime, setCdmxTime] = useState('');
   const [nycTime, setNycTime] = useState('');
@@ -153,12 +153,6 @@ export default function Navbar({
   ];
 
   const isSecondaryTabActive = [...secondaryNavItems, ...adminNavItems].some(item => item.id === currentTab);
-
-  const getFontSizeLabel = () => {
-    if (fontSize === 'xlarge') return 'Grande (130%)';
-    if (fontSize === 'large') return 'Mediana (115%)';
-    return 'Normal (100%)';
-  };
 
   const goTo = (tabId) => {
     setCurrentTab(tabId);
@@ -230,11 +224,11 @@ export default function Navbar({
             <button
               onClick={cycleFontSize}
               className="hidden sm:flex spa-tile-sm bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] transition-colors spa-pressable"
-              title={`Tamaño de letra: ${getFontSizeLabel()}`}
-              aria-label={`Cambiar tamaño de letra. Actual: ${getFontSizeLabel()}`}
+              title={`Tamaño de letra: ${fontSizeLabel}`}
+              aria-label={`Cambiar tamaño de letra. Actual: ${fontSizeLabel}`}
             >
               <span className="font-heading font-black text-[13px] leading-none text-[var(--accent-primary-text)]">
-                {fontSize === 'xlarge' ? 'A³' : fontSize === 'large' ? 'A²' : 'A¹'}
+                {['A¹', 'A²', 'A³', 'A⁴'][fontSizeStep - 1]}
               </span>
             </button>
 
@@ -470,7 +464,7 @@ export default function Navbar({
                   onClick={toggleTheme}
                 />
                 <DrawerRow
-                  item={{ label: 'Tamaño de letra', hint: `Ahora: ${getFontSizeLabel()}`, icon: Type }}
+                  item={{ label: 'Tamaño de letra', hint: `Ahora: ${fontSizeLabel}`, icon: Type }}
                   isActive={false}
                   onClick={cycleFontSize}
                 />

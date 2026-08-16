@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { notify } from '../utils/alerts';
 import { decodeGoogleCredential } from '../config/googleAuth';
+import { normalisePhones } from '../utils/phone';
 
 const AuthContext = createContext();
 
@@ -14,11 +15,11 @@ const INITIAL_USERS = [
     name: 'Lalo',
     fullName: 'Eduardo Alva Ramírez',
     email: 'kasimiromiramontes@gmail.com',
-    phone: '',
+    phones: { mobile: { code: '+52', number: '' }, home: { code: '+52', number: '' } },
     country: 'México',
     address: '',
     relationship: '',
-    isEmergencyContact: false,
+    emergencyContactId: null,
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
     role: 'admin', // admin, editor, viewer
     isOwner: true,
@@ -29,11 +30,11 @@ const INITIAL_USERS = [
     name: 'Fefe',
     fullName: 'Fernanda Torres',
     email: 'ealvatorres59@gmail.com',
-    phone: '',
+    phones: { mobile: { code: '+52', number: '' }, home: { code: '+52', number: '' } },
     country: 'México',
     address: '',
     relationship: '',
-    isEmergencyContact: false,
+    emergencyContactId: null,
     avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80',
     role: 'editor',
     isOwner: false,
@@ -108,16 +109,18 @@ function sanitizeUser(user) {
     fullName: typeof user.fullName === 'string' && user.fullName.trim() ? user.fullName.trim() : '',
     email: user.email,
     avatar: typeof user.avatar === 'string' ? user.avatar : '',
-    // Contact details. Optional everywhere, but the emergency card reads
-    // them, so they're normalised to strings rather than left undefined.
-    phone: typeof user.phone === 'string' ? user.phone.trim() : '',
+    // Two numbers, each stored as country code + national number, because
+    // they exist to be dialled from the US. `normalisePhones` also migrates
+    // the old single `phone` string into `mobile`.
+    phones: normalisePhones(user.phones, user.phone),
     country: typeof user.country === 'string' ? user.country.trim() : '',
     address: typeof user.address === 'string' ? user.address.trim() : '',
     relationship: typeof user.relationship === 'string' ? user.relationship.trim() : '',
-    // Someone to call if things go wrong. Marked per-user rather than kept in
-    // a separate list, so a person who is both a traveller and the emergency
-    // contact doesn't have to be entered twice.
-    isEmergencyContact: user.isEmergencyContact === true,
+    // Each person picks their OWN emergency contact, by pointing at another
+    // entry in this same list. A reference rather than a global flag, so two
+    // travellers can name the same person without duplicating them — and so
+    // one traveller's choice never changes what another one sees.
+    emergencyContactId: typeof user.emergencyContactId === 'string' ? user.emergencyContactId : null,
     role: VALID_ROLES.includes(user.role) ? user.role : 'viewer',
     isOwner: user.isOwner === true,
     lastLogin: typeof user.lastLogin === 'string' ? user.lastLogin : null
@@ -317,11 +320,11 @@ export function AuthProvider({ children }) {
       id: `user-${Date.now()}`,
       name: (typeof userData.name === 'string' && userData.name.trim()) || email.split('@')[0],
       fullName: (typeof userData.fullName === 'string' && userData.fullName.trim()) || '',
-      phone: (typeof userData.phone === 'string' && userData.phone.trim()) || '',
+      phones: normalisePhones(userData.phones, userData.phone),
       country: (typeof userData.country === 'string' && userData.country.trim()) || '',
       address: (typeof userData.address === 'string' && userData.address.trim()) || '',
       relationship: (typeof userData.relationship === 'string' && userData.relationship.trim()) || '',
-      isEmergencyContact: userData.isEmergencyContact === true,
+      emergencyContactId: typeof userData.emergencyContactId === 'string' ? userData.emergencyContactId : null,
       email,
       avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(email)}`,
       role: VALID_ROLES.includes(userData.role) ? userData.role : 'viewer',
@@ -347,13 +350,15 @@ export function AuthProvider({ children }) {
         ...u,
         name: typeof changes.name === 'string' && changes.name.trim() ? changes.name.trim() : u.name,
         fullName: typeof changes.fullName === 'string' ? changes.fullName.trim() : u.fullName,
-        phone: typeof changes.phone === 'string' ? changes.phone.trim() : u.phone,
+        phones: changes.phones ? normalisePhones(changes.phones) : u.phones,
         country: typeof changes.country === 'string' ? changes.country.trim() : u.country,
         address: typeof changes.address === 'string' ? changes.address.trim() : u.address,
         relationship: typeof changes.relationship === 'string' ? changes.relationship.trim() : u.relationship,
-        isEmergencyContact: typeof changes.isEmergencyContact === 'boolean'
-          ? changes.isEmergencyContact
-          : u.isEmergencyContact
+        // `null` is a real value here ("sin contacto"), so only `undefined` means
+        // "leave it alone".
+        emergencyContactId: changes.emergencyContactId !== undefined
+          ? changes.emergencyContactId
+          : u.emergencyContactId
       };
       if (currentUser?.id === userId) setCurrentUser(updated);
       return updated;
@@ -382,8 +387,15 @@ export function AuthProvider({ children }) {
     }
   };
 
-  /** Everyone flagged as someone to call if things go wrong. */
-  const emergencyContacts = users.filter(u => u.isEmergencyContact);
+  /**
+   * The contact the signed-in person chose for themselves.
+   *
+   * Resolved live from `users` rather than copied, so editing that person's
+   * phone updates every traveller who picked them, with nothing to re-sync.
+   */
+  const myEmergencyContact = currentUser?.emergencyContactId
+    ? users.find(u => u.id === currentUser.emergencyContactId) || null
+    : null;
 
   const isAdmin = currentUser?.role === 'admin';
   const canEdit = currentUser?.role === 'admin' || currentUser?.role === 'editor';
@@ -392,7 +404,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider value={{
       currentUser,
       users,
-      emergencyContacts,
+      myEmergencyContact,
       isAdmin,
       canEdit,
       loginWithGoogleCredential,

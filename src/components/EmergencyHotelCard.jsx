@@ -13,9 +13,10 @@ import {
 } from '../utils/icons';
 import { speak, stopSpeaking, isSpeechSupported, warmUpVoices } from '../utils/speech';
 import { useAuth } from '../context/AuthContext';
+import { PHONE_KINDS, telHref, formatPhone, hasPhone } from '../utils/phone';
 
 export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
-  const { currentUser, emergencyContacts } = useAuth();
+  const { currentUser, myEmergencyContact } = useAuth();
   const [copiedHotel, setCopiedHotel] = useState(false);
   const [copiedChris, setCopiedChris] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -281,49 +282,63 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
           </div>
 
 
-          {/* People to call if something goes wrong. Rendered from the users
-              flagged as emergency contacts, so there's no second list to keep
-              in sync — and the phone is a real tel: link, because the point
-              is that someone can dial it without typing. */}
-          {emergencyContacts.length > 0 && (
+          {/* The contact THIS traveller chose. Resolved live from the users
+              list, so if that person's number changes it changes here too —
+              and two travellers naming the same person each see them. */}
+          {myEmergencyContact && (
             <div className="rounded-xl bg-[var(--bg-surface-elevated)] border-2 border-rose-500/30 p-4 space-y-3">
               <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-rose-500">
                 <ShieldAlert className="w-3.5 h-3.5" />
                 {card.emergencyContacts}
               </span>
 
-              <div className="space-y-2">
-                {emergencyContacts.map(contact => (
-                  <div key={contact.id} className="rounded-xl bg-[var(--bg-surface)] p-3.5 space-y-2">
-                    <div className="flex items-start justify-between gap-3">
+              <div className="rounded-xl bg-[var(--bg-surface)] p-4 space-y-3">
+                <div>
+                  <span className="block font-heading font-black text-base text-[var(--text-primary)] leading-tight">
+                    {myEmergencyContact.fullName || myEmergencyContact.name}
+                  </span>
+                  {(myEmergencyContact.relationship || myEmergencyContact.country) && (
+                    <span className="block text-[12px] text-[var(--text-muted)] mt-0.5">
+                      {[myEmergencyContact.relationship, myEmergencyContact.country].filter(Boolean).join(' · ')}
+                    </span>
+                  )}
+                </div>
+
+                {PHONE_KINDS.map(kind => {
+                  const phone = myEmergencyContact.phones?.[kind.key];
+                  if (!hasPhone(phone)) return null;
+                  return (
+                    <div key={kind.key} className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
-                        <span className="block font-heading font-bold text-[15px] text-[var(--text-primary)] leading-tight">
-                          {contact.fullName || contact.name}
+                        <span className="block text-[10px] font-black uppercase tracking-wider text-[var(--text-muted)]">
+                          {kind.label}
                         </span>
-                        {(contact.relationship || contact.country) && (
-                          <span className="block text-[12px] text-[var(--text-muted)] mt-0.5">
-                            {[contact.relationship, contact.country].filter(Boolean).join(' · ')}
-                          </span>
-                        )}
+                        <span className="block font-mono text-[14px] text-[var(--text-secondary)] mt-0.5">
+                          {formatPhone(phone)}
+                        </span>
                       </div>
-                      {contact.phone && (
-                        <a
-                          href={`tel:${contact.phone.replace(/[^+\d]/g, '')}`}
-                          className="spa-btn min-h-[2.5rem] px-4 text-[13px] bg-rose-500 text-white hover:bg-rose-600 flex-shrink-0"
-                        >
-                          <Phone className="w-3.5 h-3.5" />
-                          {card.call}
-                        </a>
-                      )}
+                      <a
+                        href={telHref(phone)}
+                        className="spa-btn min-h-[2.75rem] px-4 text-[13px] bg-rose-500 text-white hover:bg-rose-600 flex-shrink-0"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        {card.call}
+                      </a>
                     </div>
-                    {contact.phone && (
-                      <p className="font-mono text-[13px] text-[var(--text-secondary)]">{contact.phone}</p>
-                    )}
-                    {contact.address && (
-                      <p className="text-[12px] text-[var(--text-muted)] leading-snug">{contact.address}</p>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
+
+                {!hasPhone(myEmergencyContact.phones?.mobile) && !hasPhone(myEmergencyContact.phones?.home) && (
+                  <p className="text-[12px] text-[var(--accent-amber-text)] leading-snug">
+                    Sin teléfono registrado. Agrégalo en Usuarios para poder marcarle desde aquí.
+                  </p>
+                )}
+
+                {myEmergencyContact.address && (
+                  <p className="text-[12px] text-[var(--text-muted)] leading-snug pt-1 border-t border-[var(--border-subtle)]">
+                    {myEmergencyContact.address}
+                  </p>
+                )}
               </div>
             </div>
           )}

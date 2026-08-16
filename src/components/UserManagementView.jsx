@@ -18,13 +18,18 @@ import { useAuth } from '../context/AuthContext';
 import { confirmAction, notify } from '../utils/alerts';
 import PageHeader from './PageHeader';
 import BottomSheet from './BottomSheet';
+import { COUNTRY_CODES, PHONE_KINDS, emptyPhone, normalisePhones, formatPhone, hasPhone } from '../utils/phone';
 import confetti from 'canvas-confetti';
 
 export default function UserManagementView({ onOpenLoginModal }) {
   const { users, currentUser, addUser, updateUser, updateUserRole, deleteUser, isAdmin, logout } = useAuth();
   // Which row is in edit mode, and the in-progress values for it.
   const [editingId, setEditingId] = useState(null);
-  const [draft, setDraft] = useState({ name: '', fullName: '', phone: '', country: '', address: '', relationship: '', isEmergencyContact: false });
+  const [draft, setDraft] = useState({
+    name: '', fullName: '', country: '', address: '', relationship: '',
+    phones: { mobile: emptyPhone(), home: emptyPhone() },
+    emergencyContactId: null
+  });
   const [newEmail, setNewEmail] = useState('');
   const [newName, setNewName] = useState('');
   const [newRole, setNewRole] = useState('editor');
@@ -259,6 +264,14 @@ export default function UserManagementView({ onOpenLoginModal }) {
                         {u.fullName && (
                           <span className="text-xs text-[var(--text-secondary)] block mt-0.5 truncate">{u.fullName}</span>
                         )}
+                        {(hasPhone(u.phones?.mobile) || hasPhone(u.phones?.home)) && (
+                          <span className="text-xs text-[var(--text-muted)] font-mono block mt-0.5 truncate">
+                            {[
+                              hasPhone(u.phones?.mobile) && `📱 ${formatPhone(u.phones.mobile)}`,
+                              hasPhone(u.phones?.home) && `🏠 ${formatPhone(u.phones.home)}`
+                            ].filter(Boolean).join('  ')}
+                          </span>
+                        )}
                         <span className="text-xs text-[var(--text-muted)] font-mono block mt-0.5 truncate">{u.email}</span>
                       </div>
                     </div>
@@ -289,11 +302,11 @@ export default function UserManagementView({ onOpenLoginModal }) {
                             setDraft({
                               name: u.name || '',
                               fullName: u.fullName || '',
-                              phone: u.phone || '',
                               country: u.country || '',
                               address: u.address || '',
                               relationship: u.relationship || '',
-                              isEmergencyContact: u.isEmergencyContact === true
+                              phones: normalisePhones(u.phones, u.phone),
+                              emergencyContactId: u.emergencyContactId || null
                             });
                           }}
                           className="p-1.5 text-[var(--text-muted)] hover:text-[var(--accent-primary-text)] transition-colors"
@@ -405,22 +418,43 @@ export default function UserManagementView({ onOpenLoginModal }) {
           </div>
 
 
-          <div className="space-y-2.5">
-            <label htmlFor="user-phone" className="spa-eyebrow">Teléfono</label>
-            <input
-              id="user-phone"
-              type="tel"
-              inputMode="tel"
-              value={draft.phone}
-              maxLength={30}
-              onChange={(e) => setDraft(d => ({ ...d, phone: e.target.value }))}
-              placeholder="+52 55 1234 5678"
-              className="spa-input min-h-[3.25rem]"
-            />
-            <p className="text-[12px] text-[var(--text-muted)] leading-relaxed">
-              Con lada del país. Así se puede marcar de un toque desde Estados Unidos.
-            </p>
-          </div>
+          {PHONE_KINDS.map(kind => (
+            <div key={kind.key} className="space-y-2.5">
+              <span className="spa-eyebrow">Teléfono {kind.label.toLowerCase()}</span>
+              <div className="flex gap-2">
+                <select
+                  value={draft.phones[kind.key].code}
+                  onChange={(e) => setDraft(d => ({
+                    ...d,
+                    phones: { ...d.phones, [kind.key]: { ...d.phones[kind.key], code: e.target.value } }
+                  }))}
+                  aria-label={`Código de país del teléfono ${kind.label.toLowerCase()}`}
+                  className="spa-input min-h-[3.25rem] w-[7.5rem] flex-shrink-0 font-mono"
+                >
+                  {COUNTRY_CODES.map(c => (
+                    <option key={c.code} value={c.code}>{c.code} {c.label}</option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  value={draft.phones[kind.key].number}
+                  maxLength={20}
+                  onChange={(e) => setDraft(d => ({
+                    ...d,
+                    phones: { ...d.phones, [kind.key]: { ...d.phones[kind.key], number: e.target.value } }
+                  }))}
+                  aria-label={`Número de teléfono ${kind.label.toLowerCase()}`}
+                  placeholder="55 1234 5678"
+                  className="spa-input min-h-[3.25rem] flex-1"
+                />
+              </div>
+            </div>
+          ))}
+          <p className="text-[12px] text-[var(--text-muted)] leading-relaxed -mt-2">
+            El código de país se guarda aparte para que el número se pueda marcar tal cual desde
+            Estados Unidos.
+          </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2.5">
@@ -462,33 +496,31 @@ export default function UserManagementView({ onOpenLoginModal }) {
             />
           </div>
 
-          <label className="spa-row py-4 cursor-pointer">
-            <span
-              className="spa-tile flex-shrink-0"
-              style={{
-                backgroundColor: draft.isEmergencyContact
-                  ? 'color-mix(in srgb, var(--accent-rose) 16%, transparent)'
-                  : 'var(--bg-surface-elevated)',
-                color: draft.isEmergencyContact ? 'var(--accent-rose-text)' : 'var(--text-muted)'
-              }}
+          {/* Each person picks their own. Two travellers naming the same
+              person is fine and expected — it's a reference, not a flag. */}
+          <div className="space-y-2.5">
+            <label htmlFor="user-emergency" className="spa-eyebrow">
+              <ShieldCheck className="w-3 h-3" />
+              Su contacto de emergencia
+            </label>
+            <select
+              id="user-emergency"
+              value={draft.emergencyContactId || ''}
+              onChange={(e) => setDraft(d => ({ ...d, emergencyContactId: e.target.value || null }))}
+              className="spa-input min-h-[3.25rem]"
             >
-              <ShieldCheck className="w-4 h-4" />
-            </span>
-            <span className="flex-1 min-w-0">
-              <span className="block font-heading font-bold text-[15px] text-[var(--text-primary)]">
-                Es contacto de emergencia
-              </span>
-              <span className="block text-[13px] text-[var(--text-muted)] mt-0.5 leading-snug">
-                Aparece en la ficha de taxi y emergencias, con botón para marcarle.
-              </span>
-            </span>
-            <input
-              type="checkbox"
-              checked={draft.isEmergencyContact}
-              onChange={(e) => setDraft(d => ({ ...d, isEmergencyContact: e.target.checked }))}
-              className="w-6 h-6 flex-shrink-0 accent-[var(--accent-primary)]"
-            />
-          </label>
+              <option value="">Sin contacto asignado</option>
+              {users.filter(u => u.id !== editingId).map(u => (
+                <option key={u.id} value={u.id}>
+                  {u.fullName ? `${u.name} · ${u.fullName}` : u.name}
+                </option>
+              ))}
+            </select>
+            <p className="text-[12px] text-[var(--text-muted)] leading-relaxed">
+              A quién llamar si algo le pasa a esta persona. Aparece en su ficha de taxi y
+              emergencias con botón para marcar. Varias personas pueden elegir al mismo contacto.
+            </p>
+          </div>
 
           <div className="rounded-2xl bg-[var(--bg-surface-elevated)] p-4 space-y-1">
             <span className="spa-eyebrow">Correo (no editable)</span>

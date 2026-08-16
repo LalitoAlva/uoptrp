@@ -8,6 +8,36 @@ import {
 } from '../utils/icons';
 import { getStatus } from '../utils/activityMeta';
 
+/**
+ * Big pill option used inside the filter sheet — 52px+ tall.
+ *
+ * Module scope, not inside ItineraryView: a component declared in a render
+ * body gets a new identity every render, so React unmounts and remounts it.
+ * A remount between a finger's pointerdown and its click throws the tap away.
+ */
+function FilterOption({ option, isActive, onClick }) {
+  const Icon = option.icon;
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={isActive}
+      className={`flex items-center gap-3 w-full min-h-[3.25rem] px-4 rounded-2xl text-left text-sm font-bold transition-colors spa-pressable ${
+        isActive
+          ? 'bg-[var(--accent-primary)] text-white'
+          : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
+      }`}
+    >
+      {Icon && <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-[var(--accent-primary-text)]'}`} />}
+      <span className="flex-1">{option.label}</span>
+      {typeof option.count === 'number' && (
+        <span className={`font-mono text-xs ${isActive ? 'text-white/80' : 'text-[var(--text-muted)]'}`}>
+          {option.count}
+        </span>
+      )}
+    </button>
+  );
+}
+
 export default function ItineraryView({
   tripData,
   onChangeActivityStatus,
@@ -59,30 +89,6 @@ export default function ItineraryView({
       clear: () => setFilterCategory('all')
     }
   ].filter(Boolean);
-
-  /** Big pill option used inside the filter sheet — 52px+ tall. */
-  const FilterOption = ({ option, isActive, onClick }) => {
-    const Icon = option.icon;
-    return (
-      <button
-        onClick={onClick}
-        aria-pressed={isActive}
-        className={`flex items-center gap-3 w-full min-h-[3.25rem] px-4 rounded-2xl text-left text-sm font-bold transition-colors spa-pressable ${
-          isActive
-            ? 'bg-[var(--accent-primary)] text-white'
-            : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
-        }`}
-      >
-        {Icon && <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-[var(--accent-primary-text)]'}`} />}
-        <span className="flex-1">{option.label}</span>
-        {typeof option.count === 'number' && (
-          <span className={`font-mono text-xs ${isActive ? 'text-white/80' : 'text-[var(--text-muted)]'}`}>
-            {option.count}
-          </span>
-        )}
-      </button>
-    );
-  };
 
   return (
     <div className="w-full space-y-6 sm:space-y-8">

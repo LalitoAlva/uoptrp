@@ -7,23 +7,19 @@ import confetti from 'canvas-confetti';
  * proper screen: progress up top, open items first, completed collapsed to
  * the bottom so the list shortens as the trip gets closer.
  */
-export default function PendingListView({ tasks, onToggleTask, onDeleteTask, onOpenManager }) {
-  const pending = tasks.filter(t => !t.completed);
-  const done = tasks.filter(t => t.completed);
-  const progress = tasks.length > 0 ? Math.round((done.length / tasks.length) * 100) : 0;
-
-  const handleToggle = (task) => {
-    onToggleTask(task.id);
-    if (!task.completed) {
-      confetti({ particleCount: 30, spread: 50, origin: { y: 0.75 } });
-    }
-  };
-
-  const TaskRow = ({ task }) => (
+/**
+ * One pendiente row.
+ *
+ * Module scope, not inside PendingListView: a component declared in a render
+ * body gets a new identity every render, so React remounts it — and a remount
+ * between a finger's pointerdown and its click throws the tap away.
+ */
+function TaskRow({ task, onToggle, onDelete }) {
+  return (
     <li>
       <div className={`spa-row items-start py-4 ${task.completed ? 'opacity-60' : ''}`}>
         <button
-          onClick={() => handleToggle(task)}
+          onClick={() => onToggle(task)}
           aria-pressed={task.completed}
           aria-label={task.completed ? `Marcar "${task.text}" como pendiente` : `Marcar "${task.text}" como listo`}
           className={`spa-tile-sm flex-shrink-0 transition-colors spa-pressable ${
@@ -35,10 +31,7 @@ export default function PendingListView({ tasks, onToggleTask, onDeleteTask, onO
           <Check className="w-3.5 h-3.5" />
         </button>
 
-        <button
-          onClick={() => handleToggle(task)}
-          className="flex-1 min-w-0 text-left"
-        >
+        <button onClick={() => onToggle(task)} className="flex-1 min-w-0 text-left">
           <span className="flex flex-wrap items-center gap-2">
             <span className={`font-heading font-bold text-[15px] leading-snug ${
               task.completed ? 'line-through text-[var(--text-muted)]' : 'text-[var(--text-primary)]'
@@ -60,7 +53,7 @@ export default function PendingListView({ tasks, onToggleTask, onDeleteTask, onO
         </button>
 
         <button
-          onClick={() => onDeleteTask(task.id)}
+          onClick={() => onDelete(task.id)}
           className="spa-tile-sm flex-shrink-0 text-[var(--text-muted)] hover:text-[var(--accent-rose-text)] hover:bg-[color-mix(in_srgb,var(--accent-rose)_12%,transparent)] transition-colors"
           aria-label={`Eliminar "${task.text}"`}
         >
@@ -69,6 +62,19 @@ export default function PendingListView({ tasks, onToggleTask, onDeleteTask, onO
       </div>
     </li>
   );
+}
+
+export default function PendingListView({ tasks, onToggleTask, onDeleteTask, onOpenManager }) {
+  const pending = tasks.filter(t => !t.completed);
+  const done = tasks.filter(t => t.completed);
+  const progress = tasks.length > 0 ? Math.round((done.length / tasks.length) * 100) : 0;
+
+  const handleToggle = (task) => {
+    onToggleTask(task.id);
+    if (!task.completed) {
+      confetti({ particleCount: 30, spread: 50, origin: { y: 0.75 } });
+    }
+  };
 
   return (
     <div className="w-full space-y-7">
@@ -117,7 +123,7 @@ export default function PendingListView({ tasks, onToggleTask, onDeleteTask, onO
         <section className="space-y-3">
           <span className="spa-eyebrow">Por cerrar · {pending.length}</span>
           <ul className="space-y-2">
-            {pending.map(task => <TaskRow key={task.id} task={task} />)}
+            {pending.map(task => <TaskRow key={task.id} task={task} onToggle={handleToggle} onDelete={onDeleteTask} />)}
           </ul>
         </section>
       )}
@@ -130,7 +136,7 @@ export default function PendingListView({ tasks, onToggleTask, onDeleteTask, onO
             Listos · {done.length}
           </span>
           <ul className="space-y-2">
-            {done.map(task => <TaskRow key={task.id} task={task} />)}
+            {done.map(task => <TaskRow key={task.id} task={task} onToggle={handleToggle} onDelete={onDeleteTask} />)}
           </ul>
         </section>
       )}

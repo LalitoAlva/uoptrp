@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { notify } from '../utils/alerts';
 import { decodeGoogleCredential } from '../config/googleAuth';
 import { normalisePhones } from '../utils/phone';
@@ -264,16 +264,29 @@ export function AuthProvider({ children }) {
 
   // Ordinary interaction renews the session — but not once the warning is
   // up, where renewing is an explicit decision (see the note on the
-  // constants above). Writes are throttled to once every 30s so a scroll
-  // doesn't hammer localStorage on every frame.
+  // constants above).
+  //
+  // The deadline is read through a ref rather than the dependency array on
+  // purpose. Depending on `deadline` made this effect tear down and
+  // re-subscribe on every renewal, which reset `lastRenew` to 0 and defeated
+  // the throttle entirely: *every* pointerdown renewed the session and
+  // re-rendered the whole app, synchronously between a finger's pointerdown
+  // and its click. Any component with an unstable identity anywhere in the
+  // tree then remounted mid-tap and the click was silently dropped — which
+  // is what made menu items and list rows feel dead. Subscribing once keeps
+  // the throttle real and the tree stable while a tap is in flight.
+  const deadlineRef = useRef(deadline);
+  useEffect(() => { deadlineRef.current = deadline; }, [deadline]);
+
   useEffect(() => {
     if (!currentUser) return undefined;
 
-    let lastRenew = 0;
+    let lastRenew = Date.now();
     const onActivity = () => {
       const now = Date.now();
       if (now - lastRenew < 30000) return;
-      if (deadline !== null && deadline - now <= SESSION_WARNING_MS) return;
+      const current = deadlineRef.current;
+      if (current !== null && current - now <= SESSION_WARNING_MS) return;
       lastRenew = now;
       const next = now + SESSION_DURATION_MS;
       setDeadline(next);
@@ -283,7 +296,7 @@ export function AuthProvider({ children }) {
     const events = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
     events.forEach(evt => window.addEventListener(evt, onActivity, { passive: true }));
     return () => events.forEach(evt => window.removeEventListener(evt, onActivity));
-  }, [currentUser, deadline]);
+  }, [currentUser]);
 
   // Coming back to a backgrounded tab: timers are throttled or frozen there,
   // so re-check against the wall clock rather than trusting the interval.

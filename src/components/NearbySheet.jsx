@@ -10,6 +10,8 @@ import {
   Shield,
   RotateCcw,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Route,
   ShieldCheck,
   Calendar,
@@ -61,17 +63,38 @@ function SpotRow({ spot, meta }) {
   );
 }
 
-function Section({ icon: Icon, title, hint, children }) {
+/**
+ * A collapsible group of suggestions.
+ *
+ * Controlled by the sheet rather than self-managed, so the sheet can decide
+ * which groups start open — "Siempre a la mano" is pinned to the top and
+ * starts closed, because it's reference material you want findable but not
+ * in the way of the suggestions you actually came for.
+ */
+function Section({ icon: Icon, title, hint, count, tone, isOpen, onToggle, children }) {
+  const color = tone || 'var(--accent-primary-text)';
   return (
     <div className="space-y-2.5">
-      <div>
-        <span className="spa-eyebrow">
-          <Icon className="w-3 h-3 text-[var(--accent-primary-text)]" />
-          {title}
+      <button
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        className="w-full flex items-start gap-2 text-left py-1 spa-pressable"
+      >
+        {isOpen
+          ? <ChevronUp className="w-3 h-3 text-[var(--text-muted)] flex-shrink-0 mt-1" />
+          : <ChevronDown className="w-3 h-3 text-[var(--text-muted)] flex-shrink-0 mt-1" />}
+        <span className="flex-1 min-w-0">
+          <span className="spa-eyebrow">
+            <Icon className="w-3 h-3" style={{ color }} />
+            {title}
+            {typeof count === 'number' && (
+              <span className="font-mono text-[10px] text-[var(--text-muted)]">{count}</span>
+            )}
+          </span>
+          {hint && <span className="block text-[12px] text-[var(--text-muted)] mt-1 leading-snug">{hint}</span>}
         </span>
-        {hint && <p className="text-[12px] text-[var(--text-muted)] mt-1 leading-snug">{hint}</p>}
-      </div>
-      <ul className="space-y-2">{children}</ul>
+      </button>
+      {isOpen && <ul className="space-y-2 animate-expand">{children}</ul>}
     </div>
   );
 }
@@ -91,6 +114,13 @@ export default function NearbySheet({ isOpen, onClose, data }) {
   } = data;
 
   const [typeFilter, setTypeFilter] = useState('all');
+
+  // "Siempre a la mano" starts closed on purpose: it's the consulate and the
+  // airports, useful to know is there but not what you opened the sheet for.
+  const [openGroups, setOpenGroups] = useState({
+    essentials: false, route: true, nearby: true, plan: true
+  });
+  const toggleGroup = (key) => setOpenGroups(g => ({ ...g, [key]: !g[key] }));
 
   // Only offer the categories that are actually around right now — a filter
   // chip that always returns nothing is worse than no chip.
@@ -280,10 +310,47 @@ export default function NearbySheet({ isOpen, onClose, data }) {
           </div>
         )}
 
+        {/* Pinned to the top and collapsed by default. Always here whatever
+            the filter says and however far away they are: when you need the
+            consulate or an airport, "está a 18 km" is the answer you want,
+            not a reason to hide it. */}
+        {essentials.length > 0 && (
+          <Section
+            icon={ShieldCheck}
+            title="Siempre a la mano"
+            count={essentials.length}
+            tone="var(--accent-rose-text)"
+            isOpen={openGroups.essentials}
+            onToggle={() => toggleGroup('essentials')}
+            hint="Consulado de México, aeropuertos y terminales."
+          >
+            {essentials.map(spot => (
+              <SpotRow
+                key={spot.id}
+                spot={spot}
+                meta={
+                  <>
+                    {spot.kindLabel && (
+                      <span className="font-black uppercase tracking-wider text-[10px] text-[var(--accent-rose-text)]">
+                        {spot.kindLabel}
+                      </span>
+                    )}
+                    <span className="font-mono font-bold text-[var(--accent-primary-text)]">~{formatDistance(spot.km)}</span>
+                    <span className="truncate">{spot.zone}</span>
+                  </>
+                }
+              />
+            ))}
+          </Section>
+        )}
+
         {onRoute.length > 0 && (
           <Section
             icon={Route}
             title="De camino"
+            count={onRoute.length}
+            isOpen={openGroups.route}
+            onToggle={() => toggleGroup('route')}
             hint={nextStopTitle ? `Te quedan de paso rumbo a “${nextStopTitle}”.` : undefined}
           >
             {onRoute.map(spot => (
@@ -308,7 +375,14 @@ export default function NearbySheet({ isOpen, onClose, data }) {
         )}
 
         {nearby.length > 0 && (
-          <Section icon={MapPin} title="A la vuelta" hint="Lo más cercano a donde estás parado.">
+          <Section
+            icon={MapPin}
+            title="A la vuelta"
+            count={nearby.length}
+            isOpen={openGroups.nearby}
+            onToggle={() => toggleGroup('nearby')}
+            hint="Lo más cercano a donde estás parado."
+          >
             {nearby.map(spot => (
               <SpotRow
                 key={spot.id}
@@ -329,7 +403,14 @@ export default function NearbySheet({ isOpen, onClose, data }) {
         )}
 
         {nearPlan.length > 0 && (
-          <Section icon={Calendar} title="Cerca de tu plan de hoy" hint="Alrededor de las paradas que todavía te faltan.">
+          <Section
+            icon={Calendar}
+            title="Cerca de tu plan de hoy"
+            count={nearPlan.length}
+            isOpen={openGroups.plan}
+            onToggle={() => toggleGroup('plan')}
+            hint="Alrededor de las paradas que todavía te faltan."
+          >
             {nearPlan.map(spot => (
               <SpotRow
                 key={spot.id}
@@ -372,42 +453,6 @@ export default function NearbySheet({ isOpen, onClose, data }) {
           </div>
         )}
 
-
-        {/* Always here, whatever the filter says and however far away they
-            are. When you need the consulate or an airport, "está a 18 km" is
-            the answer you want — not a reason to hide it. */}
-        {essentials.length > 0 && (
-          <div className="space-y-2.5">
-            <div>
-              <span className="spa-eyebrow">
-                <ShieldCheck className="w-3 h-3 text-[var(--accent-rose-text)]" />
-                Siempre a la mano
-              </span>
-              <p className="text-[12px] text-[var(--text-muted)] mt-1 leading-snug">
-                Consulado de México, aeropuertos y terminales.
-              </p>
-            </div>
-            <ul className="space-y-2">
-              {essentials.map(spot => (
-                <SpotRow
-                  key={spot.id}
-                  spot={spot}
-                  meta={
-                    <>
-                      {spot.kindLabel && (
-                        <span className="font-black uppercase tracking-wider text-[10px] text-[var(--accent-rose-text)]">
-                          {spot.kindLabel}
-                        </span>
-                      )}
-                      <span className="font-mono font-bold text-[var(--accent-primary-text)]">~{formatDistance(spot.km)}</span>
-                      <span className="truncate">{spot.zone}</span>
-                    </>
-                  }
-                />
-              ))}
-            </ul>
-          </div>
-        )}
 
         <p className="flex items-start gap-2 text-[11px] text-[var(--text-muted)] leading-relaxed">
           <ChevronRight className="w-2.5 h-2.5 flex-shrink-0 mt-1" />

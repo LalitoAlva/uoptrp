@@ -32,7 +32,7 @@ const INITIAL_USERS = [
 export function AuthProvider({ children }) {
   const [users, setUsers] = useState(() => {
     try {
-      const saved = localStorage.getItem('nyc_app_users');
+      const saved = localStorage.getItem('nyc_app_users_v2');
       return saved ? JSON.parse(saved) : INITIAL_USERS;
     } catch {
       return INITIAL_USERS;
@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
   // active session, so the app can gate all content behind picking one.
   const [currentUser, setCurrentUser] = useState(() => {
     try {
-      const saved = localStorage.getItem('nyc_current_user');
+      const saved = localStorage.getItem('nyc_current_user_v2');
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
@@ -51,14 +51,14 @@ export function AuthProvider({ children }) {
   });
 
   useEffect(() => {
-    localStorage.setItem('nyc_app_users', JSON.stringify(users));
+    localStorage.setItem('nyc_app_users_v2', JSON.stringify(users));
   }, [users]);
 
   useEffect(() => {
     if (currentUser) {
-      localStorage.setItem('nyc_current_user', JSON.stringify(currentUser));
+      localStorage.setItem('nyc_current_user_v2', JSON.stringify(currentUser));
     } else {
-      localStorage.removeItem('nyc_current_user');
+      localStorage.removeItem('nyc_current_user_v2');
     }
   }, [currentUser]);
 

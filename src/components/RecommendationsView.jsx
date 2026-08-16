@@ -23,6 +23,7 @@ import {
   Flame,
   Award
 } from '../utils/icons';
+import { sanitizeUrl } from '../utils/sanitize';
 import confetti from 'canvas-confetti';
 
 export default function RecommendationsView({ 
@@ -273,6 +274,7 @@ export default function RecommendationsView({
         ) : (
           filteredRecs.map((rec) => {
             const config = getCategoryConfig(rec.category);
+            const safeMapsUrl = sanitizeUrl(rec.mapsUrl);
 
             return (
               <div
@@ -359,9 +361,9 @@ export default function RecommendationsView({
                     <span>{rec.visited ? 'Visitado' : 'Por Visitar'}</span>
                   </button>
 
-                  {rec.mapsUrl ? (
+                  {safeMapsUrl ? (
                     <a
-                      href={rec.mapsUrl}
+                      href={safeMapsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-3 py-1.5 rounded bg-[var(--accent-primary)]/10 hover:bg-[var(--accent-primary)]/20 text-[var(--accent-primary-text)] font-bold flex items-center gap-1 transition-colors"

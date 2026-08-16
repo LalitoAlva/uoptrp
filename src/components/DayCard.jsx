@@ -23,7 +23,7 @@ import {
   Banknote,
   iconForEmoji
 } from '../utils/icons';
-import { sanitizeRichText } from '../utils/sanitize';
+import { sanitizeRichText, sanitizeUrl } from '../utils/sanitize';
 import confetti from 'canvas-confetti';
 
 export default function DayCard({ 
@@ -185,6 +185,7 @@ export default function DayCard({
           filteredTimeline.map((item, index) => {
             const catBadge = getCategoryBadge(item.category);
             const currentStatus = item.status || (item.completed ? 'hecho' : 'pendiente');
+            const safeMapsUrl = sanitizeUrl(item.mapsUrl);
 
             return (
               <div
@@ -250,9 +251,9 @@ export default function DayCard({
 
                   {/* Right: Map & Edit Tools */}
                   <div className="flex items-center gap-2 self-end md:self-start">
-                    {item.mapsUrl && (
+                    {safeMapsUrl && (
                       <a
-                        href={item.mapsUrl}
+                        href={safeMapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 rounded bg-[var(--accent-primary)]/10 hover:bg-[var(--accent-primary)]/20 text-[var(--accent-primary-text)] text-xs font-bold flex items-center gap-1.5 transition-colors"

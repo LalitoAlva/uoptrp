@@ -12,6 +12,7 @@ import {
   CircleXmark,
   Sparkles
 } from '../utils/icons';
+import { sanitizeUrl } from '../utils/sanitize';
 import confetti from 'canvas-confetti';
 
 const STATUS_CONFIG = {
@@ -51,6 +52,7 @@ export default function LiveTripCompanion({
   };
 
   const currentStatus = currentActivity?.status || (currentActivity?.completed ? 'hecho' : 'pendiente');
+  const safeMapsUrl = sanitizeUrl(currentActivity?.mapsUrl);
 
   return (
     <div className="spa-card p-6 sm:p-8 border-l-4 border-l-[var(--accent-primary)] space-y-6">
@@ -136,9 +138,9 @@ export default function LiveTripCompanion({
 
             {/* Google Maps Action */}
             <div className="flex items-center gap-2 w-full md:w-auto">
-              {currentActivity.mapsUrl && (
+              {safeMapsUrl && (
                 <a
-                  href={currentActivity.mapsUrl}
+                  href={safeMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 md:flex-none px-6 py-3 rounded bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-heading font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all active:scale-95"

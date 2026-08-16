@@ -5,6 +5,8 @@ import {
   findRouteSpots,
   findSpotsNearPlan,
   resolveCoords,
+  normaliseName,
+  isDuplicateName,
   formatDistance,
   ALERT_RADIUS_KM
 } from '../utils/geo';
@@ -66,11 +68,25 @@ export function useNearby(recommendations = [], day = null) {
 
   const routeIds = useMemo(() => onRoute.map(s => s.id), [onRoute]);
 
+  // Cross-section de-duplication, by name and not just by id.
+  //
+  // Each finder de-dupes within its own result, but the same venue can reach
+  // two different sections under two different ids — the trip's own
+  // "Birdland Jazz Club" landing in "De camino" while the curated "Birdland"
+  // lands in "Cerca de tu plan". Whichever section claims it first keeps it.
+  const routeNames = useMemo(() => new Set(onRoute.map(s => normaliseName(s.name))), [onRoute]);
+
   const nearby = useMemo(
     () => (coords
-      ? findNearbySpots(recommendations, coords, { limit: 14 }).filter(s => !routeIds.includes(s.id))
+      ? findNearbySpots(recommendations, coords, { limit: 14 })
+          .filter(s => !routeIds.includes(s.id) && !isDuplicateName(s.name, routeNames))
       : []),
-    [recommendations, coords, routeIds]
+    [recommendations, coords, routeIds, routeNames]
+  );
+
+  const shownNames = useMemo(
+    () => new Set([...routeNames, ...nearby.map(s => normaliseName(s.name))]),
+    [routeNames, nearby]
   );
 
   const nearPlan = useMemo(
@@ -78,9 +94,9 @@ export function useNearby(recommendations = [], day = null) {
       ? findSpotsNearPlan(recommendations, upcomingStops, {
           limit: 12,
           excludeIds: [...routeIds, ...nearby.map(s => s.id)]
-        })
+        }).filter(s => !isDuplicateName(s.name, shownNames))
       : []),
-    [recommendations, coords, upcomingStops, routeIds, nearby]
+    [recommendations, coords, upcomingStops, routeIds, nearby, shownNames]
   );
 
   const veryClose = useMemo(

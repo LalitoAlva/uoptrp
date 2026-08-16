@@ -8,13 +8,14 @@ import {
   ExternalLink,
   Car,
   Volume,
-  Stop
+  Stop,
+  Phone
 } from '../utils/icons';
 import { speak, stopSpeaking, isSpeechSupported, warmUpVoices } from '../utils/speech';
 import { useAuth } from '../context/AuthContext';
 
 export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
-  const { currentUser } = useAuth();
+  const { currentUser, emergencyContacts } = useAuth();
   const [copiedHotel, setCopiedHotel] = useState(false);
   const [copiedChris, setCopiedChris] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -35,15 +36,25 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
 
   if (!isOpen) return null;
 
-  const travellerName = currentUser?.name || 'un viajero';
+  // The real name, not the app alias: a driver, a hotel clerk or a police
+  // officer reading this card needs the name that matches the passport.
+  // Falls back to the alias only when no full name has been filled in.
+  const travellerName = currentUser?.fullName
+    || currentUser?.name
+    || (cardLang === 'en' ? 'a traveller' : 'un viajero');
 
   /**
-   * The card in both languages.
+   * The whole card in both languages — not just the driver's paragraph.
    *
-   * English is the default because the audience is a New York driver, but the
-   * Spanish version matters more often than you'd expect: a large share of
-   * NYC taxi and rideshare drivers are Spanish speakers, and being able to
-   * flip is the difference between being understood and being driven around.
+   * The point of the switch is that the phone can be handed over and be
+   * readable end to end: a driver, a hotel clerk or a police officer
+   * shouldn't hit a wall of Spanish headings under an English instruction.
+   * So every visible string lives here, including the flights and the
+   * emergency line.
+   *
+   * English is the default (the audience is a New York driver), but Spanish
+   * matters more often than you'd expect — a large share of NYC taxi and
+   * rideshare drivers are Spanish speakers.
    *
    * `spoken` is written the way it should be *heard* — "fifteen thirty-five"
    * rather than "1535", "forty-fifth" rather than "45th" — because speech
@@ -51,6 +62,7 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
    */
   const CARD = {
     en: {
+      // Driver block
       label: 'Show to Taxi / Uber Driver',
       intro: `Hi, I'm ${travellerName}. I'm a tourist. Please take me to:`,
       venue: 'New York Marriott Marquis',
@@ -61,8 +73,25 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
         + 'Please take me to the New York Marriott Marquis hotel, '
         + 'fifteen thirty-five Broadway, between forty-fifth and forty-sixth street, '
         + 'in Times Square. Thank you very much.',
-      speakLabel: 'Reproducir en inglés',
-      lang: 'en-US'
+      speakLabel: 'Play out loud (English)',
+      stopLabel: 'Stop audio',
+      lang: 'en-US',
+
+      // Chrome around it
+      title: 'Quick Card: Taxi, Hotel & Contacts',
+      subtitle: 'Show this screen to your driver',
+      copy: 'Copy',
+      copied: 'Copied',
+      maps: 'Open in Google Maps',
+      coordinator: 'Sports Traveler Coordinator (Transfers & Passes)',
+      phone: 'Phone',
+      flights: 'United Airlines Direct Flights',
+      outbound: 'Outbound · Fri Sep 4',
+      inbound: 'Return · Thu Sep 10',
+      emergency: 'US emergencies: 911 · Mexican Consulate in NY: +1 212-217-6400',
+      emergencyContacts: 'In case of emergency, call',
+      call: 'Call',
+      close: 'Close'
     },
     es: {
       label: 'Muéstrale esto al chofer',
@@ -75,22 +104,46 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
         + 'Por favor lléveme al hotel New York Marriott Marquis, '
         + 'en el mil quinientos treinta y cinco de Broadway, '
         + 'entre las calles cuarenta y cinco y cuarenta y seis, en Times Square. Muchas gracias.',
-      speakLabel: 'Reproducir en español',
-      lang: 'es-MX'
+      speakLabel: 'Reproducir en inglés al chofer',
+      stopLabel: 'Detener audio',
+      lang: 'es-MX',
+
+      title: 'Ficha rápida: taxi, hotel y contactos',
+      subtitle: 'Muestra esta pantalla al taxista o conductor',
+      copy: 'Copiar',
+      copied: 'Copiado',
+      maps: 'Navegar en Google Maps',
+      coordinator: 'Coordinador Sports Traveler (Traslados y pases)',
+      phone: 'Teléfono',
+      flights: 'Vuelos directos United Airlines',
+      outbound: 'Ida · Vie 4 Sep',
+      inbound: 'Regreso · Jue 10 Sep',
+      emergency: 'Emergencias EE. UU.: 911 · Consulado de México en NY: +1 212-217-6400',
+      emergencyContacts: 'En caso de emergencia, llamar a',
+      call: 'Llamar',
+      close: 'Cerrar'
     }
   };
 
   const card = CARD[cardLang];
   const hotelAddressCopy = `${card.intro} ${card.venue}, ${card.detail}. ${card.thanks}`;
 
+  /**
+   * Always speaks English, whatever language the card is displaying.
+   *
+   * The audio has exactly one listener — a New York driver — so the language
+   * toggle governs what *you* read on screen, not what comes out of the
+   * speaker. Playing the Spanish version out loud would be useless in the
+   * common case and is never the safer bet.
+   */
   const handleSpeak = () => {
     if (isSpeaking) {
       stopSpeaking();
       setIsSpeaking(false);
       return;
     }
-    const started = speak(card.spoken, {
-      lang: card.lang,
+    const started = speak(CARD.en.spoken, {
+      lang: 'en-US',
       onEnd: () => setIsSpeaking(false)
     });
     if (started) setIsSpeaking(true);
@@ -120,9 +173,9 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
             </span>
             <div>
               <h3 className="font-heading font-bold text-base text-[var(--text-primary)]">
-                Ficha Rápida: Taxi, Hotel & Contactos
+                {card.title}
               </h3>
-              <p className="text-xs text-[var(--text-muted)]">Muestra esta pantalla al taxista o conductor</p>
+              <p className="text-xs text-[var(--text-muted)]">{card.subtitle}</p>
             </div>
           </div>
           <button
@@ -170,7 +223,7 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
                 className="text-[11px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 bg-[var(--bg-surface)] px-2.5 h-8 rounded-full"
               >
                 {copiedHotel ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                <span>{copiedHotel ? 'Copiado' : 'Copiar'}</span>
+                <span>{copiedHotel ? card.copied : card.copy}</span>
               </button>
             </div>
 
@@ -207,7 +260,7 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
                 }`}
               >
                 {isSpeaking
-                  ? <><Stop className="w-4 h-4" /> Detener audio</>
+                  ? <><Stop className="w-4 h-4" /> {card.stopLabel}</>
                   : <><Volume className="w-4 h-4" /> {card.speakLabel}</>}
               </button>
             )}
@@ -220,44 +273,92 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
                 className="text-[var(--accent-primary-text)] font-bold hover:underline inline-flex items-center gap-1"
               >
                 <Navigation className="w-3.5 h-3.5" />
-                <span>Navegar en Google Maps</span>
+                <span>{card.maps}</span>
                 <ExternalLink className="w-2.5 h-2.5" />
               </a>
               <span className="text-[var(--text-muted)] font-mono">+1 212-398-1900</span>
             </div>
           </div>
 
+
+          {/* People to call if something goes wrong. Rendered from the users
+              flagged as emergency contacts, so there's no second list to keep
+              in sync — and the phone is a real tel: link, because the point
+              is that someone can dial it without typing. */}
+          {emergencyContacts.length > 0 && (
+            <div className="rounded-xl bg-[var(--bg-surface-elevated)] border-2 border-rose-500/30 p-4 space-y-3">
+              <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-rose-500">
+                <ShieldAlert className="w-3.5 h-3.5" />
+                {card.emergencyContacts}
+              </span>
+
+              <div className="space-y-2">
+                {emergencyContacts.map(contact => (
+                  <div key={contact.id} className="rounded-xl bg-[var(--bg-surface)] p-3.5 space-y-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <span className="block font-heading font-bold text-[15px] text-[var(--text-primary)] leading-tight">
+                          {contact.fullName || contact.name}
+                        </span>
+                        {(contact.relationship || contact.country) && (
+                          <span className="block text-[12px] text-[var(--text-muted)] mt-0.5">
+                            {[contact.relationship, contact.country].filter(Boolean).join(' · ')}
+                          </span>
+                        )}
+                      </div>
+                      {contact.phone && (
+                        <a
+                          href={`tel:${contact.phone.replace(/[^+\d]/g, '')}`}
+                          className="spa-btn min-h-[2.5rem] px-4 text-[13px] bg-rose-500 text-white hover:bg-rose-600 flex-shrink-0"
+                        >
+                          <Phone className="w-3.5 h-3.5" />
+                          {card.call}
+                        </a>
+                      )}
+                    </div>
+                    {contact.phone && (
+                      <p className="font-mono text-[13px] text-[var(--text-secondary)]">{contact.phone}</p>
+                    )}
+                    {contact.address && (
+                      <p className="text-[12px] text-[var(--text-muted)] leading-snug">{contact.address}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Contact Sports Traveler */}
           <div className="rounded-xl bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] p-3.5 space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-bold text-xs text-[var(--text-primary)]">
-                Coordinador Sports Traveler (Traslados & Pases)
+                {card.coordinator}
               </span>
               <button
                 onClick={handleCopyChris}
                 className="text-[10px] font-bold text-[var(--text-secondary)] bg-[var(--bg-surface)] px-1.5 py-0.5 rounded-lg border border-[var(--border-subtle)]"
               >
-                {copiedChris ? 'Copiado' : 'Copiar'}
+                {copiedChris ? card.copied : card.copy}
               </button>
             </div>
             <div className="space-y-1 text-[var(--text-secondary)]">
               <p>• <strong>Chris Wetzel:</strong> <a href="mailto:chris@sportstraveler.net" className="text-[var(--accent-primary-text)] font-mono">chris@sportstraveler.net</a></p>
-              <p>• <strong>Teléfono:</strong> <a href="tel:7738810076" className="text-emerald-500 font-mono">773-881-0076 ext. 105</a></p>
+              <p>• <strong>{card.phone}:</strong> <a href="tel:7738810076" className="text-emerald-500 font-mono">773-881-0076 ext. 105</a></p>
             </div>
           </div>
 
           {/* Flights */}
           <div className="rounded-xl bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] p-3.5 space-y-2">
             <span className="font-bold text-xs text-[var(--text-primary)] block">
-              Vuelos Directos United Airlines
+              {card.flights}
             </span>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <div className="p-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-                <span className="font-bold text-emerald-500 block">Ida · Vie 4 Sep</span>
+                <span className="font-bold text-emerald-500 block">{card.outbound}</span>
                 <span className="font-bold text-[var(--text-primary)]">MEX 07:10 → EWR 14:08</span>
               </div>
               <div className="p-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-                <span className="font-bold text-rose-500 block">Regreso · Jue 10 Sep</span>
+                <span className="font-bold text-rose-500 block">{card.inbound}</span>
                 <span className="font-bold text-[var(--text-primary)]">EWR 17:25 → MEX 20:45</span>
               </div>
             </div>
@@ -265,7 +366,7 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
 
           <div className="p-2.5 rounded-lg bg-[var(--bg-surface-elevated)] text-[11px] text-[var(--text-muted)] flex items-start gap-1.5">
             <ShieldAlert className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-rose-500" />
-            <span><strong>Emergencias EE. UU.:</strong> 911 · Consulado México en NY: +1 212-217-6400</span>
+            <span>{card.emergency}</span>
           </div>
 
         </div>
@@ -275,7 +376,7 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
             onClick={onClose}
             className="px-4 py-1.5 rounded-lg bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] font-bold text-xs"
           >
-            Cerrar
+            {card.close}
           </button>
         </div>
 

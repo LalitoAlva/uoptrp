@@ -17,10 +17,14 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { confirmAction, notify } from '../utils/alerts';
 import PageHeader from './PageHeader';
+import BottomSheet from './BottomSheet';
 import confetti from 'canvas-confetti';
 
 export default function UserManagementView({ onOpenLoginModal }) {
-  const { users, currentUser, addUser, updateUserRole, deleteUser, isAdmin, logout } = useAuth();
+  const { users, currentUser, addUser, updateUser, updateUserRole, deleteUser, isAdmin, logout } = useAuth();
+  // Which row is in edit mode, and the in-progress values for it.
+  const [editingId, setEditingId] = useState(null);
+  const [draft, setDraft] = useState({ name: '', fullName: '', phone: '', country: '', address: '', relationship: '', isEmergencyContact: false });
   const [newEmail, setNewEmail] = useState('');
   const [newName, setNewName] = useState('');
   const [newRole, setNewRole] = useState('editor');
@@ -252,6 +256,9 @@ export default function UserManagementView({ onOpenLoginModal }) {
                             </span>
                           )}
                         </div>
+                        {u.fullName && (
+                          <span className="text-xs text-[var(--text-secondary)] block mt-0.5 truncate">{u.fullName}</span>
+                        )}
                         <span className="text-xs text-[var(--text-muted)] font-mono block mt-0.5 truncate">{u.email}</span>
                       </div>
                     </div>
@@ -273,6 +280,28 @@ export default function UserManagementView({ onOpenLoginModal }) {
                           {u.role === 'admin' ? <Crown className="w-3.5 h-3.5" /> : u.role === 'editor' ? <Edit3 className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                           {u.role === 'admin' ? 'Admin' : u.role === 'editor' ? 'Editor' : 'Lector'}
                         </span>
+                      )}
+
+                      {(isAdmin || isCurrent) && (
+                        <button
+                          onClick={() => {
+                            setEditingId(u.id);
+                            setDraft({
+                              name: u.name || '',
+                              fullName: u.fullName || '',
+                              phone: u.phone || '',
+                              country: u.country || '',
+                              address: u.address || '',
+                              relationship: u.relationship || '',
+                              isEmergencyContact: u.isEmergencyContact === true
+                            });
+                          }}
+                          className="p-1.5 text-[var(--text-muted)] hover:text-[var(--accent-primary-text)] transition-colors"
+                          title="Editar nombre y alias"
+                          aria-label={`Editar ${u.name}`}
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
                       )}
 
                       {isAdmin && !u.isOwner && (
@@ -305,6 +334,173 @@ export default function UserManagementView({ onOpenLoginModal }) {
         </div>
 
       </div>
+
+
+      {/* Edit alias + full name.
+          The email is intentionally read-only here: it is the access-control
+          key that a Google sign-in is matched against, so editing it from a
+          screen that reads like a profile editor would silently grant or
+          revoke someone's access. */}
+      <BottomSheet
+        isOpen={editingId !== null}
+        onClose={() => setEditingId(null)}
+        title="Editar usuario"
+        subtitle="El alias se usa en la app; el nombre completo, en la ficha del taxi"
+        icon={Edit3}
+        footer={
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setEditingId(null)} className="spa-btn spa-btn-ghost w-full min-h-[3rem]">
+              Cancelar
+            </button>
+            <button
+              onClick={() => {
+                if (!draft.name.trim()) {
+                  notify('El alias no puede quedar vacío.', 'error');
+                  return;
+                }
+                updateUser(editingId, draft);
+                setEditingId(null);
+                notify('Usuario actualizado', 'success');
+              }}
+              className="spa-btn spa-btn-primary w-full min-h-[3rem]"
+            >
+              <Check className="w-4 h-4" />
+              Guardar
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-6">
+          <div className="space-y-2.5">
+            <label htmlFor="user-alias" className="spa-eyebrow">Alias</label>
+            <input
+              id="user-alias"
+              type="text"
+              value={draft.name}
+              maxLength={40}
+              onChange={(e) => setDraft(d => ({ ...d, name: e.target.value }))}
+              placeholder="Lalo"
+              className="spa-input min-h-[3.25rem]"
+            />
+            <p className="text-[12px] text-[var(--text-muted)] leading-relaxed">
+              Es el nombre corto que ves en el menú, el itinerario y los gastos.
+            </p>
+          </div>
+
+          <div className="space-y-2.5">
+            <label htmlFor="user-fullname" className="spa-eyebrow">Nombre completo</label>
+            <input
+              id="user-fullname"
+              type="text"
+              value={draft.fullName}
+              maxLength={80}
+              onChange={(e) => setDraft(d => ({ ...d, fullName: e.target.value }))}
+              placeholder="Como aparece en tu pasaporte"
+              className="spa-input min-h-[3.25rem]"
+            />
+            <p className="text-[12px] text-[var(--text-muted)] leading-relaxed">
+              Este es el que se lee y se reproduce en la ficha de taxi y emergencias, así que
+              conviene que coincida con tu identificación.
+            </p>
+          </div>
+
+
+          <div className="space-y-2.5">
+            <label htmlFor="user-phone" className="spa-eyebrow">Teléfono</label>
+            <input
+              id="user-phone"
+              type="tel"
+              inputMode="tel"
+              value={draft.phone}
+              maxLength={30}
+              onChange={(e) => setDraft(d => ({ ...d, phone: e.target.value }))}
+              placeholder="+52 55 1234 5678"
+              className="spa-input min-h-[3.25rem]"
+            />
+            <p className="text-[12px] text-[var(--text-muted)] leading-relaxed">
+              Con lada del país. Así se puede marcar de un toque desde Estados Unidos.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2.5">
+              <label htmlFor="user-country" className="spa-eyebrow">País</label>
+              <input
+                id="user-country"
+                type="text"
+                value={draft.country}
+                maxLength={40}
+                onChange={(e) => setDraft(d => ({ ...d, country: e.target.value }))}
+                placeholder="México"
+                className="spa-input min-h-[3.25rem]"
+              />
+            </div>
+            <div className="space-y-2.5">
+              <label htmlFor="user-relationship" className="spa-eyebrow">Parentesco</label>
+              <input
+                id="user-relationship"
+                type="text"
+                value={draft.relationship}
+                maxLength={40}
+                onChange={(e) => setDraft(d => ({ ...d, relationship: e.target.value }))}
+                placeholder="Mamá, hermano, amigo…"
+                className="spa-input min-h-[3.25rem]"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            <label htmlFor="user-address" className="spa-eyebrow">Dirección</label>
+            <textarea
+              id="user-address"
+              rows={2}
+              value={draft.address}
+              maxLength={160}
+              onChange={(e) => setDraft(d => ({ ...d, address: e.target.value }))}
+              placeholder="Calle, número, colonia, ciudad"
+              className="spa-input min-h-[4.5rem] resize-none"
+            />
+          </div>
+
+          <label className="spa-row py-4 cursor-pointer">
+            <span
+              className="spa-tile flex-shrink-0"
+              style={{
+                backgroundColor: draft.isEmergencyContact
+                  ? 'color-mix(in srgb, var(--accent-rose) 16%, transparent)'
+                  : 'var(--bg-surface-elevated)',
+                color: draft.isEmergencyContact ? 'var(--accent-rose-text)' : 'var(--text-muted)'
+              }}
+            >
+              <ShieldCheck className="w-4 h-4" />
+            </span>
+            <span className="flex-1 min-w-0">
+              <span className="block font-heading font-bold text-[15px] text-[var(--text-primary)]">
+                Es contacto de emergencia
+              </span>
+              <span className="block text-[13px] text-[var(--text-muted)] mt-0.5 leading-snug">
+                Aparece en la ficha de taxi y emergencias, con botón para marcarle.
+              </span>
+            </span>
+            <input
+              type="checkbox"
+              checked={draft.isEmergencyContact}
+              onChange={(e) => setDraft(d => ({ ...d, isEmergencyContact: e.target.checked }))}
+              className="w-6 h-6 flex-shrink-0 accent-[var(--accent-primary)]"
+            />
+          </label>
+
+          <div className="rounded-2xl bg-[var(--bg-surface-elevated)] p-4 space-y-1">
+            <span className="spa-eyebrow">Correo (no editable)</span>
+            <p className="font-mono text-[13px] text-[var(--text-secondary)] break-all">
+              {users.find(u => u.id === editingId)?.email}
+            </p>
+            <p className="text-[12px] text-[var(--text-muted)] leading-relaxed pt-1">
+              El correo es la llave de acceso. Para dar o quitar acceso, agrega o elimina al usuario.
+            </p>
+          </div>
+        </div>
+      </BottomSheet>
 
     </div>
   );

@@ -15,9 +15,15 @@ import {
   Banknote,
   AlertTriangle,
   Lightbulb,
-  Check
+  Check,
+  Calculator,
+  Coins,
+  MapPin,
+  Trophy as TrophyIcon
 } from '../utils/icons';
 import PageHeader from './PageHeader';
+import PhraseCard from './PhraseCard';
+import TipCalculator from './TipCalculator';
 import confetti from 'canvas-confetti';
 
 /** A numbered step in one of the mini-guides. */
@@ -75,6 +81,7 @@ function GuideCard({ icon: Icon, accent, accentBg, title, subtitle, children }) 
 
 export default function SurvivalGuideView() {
   const [activeTab, setActiveTab] = useState('metro');
+  const [isTipCalcOpen, setIsTipCalcOpen] = useState(false);
 
   const [packingList, setPackingList] = useState([
     { id: 'p1', text: 'Powerbank de 10,000–20,000 mAh (en equipaje de mano)', checked: true, tag: 'Esencial' },
@@ -121,6 +128,7 @@ export default function SurvivalGuideView() {
   const tabs = [
     { id: 'metro', label: 'Metro', icon: Subway },
     { id: 'tren', label: 'Tren', icon: Train },
+    { id: 'direcciones', label: 'Direcciones', icon: MapPin },
     { id: 'usopen', label: 'US Open', icon: Trophy },
     { id: 'slang', label: 'Jerga', icon: Coffee },
     { id: 'packing', label: 'Maleta', icon: CheckSquare, badge: `${packedCount}/${packingList.length}` }
@@ -137,6 +145,62 @@ export default function SurvivalGuideView() {
         accent="#C4B5FD"
         accentBg="rgba(139, 92, 246, 0.16)"
       />
+
+
+      {/* Tipping stays pinned above the tabs: it is the one thing you need
+          several times a day, in a country where getting it wrong is a real
+          social error, and burying it behind a tab meant never seeing it. */}
+      <section className="spa-card p-5 sm:p-6 space-y-4">
+        <div className="flex items-start gap-3.5">
+          <span
+            className="spa-tile flex-shrink-0"
+            style={{ backgroundColor: 'color-mix(in srgb, var(--accent-emerald) 16%, transparent)', color: 'var(--accent-emerald-text)' }}
+          >
+            <Coins className="w-5 h-5" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-heading font-black text-lg text-[var(--text-primary)] leading-tight">
+              Propinas en Estados Unidos
+            </h3>
+            <p className="text-[13px] text-[var(--text-muted)] mt-1 leading-snug">
+              No son opcionales: buena parte del sueldo del mesero sale de ahí.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {[
+            { label: 'Restaurante', value: '18–20%' },
+            { label: 'Bar (por trago)', value: '$1–2' },
+            { label: 'Taxi / Uber', value: '15–20%' },
+            { label: 'Maletero', value: '$2 por maleta' },
+            { label: 'Housekeeping', value: '$3–5 por noche' },
+            { label: 'Barista', value: 'Opcional' },
+            { label: 'Comida rápida', value: 'No se espera' },
+            { label: 'Delivery', value: '15% o $5' }
+          ].map(item => (
+            <div key={item.label} className="rounded-2xl bg-[var(--bg-surface-elevated)] p-3.5">
+              <span className="block font-heading font-black text-[15px] text-[var(--text-primary)]">
+                {item.value}
+              </span>
+              <span className="block text-[11px] text-[var(--text-muted)] mt-1 leading-snug">
+                {item.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <Callout tone="amber" icon={Lightbulb} title="El truco local">
+          El impuesto en Nueva York es 8.875%. Los locales <strong>duplican el impuesto</strong> del recibo
+          y esa es la propina (~17.75%). Ojo: en grupos de 6 o más muchos restaurantes ya incluyen la
+          propina como <em>“gratuity”</em> — revísalo antes de dejar otra.
+        </Callout>
+
+        <button onClick={() => setIsTipCalcOpen(true)} className="spa-btn spa-btn-primary w-full min-h-[3.25rem]">
+          <Calculator className="w-4 h-4" />
+          Calcular propina y dividir cuenta
+        </button>
+      </section>
 
       {/* Tab rail */}
       <div className="spa-rail hide-scrollbar">
@@ -341,23 +405,249 @@ export default function SurvivalGuideView() {
         </div>
       )}
 
+      {/* ── DIRECCIONES ──────────────────────────────────────────────── */}
+      {activeTab === 'direcciones' && (
+        <div className="space-y-4">
+          <GuideCard
+            icon={MapPin}
+            accent="var(--accent-primary-text)"
+            accentBg="var(--accent-primary-soft)"
+            title="Preguntar en la calle"
+            subtitle="Cómo pedir indicaciones y, sobre todo, entender la respuesta"
+          >
+            <div className="space-y-3">
+              <PhraseCard
+                en="Excuse me, how do I get to Times Square?"
+                es="Disculpe, ¿cómo llego a Times Square?"
+              />
+              <PhraseCard
+                en="Is this the right way to the subway?"
+                es="¿Voy bien para el metro?"
+              />
+              <PhraseCard
+                en="Which way is uptown?"
+                es="¿Para dónde queda el norte?"
+                note="En Manhattan nadie dice norte o sur: es uptown (norte) y downtown (sur)."
+              />
+              <PhraseCard
+                en="Sorry, could you repeat that more slowly?"
+                es="Perdón, ¿me lo repite más despacio?"
+                note="La frase más útil del viaje. Nadie se molesta."
+              />
+              <PhraseCard
+                en="Can you show me on the map?"
+                es="¿Me lo puede mostrar en el mapa?"
+                note="Enséñale el teléfono: resuelve cualquier problema de acento."
+              />
+            </div>
+          </GuideCard>
+
+          <div className="spa-card p-5 sm:p-6 space-y-4">
+            <span className="spa-eyebrow">
+              <Compass className="w-3 h-3 text-[var(--accent-primary-text)]" />
+              Entender la respuesta
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {[
+                ['Go straight', 'Sigue derecho'],
+                ['Make a left / right', 'Da vuelta a la izquierda / derecha'],
+                ['Two blocks down', 'Dos cuadras más adelante'],
+                ['It\'s on your left', 'Queda a tu izquierda'],
+                ['Across the street', 'Cruzando la calle'],
+                ['Around the corner', 'A la vuelta de la esquina'],
+                ['Uptown / Downtown', 'Hacia el norte / sur'],
+                ['Crosstown', 'De este a oeste (o al revés)'],
+                ['Head east / west', 'Ve hacia el este / oeste'],
+                ['You passed it', 'Ya te pasaste'],
+                ['It\'s a ten-minute walk', 'Son diez minutos a pie'],
+                ['Take the uptown 1 train', 'Toma el tren 1 en dirección norte']
+              ].map(([en, es]) => (
+                <div key={en} className="rounded-2xl bg-[var(--bg-surface-elevated)] p-3.5">
+                  <span className="block text-[14px] font-bold text-[var(--text-primary)]">{en}</span>
+                  <span className="block text-[12px] text-[var(--text-muted)] mt-0.5">{es}</span>
+                </div>
+              ))}
+            </div>
+            <Callout tone="amber" icon={Lightbulb} title="Cómo funcionan las direcciones">
+              Manhattan es una cuadrícula: las <strong>calles (Streets)</strong> van de este a oeste y suben
+              de número hacia el norte; las <strong>avenidas (Avenues)</strong> van de norte a sur. Una
+              dirección como “45th &amp; 7th” es el cruce de la calle 45 con la Séptima Avenida —
+              con eso solo ya llegas a cualquier lado. 20 calles ≈ 1 milla ≈ 15 min a pie.
+            </Callout>
+          </div>
+
+          <GuideCard
+            icon={TrophyIcon}
+            accent="var(--accent-tennis-text)"
+            accentBg="color-mix(in srgb, var(--accent-tennis) 16%, transparent)"
+            title="Preguntar dentro del US Open"
+            subtitle="Billie Jean King Center · encontrar tu asiento y todo lo demás"
+          >
+            <div className="space-y-3">
+              <PhraseCard
+                tone="emerald"
+                en="Excuse me, where is Arthur Ashe Stadium?"
+                es="Disculpe, ¿dónde está el estadio Arthur Ashe?"
+              />
+              <PhraseCard
+                tone="emerald"
+                en="I'm looking for section 300, row A. Where do I go?"
+                es="Busco la sección 300, fila A. ¿Por dónde entro?"
+                note="Tu boleto trae section, row y seat. Enséñaselo al acomodador y te lleva."
+              />
+              <PhraseCard
+                tone="emerald"
+                en="Which gate is closest to the Grandstand?"
+                es="¿Cuál puerta queda más cerca del Grandstand?"
+              />
+              <PhraseCard
+                tone="emerald"
+                en="Where can I get a Honey Deuce?"
+                es="¿Dónde consigo un Honey Deuce?"
+              />
+              <PhraseCard
+                tone="emerald"
+                en="Where are the restrooms?"
+                es="¿Dónde están los baños?"
+                note="En EE. UU. se dice “restroom” o “bathroom”, nunca “toilet”."
+              />
+              <PhraseCard
+                tone="emerald"
+                en="Can I come back in if I leave?"
+                es="¿Puedo volver a entrar si salgo?"
+                note="Importante entre la sesión de día y la de noche: son boletos distintos."
+              />
+              <PhraseCard
+                tone="emerald"
+                en="Where's the exit to the 7 train?"
+                es="¿Por dónde salgo al tren 7?"
+              />
+            </div>
+          </GuideCard>
+        </div>
+      )}
+
       {/* ── SLANG ────────────────────────────────────────────────────── */}
       {activeTab === 'slang' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <Callout tone="emerald" icon={Coffee} title="Toca el altavoz">
+            Cada frase se reproduce en inglés. Escúchala antes de decirla, o deja que el teléfono
+            la diga por ti.
+          </Callout>
+
           <GuideCard
-            icon={Utensils}
+            icon={Coffee}
+            accent="var(--accent-amber-text)"
+            accentBg="color-mix(in srgb, var(--accent-amber) 16%, transparent)"
+            title="Pedir un café"
+            subtitle="En bodega, deli o cafetería de barrio"
+          >
+            <div className="space-y-3">
+              <PhraseCard
+                tone="amber"
+                en="Can I get a large coffee with milk, no sugar, please?"
+                es="¿Me da un café grande con leche, sin azúcar, por favor?"
+                note="Si pides un “regular coffee” te lo dan con leche y dos azúcares por defecto. Para café negro, pide “black coffee”."
+              />
+              <PhraseCard
+                tone="amber"
+                en="An iced latte, please. Oat milk if you have it."
+                es="Un latte frío, por favor. Con leche de avena si tienen."
+              />
+              <PhraseCard
+                tone="amber"
+                en="For here, please."
+                es="Para tomar aquí, por favor."
+                note="Te van a preguntar “for here or to go?”. “To go” es para llevar."
+              />
+              <PhraseCard
+                tone="amber"
+                en="Can I get a bacon, egg and cheese on a roll, with salt, pepper and ketchup?"
+                es="¿Me da un bacon, egg and cheese en pan, con sal, pimienta y catsup?"
+                note="El desayuno oficial de Nueva York. Se pide de corrido y en una sola frase."
+              />
+            </div>
+          </GuideCard>
+
+          <GuideCard
+            icon={Coffee}
             accent="var(--accent-emerald-text)"
             accentBg="color-mix(in srgb, var(--accent-emerald) 16%, transparent)"
-            title="Pedir en una bodega"
-            subtitle="El desayuno oficial de Nueva York, en una sola frase"
+            title="Pedir en Starbucks"
+            subtitle="Los tamaños tienen nombre propio: tall, grande, venti"
           >
-            <div className="rounded-2xl bg-[var(--bg-surface-elevated)] p-4 font-mono text-[13px] text-[var(--text-primary)] leading-relaxed">
-              “Can I get a <strong>bacon, egg and cheese on a roll</strong>, with salt, pepper, ketchup?”
+            <div className="space-y-3">
+              <PhraseCard
+                tone="emerald"
+                en="A tall Americano, please."
+                es="Un americano chico, por favor."
+                note="Tall = 12 oz (el chico), Grande = 16 oz (mediano), Venti = 20 oz (grande). No existe el “pequeño”."
+              />
+              <PhraseCard
+                tone="emerald"
+                en="A grande Americano with an extra shot, please."
+                es="Un americano mediano con un shot extra, por favor."
+              />
+              <PhraseCard
+                tone="emerald"
+                en="A double espresso, please."
+                es="Un espresso doble, por favor."
+                note="Si lo quieres sencillo: “a single espresso”."
+              />
+              <PhraseCard
+                tone="emerald"
+                en="Can I get room for milk?"
+                es="¿Me deja espacio para la leche?"
+                note="Para que no te lo llenen hasta el borde y puedas servirte en la barra de leches."
+              />
+              <PhraseCard
+                tone="emerald"
+                en="It's for Lalo. L-A-L-O."
+                es="Es para Lalo. L-A-L-O."
+                note="Siempre piden tu nombre para el vaso. Deletréalo o acabarás siendo “Lolo”."
+              />
             </div>
-            <Callout tone="amber" icon={Coffee} title="Regular coffee">
-              Si pides un café “regular” te lo dan de filtro <em>con leche y dos azúcares</em>. Si lo quieres
-              negro, pide “black coffee”.
-            </Callout>
+          </GuideCard>
+
+          <GuideCard
+            icon={Banknote}
+            accent="var(--accent-primary-text)"
+            accentBg="var(--accent-primary-soft)"
+            title="Pedir en un bar"
+            subtitle="Cerveza, whisky y cómo cerrar la cuenta"
+          >
+            <div className="space-y-3">
+              <PhraseCard
+                en="Can I get a Heineken, please?"
+                es="¿Me da una Heineken, por favor?"
+                note="Para de barril: “a draft beer”. En botella: “a bottle”."
+              />
+              <PhraseCard
+                en="What do you have on tap?"
+                es="¿Qué tienen de barril?"
+                note="La pregunta correcta en un bar de cerveza artesanal."
+              />
+              <PhraseCard
+                en="A whiskey on the rocks, please."
+                es="Un whisky en las rocas, por favor."
+                note="“On the rocks” es con hielo; “neat” es solo, sin hielo ni agua."
+              />
+              <PhraseCard
+                en="A bourbon, neat. And a glass of water, please."
+                es="Un bourbon solo. Y un vaso de agua, por favor."
+                note="El agua de la llave es gratis y siempre te la dan si la pides."
+              />
+              <PhraseCard
+                en="Can I open a tab?"
+                es="¿Puedo abrir una cuenta?"
+                note="Dejas la tarjeta y pagas todo al final. Al cerrar: “Can I close out?”."
+              />
+              <PhraseCard
+                en="Can we get the check, please?"
+                es="¿Nos trae la cuenta, por favor?"
+                note="En EE. UU. la cuenta no llega sola: hay que pedirla."
+              />
+            </div>
           </GuideCard>
 
           <GuideCard
@@ -367,8 +657,12 @@ export default function SurvivalGuideView() {
             title="El ritual de Katz's"
             subtitle="Delicatessen · Lower East Side"
           >
-            <div className="rounded-2xl bg-[var(--bg-surface-elevated)] p-4 font-mono text-[13px] text-[var(--text-primary)] leading-relaxed">
-              “One <strong>pastrami on rye, juicy</strong>, with mustard, please.”
+            <div className="space-y-3">
+              <PhraseCard
+                tone="rose"
+                en="One pastrami on rye, juicy, with mustard, please."
+                es="Un pastrami en pan de centeno, jugoso, con mostaza, por favor."
+              />
             </div>
             <Callout tone="rose" icon={AlertTriangle} title="El ticket de papel">
               Al entrar te dan un ticket. <strong>No lo pierdas</strong>: se entrega a la salida aunque no
@@ -438,6 +732,9 @@ export default function SurvivalGuideView() {
           </div>
         </div>
       )}
+
+
+      <TipCalculator isOpen={isTipCalcOpen} onClose={() => setIsTipCalcOpen(false)} />
 
     </div>
   );

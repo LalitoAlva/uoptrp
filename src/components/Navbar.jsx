@@ -28,6 +28,58 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
+/**
+ * Tall drawer row — icon tile, title, hint, chevron. Min 68px tall.
+ *
+ * Defined at module scope on purpose. Declaring it inside Navbar would give
+ * it a fresh function identity on every render, so React would unmount and
+ * remount each row whenever anything in the header changed — and a remount
+ * between a finger's pointerdown and its click silently drops the tap.
+ * The session-activity listener re-renders this tree, so that was a live
+ * hazard, not a theoretical one.
+ */
+function DrawerRow({ item, isActive, onClick, tone }) {
+  const Icon = item.icon;
+  const toneColor = tone || (isActive ? '#fff' : 'var(--accent-primary-text)');
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3.5 px-3 py-3.5 min-h-[4.25rem] rounded-2xl text-left transition-colors spa-pressable ${
+        isActive
+          ? 'bg-[var(--accent-primary)] text-white shadow-[0_10px_24px_-14px_var(--accent-primary)]'
+          : 'text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)]'
+      }`}
+    >
+      <span
+        className="spa-tile flex-shrink-0"
+        style={{
+          backgroundColor: isActive ? 'rgba(255,255,255,0.18)' : 'var(--bg-surface-elevated)',
+          color: toneColor
+        }}
+      >
+        <Icon className="w-5 h-5" />
+      </span>
+
+      <span className="flex-1 min-w-0">
+        <span className="block font-heading font-bold text-[15px] leading-tight">{item.label}</span>
+        {item.hint && (
+          <span className={`block text-xs mt-0.5 leading-snug truncate ${isActive ? 'text-white/75' : 'text-[var(--text-muted)]'}`}>
+            {item.hint}
+          </span>
+        )}
+      </span>
+
+      {item.badge ? (
+        <span className="flex-shrink-0 min-w-[1.5rem] h-6 px-2 rounded-full bg-[var(--accent-rose)] text-white text-xs font-black flex items-center justify-center">
+          {item.badge}
+        </span>
+      ) : (
+        <ChevronRight className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-white/70' : 'text-[var(--text-muted)]'}`} />
+      )}
+    </button>
+  );
+}
+
 export default function Navbar({
   currentTab,
   setCurrentTab,
@@ -119,49 +171,6 @@ export default function Navbar({
       ? { icon: Edit3, label: 'Editor' }
       : { icon: Eye, label: 'Lector' };
   const RoleIcon = roleMeta.icon;
-
-  /** Tall drawer row — icon tile, title, hint, chevron. Min 68px tall. */
-  const DrawerRow = ({ item, isActive, onClick, tone }) => {
-    const Icon = item.icon;
-    const toneColor = tone || (isActive ? '#fff' : 'var(--accent-primary-text)');
-    return (
-      <button
-        onClick={onClick}
-        className={`w-full flex items-center gap-3.5 px-3 py-3.5 min-h-[4.25rem] rounded-2xl text-left transition-colors spa-pressable ${
-          isActive
-            ? 'bg-[var(--accent-primary)] text-white shadow-[0_10px_24px_-14px_var(--accent-primary)]'
-            : 'text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)]'
-        }`}
-      >
-        <span
-          className="spa-tile flex-shrink-0"
-          style={{
-            backgroundColor: isActive ? 'rgba(255,255,255,0.18)' : 'var(--bg-surface-elevated)',
-            color: toneColor
-          }}
-        >
-          <Icon className="w-5 h-5" />
-        </span>
-
-        <span className="flex-1 min-w-0">
-          <span className="block font-heading font-bold text-[15px] leading-tight">{item.label}</span>
-          {item.hint && (
-            <span className={`block text-xs mt-0.5 leading-snug truncate ${isActive ? 'text-white/75' : 'text-[var(--text-muted)]'}`}>
-              {item.hint}
-            </span>
-          )}
-        </span>
-
-        {item.badge ? (
-          <span className="flex-shrink-0 min-w-[1.5rem] h-6 px-2 rounded-full bg-[var(--accent-rose)] text-white text-xs font-black flex items-center justify-center">
-            {item.badge}
-          </span>
-        ) : (
-          <ChevronRight className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-white/70' : 'text-[var(--text-muted)]'}`} />
-        )}
-      </button>
-    );
-  };
 
   return (
     <>

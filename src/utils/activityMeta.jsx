@@ -75,7 +75,7 @@ export const CATEGORY_CONFIG = {
   tennis: { label: 'US Open', icon: TennisBall, color: 'var(--accent-tennis-text)', soft: 'color-mix(in srgb, var(--accent-tennis) 16%, transparent)' },
   beer: { label: 'Bares', icon: Beer, color: 'var(--accent-amber-text)', soft: 'color-mix(in srgb, var(--accent-amber) 16%, transparent)' },
   food: { label: 'Comida', icon: Utensils, color: 'var(--accent-emerald-text)', soft: 'color-mix(in srgb, var(--accent-emerald) 16%, transparent)' },
-  music: { label: 'Jazz', icon: Music, color: '#C4B5FD', soft: 'rgba(139, 92, 246, 0.16)' },
+  music: { label: 'Música', icon: Music, color: '#C4B5FD', soft: 'rgba(139, 92, 246, 0.16)' },
   culture: { label: 'Paseos', icon: Landmark, color: 'var(--accent-primary-text)', soft: 'var(--accent-primary-soft)' },
   sights: { label: 'Paseos', icon: Landmark, color: 'var(--accent-primary-text)', soft: 'var(--accent-primary-soft)' },
   books: { label: 'Compras', icon: ShoppingBag, color: '#F9A8D4', soft: 'rgba(236, 72, 153, 0.16)' },

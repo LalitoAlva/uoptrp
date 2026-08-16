@@ -39,9 +39,17 @@ function SpotRow({ spot, meta }) {
           <span className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[12px] text-[var(--text-muted)] mt-1">
             {meta}
           </span>
+          {spot.genre && (
+            <span
+              className="inline-block text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full mt-1.5"
+              style={{ backgroundColor: cat.soft, color: cat.color }}
+            >
+              {spot.genre}
+            </span>
+          )}
           {spot.mustTry && (
             <span className="block text-[12px] text-[var(--text-secondary)] mt-1 truncate">
-              Pide: {spot.mustTry}
+              {spot.mustTry}
             </span>
           )}
         </span>
@@ -193,23 +201,40 @@ export default function NearbySheet({ isOpen, onClose, data }) {
     >
       <div className="space-y-6">
 
-        <div className="flex items-center justify-between gap-2 text-[11px] text-[var(--text-muted)]">
-          <span className="flex items-center gap-1.5 font-bold">
+        {/* Refresh lives up here as well as in the footer: on a long list the
+            footer button is off-screen exactly when you want it, right after
+            walking a few blocks. */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--text-muted)]">
             <span className="relative flex w-1.5 h-1.5">
               <span className="absolute inline-flex w-full h-full rounded-full bg-[var(--accent-emerald)] animate-soft-pulse" />
               <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-[var(--accent-emerald)]" />
             </span>
             Siguiendo tu ubicación
+            {updatedAt && (
+              <span className="font-mono font-normal">
+                · {updatedAt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
           </span>
-          {updatedAt && (
-            <span className="font-mono">
-              {updatedAt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          )}
+
+          <button
+            onClick={refresh}
+            disabled={isRefreshing}
+            className="spa-chip h-8 text-[11px] flex-shrink-0 disabled:opacity-60"
+            aria-label="Actualizar puntos de interés"
+          >
+            <RotateCcw className={`w-3 h-3 ${isRefreshing ? 'animate-spin-back' : ''}`} />
+            {isRefreshing ? 'Actualizando' : 'Actualizar'}
+          </button>
         </div>
 
         {availableTypes.length > 1 && (
-          <div className="spa-rail hide-scrollbar -mx-1 px-1">
+          // Wraps instead of scrolling horizontally. A hidden-scrollbar rail
+          // works with a thumb but is a dead end with a mouse — there was no
+          // way to reach the categories past the right edge on a desktop.
+          // Inside a sheet there's vertical room, so nothing needs hiding.
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setTypeFilter('all')}
               aria-pressed={typeFilter === 'all'}

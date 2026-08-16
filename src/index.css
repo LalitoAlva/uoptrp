@@ -487,6 +487,30 @@ html.light body {
 }
 .spa-rail > * { scroll-snap-align: start; flex-shrink: 0; }
 
+/* On a mouse-driven device a hidden-scrollbar rail is a dead end: there's no
+   swipe, and horizontal wheel scrolling isn't discoverable, so anything past
+   the right edge is simply unreachable. Give those devices a real scrollbar,
+   overriding `.hide-scrollbar` where the two are used together. Touch devices
+   keep the clean look, because there the swipe is obvious. */
+@media (hover: hover) and (pointer: fine) {
+  .spa-rail,
+  .spa-rail.hide-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+    padding-bottom: 0.625rem;
+  }
+  .spa-rail::-webkit-scrollbar,
+  .spa-rail.hide-scrollbar::-webkit-scrollbar {
+    display: block;
+    height: 6px;
+  }
+  .spa-rail::-webkit-scrollbar-thumb,
+  .spa-rail.hide-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 3px;
+  }
+}
+
 /* Oversized display numerals (countdown, trackers) read better tightened up. */
 .font-display {
   font-family: 'Outfit', sans-serif;

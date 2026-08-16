@@ -12,6 +12,8 @@
  * anywhere.
  */
 
+import { NYC_PLACES } from '../data/nycPlaces';
+
 /** Approximate centre of each zone used by the recommendations data. */
 export const ZONE_COORDS = {
   'Greenwich Village': { lat: 40.7336, lon: -74.0027 },
@@ -32,12 +34,17 @@ export const ZONE_COORDS = {
   'Williamsburg': { lat: 40.7141, lon: -73.9614 }
 };
 
-/** Fixed anchors of this trip, always considered alongside the spots. */
+/**
+ * Fixed anchors of this trip, always considered alongside the spots.
+ *
+ * Only the two that belong to *this* trip specifically. Grand Central and the
+ * High Line used to live here too, but they're now in NYC_PLACES as proper
+ * attractions — keeping both copies would list them twice under different
+ * ids, since the two sources are merged before ranking.
+ */
 export const TRIP_ANCHORS = [
   { id: 'anchor-hotel', name: 'Marriott Marquis (tu hotel)', zone: 'Times Square', kind: 'hotel', lat: 40.7590, lon: -73.9845 },
-  { id: 'anchor-ashe', name: 'Arthur Ashe Stadium', zone: 'Flushing Meadows', kind: 'usopen', lat: 40.7498, lon: -73.8448 },
-  { id: 'anchor-gct', name: 'Grand Central Terminal', zone: 'Midtown Manhattan', kind: 'transit', lat: 40.7527, lon: -73.9772 },
-  { id: 'anchor-highline', name: 'The High Line', zone: 'Chelsea & Meatpacking', kind: 'sights', lat: 40.7480, lon: -74.0048 }
+  { id: 'anchor-ashe', name: 'Arthur Ashe Stadium', zone: 'Flushing Meadows', kind: 'usopen', lat: 40.7498, lon: -73.8448 }
 ];
 
 /**
@@ -208,14 +215,8 @@ export function walkingMinutes(km) {
 export function findNearbySpots(recommendations = [], here, { limit = 6, maxKm = 5 } = {}) {
   if (!here) return [];
 
-  const fromRecs = recommendations
-    .filter(rec => !rec.visited)
-    .map(rec => {
-      const coords = resolveCoords(rec);
-      if (!coords) return null;
-      return toSpot(rec, { km: distanceKm(here, coords) });
-    })
-    .filter(Boolean);
+  const fromRecs = locatableCandidates(recommendations)
+    .map(({ rec, coords }) => toSpot(rec, { km: distanceKm(here, coords) }));
 
   const fromAnchors = TRIP_ANCHORS.map(anchor => ({
     id: anchor.id,
@@ -242,10 +243,77 @@ function toSpot(rec, extra = {}) {
     name: rec.name,
     zone: rec.zone,
     kind: rec.category,
-    mustTry: rec.mustTry || rec.mustOrder,
+    mustTry: rec.mustTry || rec.mustOrder || rec.note,
+    // Music venues carry what they actually play — "Música" alone doesn't
+    // help you choose between a jazz cellar and a salsa floor.
+    genre: rec.genre || rec.subcategory || null,
     mapsUrl: rec.mapsUrl,
     ...extra
   };
+}
+
+/**
+ * Everything the nearby lists can suggest: the trip's own recommendations
+ * plus the curated attractions/culture/pastimes.
+ *
+ * The curated places carry real venue coordinates, while recommendations only
+ * resolve to a neighbourhood — so a place's own lat/lon is always preferred
+ * when it has one. Anything that can't be located is dropped rather than
+ * guessed at, since a wrong distance is worse than a missing one.
+ */
+function locatableCandidates(recommendations = [], { excludeIds = [] } = {}) {
+  const skip = new Set(excludeIds);
+  const out = [];
+  const seenNames = new Set();
+
+  recommendations.forEach(rec => {
+    if (rec.visited || skip.has(rec.id)) return;
+    const coords = resolveCoords(rec);
+    if (!coords) return;
+    seenNames.add(normaliseName(rec.name));
+    out.push({ rec, coords });
+  });
+
+  NYC_PLACES.forEach(place => {
+    if (skip.has(place.id)) return;
+    // The trip's own recommendations win over the curated list when they're
+    // the same venue: "Birdland Jazz Club" and "Birdland" are one place, and
+    // listing both twice under different ids just wastes a row.
+    if (isDuplicateName(place.name, seenNames)) return;
+    out.push({ rec: place, coords: { lat: place.lat, lon: place.lon } });
+  });
+
+  return out;
+}
+
+/** Lowercase, unaccented, punctuation-free — for comparing venue names. */
+export function normaliseName(name) {
+  return String(name || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9 ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * True when `name` refers to a venue already in `seen`.
+ *
+ * Exact match, or one name fully containing the other — that's what catches
+ * "Birdland" vs "Birdland Jazz Club" and "Joe's Pizza" vs "Joe's Pizza
+ * (Original)". The 4-character floor stops short words creating false
+ * positives against every longer name.
+ */
+export function isDuplicateName(name, seen) {
+  const candidate = normaliseName(name);
+  if (!candidate) return false;
+  if (seen.has(candidate)) return true;
+
+  for (const existing of seen) {
+    if (existing.length < 4 || candidate.length < 4) continue;
+    if (existing.includes(candidate) || candidate.includes(existing)) return true;
+  }
+  return false;
 }
 
 /**
@@ -268,14 +336,8 @@ export function findRouteSpots(recommendations = [], from, to, { corridorKm = 1,
   const legKm = distanceKm(from, to);
   if (legKm < 0.3) return []; // Already there — "on the way" is meaningless.
 
-  const skip = new Set(excludeIds);
-
-  return recommendations
-    .filter(rec => !rec.visited && !skip.has(rec.id))
-    .map(rec => {
-      const coords = resolveCoords(rec);
-      if (!coords) return null;
-
+  return locatableCandidates(recommendations, { excludeIds })
+    .map(({ rec, coords }) => {
       const offRouteKm = distanceToSegmentKm(coords, from, to);
       if (offRouteKm > corridorKm) return null;
 
@@ -303,16 +365,9 @@ export function findSpotsNearPlan(recommendations = [], stops = [], { radiusKm =
 
   if (placedStops.length === 0) return [];
 
-  const skip = new Set(excludeIds);
-  const seen = new Set();
   const results = [];
 
-  for (const rec of recommendations) {
-    if (rec.visited || skip.has(rec.id) || seen.has(rec.id)) continue;
-
-    const coords = resolveCoords(rec);
-    if (!coords) continue;
-
+  for (const { rec, coords } of locatableCandidates(recommendations, { excludeIds })) {
     // Nearest stop of the day wins the label.
     let best = null;
     for (const { stop, coords: stopCoords } of placedStops) {
@@ -321,7 +376,6 @@ export function findSpotsNearPlan(recommendations = [], stops = [], { radiusKm =
     }
 
     if (best && best.km <= radiusKm) {
-      seen.add(rec.id);
       results.push(toSpot(rec, {
         km: best.km,
         nearStopTitle: best.stop.title,

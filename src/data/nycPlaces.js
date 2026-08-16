@@ -95,3 +95,65 @@ export const NYC_PLACES = [
   { id: 'poi-shop-uniqlo', name: 'Uniqlo 5th Ave', category: 'shopping', zone: 'Midtown', lat: 40.7553, lon: -73.9784, note: 'Básicos baratos si te falta ropa de frío.' },
   { id: 'poi-shop-bodega', name: 'Bodega de esquina', category: 'food', zone: 'Manhattan', lat: 40.7600, lon: -73.9880, note: 'Hay una en cada cuadra: café, bacon-egg-and-cheese y agua barata.' }
 ];
+
+/**
+ * Places that are shown in "cerca de ti" no matter how far away they are.
+ *
+ * The distance filter is right for a taquería and wrong for these: the moment
+ * you need the consulate or an airport, "está a 18 km" is the answer you want
+ * to see, not a reason to hide it. They render in their own always-visible
+ * section so a 20 km airport never outranks a café two blocks away.
+ */
+export const ESSENTIAL_PLACES = [
+  // ── Gobierno de México ────────────────────────────────────────────
+  {
+    id: 'gov-consulado', name: 'Consulado General de México', category: 'logistics',
+    zone: 'Midtown · 27 E 39th St', lat: 40.7503, lon: -73.9797, alwaysShow: true,
+    kindLabel: 'Consulado',
+    note: 'Pasaporte, actas y protección consular. Cita en MiConsulado. Emergencias 24 h: +1 646-856-4111.'
+  },
+  {
+    id: 'gov-mision-onu', name: 'Misión de México ante la ONU', category: 'logistics',
+    zone: 'Midtown · 645 Fifth Ave', lat: 40.7594, lon: -73.9752, alwaysShow: true,
+    kindLabel: 'Gobierno',
+    note: 'Representación diplomática. Para trámites personales ve al consulado.'
+  },
+  {
+    id: 'gov-instituto-cultural', name: 'Instituto Cultural Mexicano', category: 'culture',
+    zone: 'Midtown · 27 E 39th St', lat: 40.7503, lon: -73.9797, alwaysShow: true,
+    kindLabel: 'Cultura',
+    note: 'Exposiciones y eventos mexicanos, en la sede del consulado.'
+  },
+
+  // ── Aeropuertos y terminales ──────────────────────────────────────
+  {
+    id: 'apt-ewr', name: 'Newark Liberty (EWR)', category: 'logistics',
+    zone: 'Newark, NJ', lat: 40.6895, lon: -74.1745, alwaysShow: true,
+    kindLabel: 'Aeropuerto',
+    note: 'Tu aeropuerto de llegada y salida. NJ Transit desde Penn Station.'
+  },
+  {
+    id: 'apt-jfk', name: 'JFK International', category: 'logistics',
+    zone: 'Queens', lat: 40.6413, lon: -73.7781, alwaysShow: true,
+    kindLabel: 'Aeropuerto',
+    note: 'AirTrain + metro E, o LIRR desde Grand Central.'
+  },
+  {
+    id: 'apt-lga', name: 'LaGuardia (LGA)', category: 'logistics',
+    zone: 'Queens', lat: 40.7769, lon: -73.8740, alwaysShow: true,
+    kindLabel: 'Aeropuerto',
+    note: 'El más cercano a Manhattan. Autobús Q70 desde el metro 7.'
+  },
+  {
+    id: 'term-penn', name: 'Penn Station', category: 'logistics',
+    zone: 'Midtown · 34th St', lat: 40.7506, lon: -73.9935, alwaysShow: true,
+    kindLabel: 'Terminal',
+    note: 'NJ Transit a Newark, LIRR a Long Island y Amtrak.'
+  },
+  {
+    id: 'term-port-authority', name: 'Port Authority Bus Terminal', category: 'logistics',
+    zone: "Hell's Kitchen · 42nd St", lat: 40.7570, lon: -73.9903, alwaysShow: true,
+    kindLabel: 'Terminal',
+    note: 'Autobuses a todo el país y a los aeropuertos de NJ.'
+  }
+];

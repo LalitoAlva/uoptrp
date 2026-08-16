@@ -92,6 +92,9 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
       emergency: 'US emergencies: 911 · Mexican Consulate in NY: +1 212-217-6400',
       emergencyContacts: 'In case of emergency, call',
       call: 'Call',
+      phoneMobile: 'Mobile',
+      phoneHome: 'Home',
+      noPhone: 'No phone saved yet. Add one under Usuarios to be able to call from here.',
       close: 'Close'
     },
     es: {
@@ -122,6 +125,9 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
       emergency: 'Emergencias EE. UU.: 911 · Consulado de México en NY: +1 212-217-6400',
       emergencyContacts: 'En caso de emergencia, llamar a',
       call: 'Llamar',
+      phoneMobile: 'Móvil',
+      phoneHome: 'Casa',
+      noPhone: 'Sin teléfono registrado. Agrégalo en Usuarios para poder marcarle desde aquí.',
       close: 'Cerrar'
     }
   };
@@ -311,7 +317,7 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
                     <div key={kind.key} className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <span className="block text-[10px] font-black uppercase tracking-wider text-[var(--text-muted)]">
-                          {kind.label}
+                          {kind.key === 'mobile' ? card.phoneMobile : card.phoneHome}
                         </span>
                         <span className="block font-mono text-[14px] text-[var(--text-secondary)] mt-0.5">
                           {formatPhone(phone)}
@@ -330,7 +336,7 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
 
                 {!hasPhone(myEmergencyContact.phones?.mobile) && !hasPhone(myEmergencyContact.phones?.home) && (
                   <p className="text-[12px] text-[var(--accent-amber-text)] leading-snug">
-                    Sin teléfono registrado. Agrégalo en Usuarios para poder marcarle desde aquí.
+                    {card.noPhone}
                   </p>
                 )}
 

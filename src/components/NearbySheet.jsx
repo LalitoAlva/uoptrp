@@ -11,6 +11,7 @@ import {
   RotateCcw,
   ChevronRight,
   Route,
+  ShieldCheck,
   Calendar,
   X
 } from '../utils/icons';
@@ -86,7 +87,7 @@ function Section({ icon: Icon, title, hint, children }) {
 export default function NearbySheet({ isOpen, onClose, data }) {
   const {
     status, updatedAt, isRefreshing, requestLocation, refresh, disableLocation,
-    onRoute: allOnRoute, nearby: allNearby, nearPlan: allNearPlan, veryClose, nextStopTitle
+    onRoute: allOnRoute, nearby: allNearby, nearPlan: allNearPlan, essentials, veryClose, nextStopTitle
   } = data;
 
   const [typeFilter, setTypeFilter] = useState('all');
@@ -368,6 +369,43 @@ export default function NearbySheet({ isOpen, onClose, data }) {
                 </button>
               </>
             )}
+          </div>
+        )}
+
+
+        {/* Always here, whatever the filter says and however far away they
+            are. When you need the consulate or an airport, "está a 18 km" is
+            the answer you want — not a reason to hide it. */}
+        {essentials.length > 0 && (
+          <div className="space-y-2.5">
+            <div>
+              <span className="spa-eyebrow">
+                <ShieldCheck className="w-3 h-3 text-[var(--accent-rose-text)]" />
+                Siempre a la mano
+              </span>
+              <p className="text-[12px] text-[var(--text-muted)] mt-1 leading-snug">
+                Consulado de México, aeropuertos y terminales.
+              </p>
+            </div>
+            <ul className="space-y-2">
+              {essentials.map(spot => (
+                <SpotRow
+                  key={spot.id}
+                  spot={spot}
+                  meta={
+                    <>
+                      {spot.kindLabel && (
+                        <span className="font-black uppercase tracking-wider text-[10px] text-[var(--accent-rose-text)]">
+                          {spot.kindLabel}
+                        </span>
+                      )}
+                      <span className="font-mono font-bold text-[var(--accent-primary-text)]">~{formatDistance(spot.km)}</span>
+                      <span className="truncate">{spot.zone}</span>
+                    </>
+                  }
+                />
+              ))}
+            </ul>
           </div>
         )}
 

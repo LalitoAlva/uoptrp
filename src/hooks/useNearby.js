@@ -4,6 +4,7 @@ import {
   findNearbySpots,
   findRouteSpots,
   findSpotsNearPlan,
+  findEssentialPlaces,
   resolveCoords,
   normaliseName,
   isDuplicateName,
@@ -99,6 +100,13 @@ export function useNearby(recommendations = [], day = null) {
     [recommendations, coords, upcomingStops, routeIds, nearby, shownNames]
   );
 
+  // Consulate, airports and terminals. No radius, no filtering — see
+  // findEssentialPlaces for why they're kept out of the ranked lists.
+  const essentials = useMemo(
+    () => (coords ? findEssentialPlaces(coords) : []),
+    [coords]
+  );
+
   const veryClose = useMemo(
     () => [...onRoute, ...nearby].filter(s => s.km <= ALERT_RADIUS_KM && !s.isAnchor),
     [onRoute, nearby]
@@ -131,6 +139,7 @@ export function useNearby(recommendations = [], day = null) {
     onRoute,
     nearby,
     nearPlan,
+    essentials,
     veryClose,
     nextStopTitle,
     total: onRoute.length + nearby.length + nearPlan.length

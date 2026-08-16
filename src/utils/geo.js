@@ -12,7 +12,7 @@
  * anywhere.
  */
 
-import { NYC_PLACES } from '../data/nycPlaces';
+import { NYC_PLACES, ESSENTIAL_PLACES } from '../data/nycPlaces';
 
 /** Approximate centre of each zone used by the recommendations data. */
 export const ZONE_COORDS = {
@@ -231,6 +231,25 @@ export function findNearbySpots(recommendations = [], here, { limit = 6, maxKm =
     .filter(item => item.km <= maxKm)
     .sort((a, b) => a.km - b.km)
     .slice(0, limit);
+}
+
+/**
+ * The consulate, the airports and the big terminals, ranked by distance but
+ * never filtered out.
+ *
+ * Deliberately a separate call from `findNearbySpots`: these have no maximum
+ * radius (the whole point is that they show up from anywhere in the city) and
+ * they must not compete with real suggestions for the top of the list.
+ */
+export function findEssentialPlaces(here) {
+  if (!here) return [];
+  return ESSENTIAL_PLACES
+    .map(place => ({
+      ...toSpot(place),
+      kindLabel: place.kindLabel,
+      km: distanceKm(here, { lat: place.lat, lon: place.lon })
+    }))
+    .sort((a, b) => a.km - b.km);
 }
 
 /** Distance under which something is worth interrupting the user about. */

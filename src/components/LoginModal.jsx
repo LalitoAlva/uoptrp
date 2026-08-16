@@ -14,7 +14,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import confetti from 'canvas-confetti';
 
-export default function LoginModal({ isOpen, onClose }) {
+export default function LoginModal({ isOpen, onClose, mandatory = false }) {
   const { currentUser, loginWithGoogle, switchUser, users, logout } = useAuth();
   const [customEmail, setCustomEmail] = useState('');
   const [customName, setCustomName] = useState('');
@@ -44,9 +44,9 @@ export default function LoginModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in-scale">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in-scale ${mandatory ? 'bg-[var(--bg-app)]' : ''}`}>
       <div className="relative w-full max-w-md bg-[var(--bg-surface)] border border-[var(--border-medium)] rounded-md shadow-2xl overflow-hidden flex flex-col p-6 sm:p-8 space-y-6">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
           <div className="flex items-center gap-3">
@@ -60,59 +60,64 @@ export default function LoginModal({ isOpen, onClose }) {
             </div>
             <div>
               <h3 className="font-heading font-bold text-lg text-[var(--text-primary)]">
-                Acceso con Google
+                {mandatory ? 'Elige tu perfil para continuar' : 'Cambiar de Perfil'}
               </h3>
               <p className="text-xs text-[var(--text-muted)]">
-                Selecciona tu perfil de viajero o ingresa tu cuenta
+                {mandatory
+                  ? 'Nadie puede ver el itinerario sin elegir un perfil primero'
+                  : 'Selecciona tu perfil de viajero o ingresa tu cuenta'}
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          {!mandatory && (
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              aria-label="Cerrar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Current Active User Status */}
-        <div className="p-4 rounded-md bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-3 text-xs">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <img
-                src={currentUser?.avatar}
-                alt={currentUser?.name}
-                className="w-9 h-9 rounded-full border border-[var(--border-medium)] flex-shrink-0"
-              />
-              <div className="min-w-0">
-                <span className="font-bold text-sm text-[var(--text-primary)] block truncate">{currentUser?.name}</span>
-                <span className="text-[11px] text-[var(--text-muted)] font-mono truncate block">{currentUser?.email}</span>
+        {currentUser && (
+          <div className="p-4 rounded-md bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-3 text-xs">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <img
+                  src={currentUser?.avatar}
+                  alt={currentUser?.name}
+                  className="w-9 h-9 rounded-full border border-[var(--border-medium)] flex-shrink-0"
+                />
+                <div className="min-w-0">
+                  <span className="font-bold text-sm text-[var(--text-primary)] block truncate">{currentUser?.name}</span>
+                  <span className="text-[11px] text-[var(--text-muted)] font-mono truncate block">{currentUser?.email}</span>
+                </div>
               </div>
-            </div>
-            <span className={`text-[11px] font-bold px-2.5 py-1 rounded flex-shrink-0 ${
-              currentUser?.role === 'admin'
-                ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
-                : currentUser?.role === 'editor'
-                ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/20'
-                : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
-            }`}>
-              <span className="inline-flex items-center gap-1">
-                {currentUser?.role === 'admin' ? <Crown className="w-3 h-3" /> : currentUser?.role === 'editor' ? <Edit3 className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                {currentUser?.role === 'admin' ? 'Admin' : currentUser?.role === 'editor' ? 'Editor' : 'Lector'}
+              <span className={`text-[11px] font-bold px-2.5 py-1 rounded flex-shrink-0 ${
+                currentUser?.role === 'admin'
+                  ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                  : currentUser?.role === 'editor'
+                  ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/20'
+                  : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
+              }`}>
+                <span className="inline-flex items-center gap-1">
+                  {currentUser?.role === 'admin' ? <Crown className="w-3 h-3" /> : currentUser?.role === 'editor' ? <Edit3 className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  {currentUser?.role === 'admin' ? 'Admin' : currentUser?.role === 'editor' ? 'Editor' : 'Lector'}
+                </span>
               </span>
-            </span>
-          </div>
+            </div>
 
-          {currentUser?.id !== 'guest' && (
             <button
               onClick={handleLogout}
               className="w-full py-2 rounded bg-[var(--bg-surface)] hover:bg-rose-500/10 border border-[var(--border-subtle)] hover:border-rose-500/30 text-[var(--text-secondary)] hover:text-rose-500 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Cerrar Sesión (pasar a Modo Lector)</span>
+              <span>Cerrar Sesión</span>
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Quick Profiles Selection */}
         <div className="space-y-2.5 text-xs">

@@ -28,6 +28,7 @@ import { isReminderDueToday, dismissReminderForToday, getTodayKey } from './util
 import { Phone, Check } from './utils/icons';
 
 function MainAppContent() {
+  const { currentUser } = useAuth();
   const [tripData, setTripData] = useState(() => loadTripData());
   const [currentTab, setCurrentTab] = useState('itinerary');
 
@@ -306,6 +307,12 @@ function MainAppContent() {
   };
 
   const urgentCount = tripData.urgentTasks.filter(t => !t.completed).length;
+
+  // Hard gate: nothing renders — not even the printable report — until a
+  // profile is chosen. Closing this modal isn't possible (mandatory).
+  if (!currentUser) {
+    return <LoginModal isOpen={true} onClose={() => {}} mandatory />;
+  }
 
   if (currentTab === 'printable') {
     return (

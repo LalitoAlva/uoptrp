@@ -34,12 +34,14 @@ export function AuthProvider({ children }) {
     }
   });
 
+  // No default profile: a fresh device (or after logout) starts with no
+  // active session, so the app can gate all content behind picking one.
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('nyc_current_user');
-      return saved ? JSON.parse(saved) : INITIAL_USERS[0];
+      return saved ? JSON.parse(saved) : null;
     } catch {
-      return INITIAL_USERS[0];
+      return null;
     }
   });
 
@@ -48,7 +50,11 @@ export function AuthProvider({ children }) {
   }, [users]);
 
   useEffect(() => {
-    localStorage.setItem('nyc_current_user', JSON.stringify(currentUser));
+    if (currentUser) {
+      localStorage.setItem('nyc_current_user', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('nyc_current_user');
+    }
   }, [currentUser]);
 
   const loginWithGoogle = (email = 'lalo@travelnyc.com', customName = 'Lalo') => {
@@ -80,16 +86,10 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    // Set to viewer guest
-    setCurrentUser({
-      id: 'guest',
-      name: 'Invitado (Solo Lectura)',
-      email: 'invitado@travelnyc.com',
-      avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=guest',
-      role: 'viewer',
-      isOwner: false,
-      lastLogin: new Date().toISOString().slice(0, 10)
-    });
+    // Clear the session entirely — no silent fallback to a guest profile.
+    // The app gates all content behind the login screen until someone
+    // explicitly picks a profile again (Lalo, Fefe, or Invitado).
+    setCurrentUser(null);
   };
 
   const addUser = (userData) => {

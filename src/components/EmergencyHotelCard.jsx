@@ -11,11 +11,14 @@ import {
   Stop
 } from '../utils/icons';
 import { speak, stopSpeaking, isSpeechSupported, warmUpVoices } from '../utils/speech';
+import { useAuth } from '../context/AuthContext';
 
 export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
+  const { currentUser } = useAuth();
   const [copiedHotel, setCopiedHotel] = useState(false);
   const [copiedChris, setCopiedChris] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [cardLang, setCardLang] = useState('en');
 
   // Never leave a voice talking into an empty room after the card closes.
   // Opening the card also warms the voice list, so the very first tap on
@@ -32,15 +35,53 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
 
   if (!isOpen) return null;
 
-  const hotelAddressEN = "New York Marriott Marquis, 1535 Broadway (between 45th & 46th St), Times Square, New York, NY 10036";
+  const travellerName = currentUser?.name || 'un viajero';
 
-  // Phrased as a full sentence a driver can act on, and written the way it
-  // should be *heard*: "forty-fifth" rather than "45th", which most engines
-  // read as "forty-five th".
-  const spokenInstruction =
-    "Please take me to the New York Marriott Marquis hotel, "
-    + "fifteen thirty-five Broadway, between forty-fifth and forty-sixth street, "
-    + "in Times Square. Thank you.";
+  /**
+   * The card in both languages.
+   *
+   * English is the default because the audience is a New York driver, but the
+   * Spanish version matters more often than you'd expect: a large share of
+   * NYC taxi and rideshare drivers are Spanish speakers, and being able to
+   * flip is the difference between being understood and being driven around.
+   *
+   * `spoken` is written the way it should be *heard* — "fifteen thirty-five"
+   * rather than "1535", "forty-fifth" rather than "45th" — because speech
+   * engines read digits and ordinals badly.
+   */
+  const CARD = {
+    en: {
+      label: 'Show to Taxi / Uber Driver',
+      intro: `Hi, I'm ${travellerName}. I'm a tourist. Please take me to:`,
+      venue: 'New York Marriott Marquis',
+      detail: '1535 Broadway (between 45th & 46th St), Times Square',
+      thanks: 'Thank you very much!',
+      spoken:
+        `Hello. My name is ${travellerName}. I am a tourist. `
+        + 'Please take me to the New York Marriott Marquis hotel, '
+        + 'fifteen thirty-five Broadway, between forty-fifth and forty-sixth street, '
+        + 'in Times Square. Thank you very much.',
+      speakLabel: 'Reproducir en inglés',
+      lang: 'en-US'
+    },
+    es: {
+      label: 'Muéstrale esto al chofer',
+      intro: `Hola, soy ${travellerName}. Soy turista. Por favor lléveme a:`,
+      venue: 'Hotel New York Marriott Marquis',
+      detail: '1535 Broadway (entre las calles 45 y 46), Times Square',
+      thanks: '¡Muchas gracias!',
+      spoken:
+        `Hola. Me llamo ${travellerName}. Soy turista. `
+        + 'Por favor lléveme al hotel New York Marriott Marquis, '
+        + 'en el mil quinientos treinta y cinco de Broadway, '
+        + 'entre las calles cuarenta y cinco y cuarenta y seis, en Times Square. Muchas gracias.',
+      speakLabel: 'Reproducir en español',
+      lang: 'es-MX'
+    }
+  };
+
+  const card = CARD[cardLang];
+  const hotelAddressCopy = `${card.intro} ${card.venue}, ${card.detail}. ${card.thanks}`;
 
   const handleSpeak = () => {
     if (isSpeaking) {
@@ -48,15 +89,15 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
       setIsSpeaking(false);
       return;
     }
-    const started = speak(spokenInstruction, {
-      lang: 'en-US',
+    const started = speak(card.spoken, {
+      lang: card.lang,
       onEnd: () => setIsSpeaking(false)
     });
     if (started) setIsSpeaking(true);
   };
 
   const handleCopyHotel = () => {
-    navigator.clipboard.writeText(hotelAddressEN);
+    navigator.clipboard.writeText(hotelAddressCopy);
     setCopiedHotel(true);
     setTimeout(() => setCopiedHotel(false), 2500);
   };
@@ -68,7 +109,7 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in-scale">
+    <div className="fixed inset-0 z-[95] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in-scale">
       <div className="relative w-full max-w-lg bg-[var(--bg-surface)] border border-[var(--border-medium)] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
@@ -96,28 +137,59 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
           
           {/* Driver Card */}
           <div className="rounded-xl bg-[var(--bg-surface-elevated)] border-2 border-amber-500/40 p-4 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-lg">
-                Show to Taxi / Uber Driver:
-              </span>
+            {/* Language switch. English by default (New York driver), but a
+                large share of NYC drivers are Spanish speakers, so flipping
+                is often the difference between being understood or not. */}
+            <div className="flex items-center justify-between gap-2">
+              <div
+                role="group"
+                aria-label="Idioma de la tarjeta"
+                className="inline-flex items-center gap-1 p-1 rounded-full bg-[var(--bg-surface)]"
+              >
+                {[
+                  { id: 'en', label: 'English' },
+                  { id: 'es', label: 'Español' }
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    onClick={() => { stopSpeaking(); setIsSpeaking(false); setCardLang(opt.id); }}
+                    aria-pressed={cardLang === opt.id}
+                    className={`px-3 h-8 rounded-full text-[11px] font-bold transition-colors ${
+                      cardLang === opt.id
+                        ? 'bg-amber-500 text-white'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
               <button
                 onClick={handleCopyHotel}
-                className="text-[11px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 bg-[var(--bg-surface)] px-2 py-0.5 rounded-lg border border-[var(--border-subtle)]"
+                className="text-[11px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 bg-[var(--bg-surface)] px-2.5 h-8 rounded-full"
               >
                 {copiedHotel ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                 <span>{copiedHotel ? 'Copiado' : 'Copiar'}</span>
               </button>
             </div>
 
-            <div className="bg-[var(--bg-surface)] rounded-lg p-3 border border-[var(--border-subtle)] space-y-1">
-              <p className="text-xs font-mono font-bold text-[var(--text-secondary)]">
-                "Please take me to:
+            <span className="block text-[10px] font-black uppercase tracking-wider text-amber-500">
+              {card.label}
+            </span>
+
+            <div className="bg-[var(--bg-surface)] rounded-xl p-4 space-y-1.5">
+              <p className="text-[13px] font-bold text-[var(--text-secondary)] leading-snug">
+                {card.intro}
               </p>
-              <p className="text-base font-heading font-black text-[var(--text-primary)]">
-                New York Marriott Marquis
+              <p className="text-lg font-heading font-black text-[var(--text-primary)] leading-tight">
+                {card.venue}
               </p>
-              <p className="text-xs text-[var(--text-muted)]">
-                1535 Broadway (between 45th & 46th St), Times Square"
+              <p className="text-[13px] text-[var(--text-secondary)] leading-snug">
+                {card.detail}
+              </p>
+              <p className="text-[13px] font-bold text-[var(--text-muted)] pt-1">
+                {card.thanks}
               </p>
             </div>
 
@@ -136,7 +208,7 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
               >
                 {isSpeaking
                   ? <><Stop className="w-4 h-4" /> Detener audio</>
-                  : <><Volume className="w-4 h-4" /> Reproducir para el chofer</>}
+                  : <><Volume className="w-4 h-4" /> {card.speakLabel}</>}
               </button>
             )}
 

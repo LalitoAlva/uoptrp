@@ -21,7 +21,8 @@ import {
   Edit3,
   Eye,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Phone
 } from '../utils/icons';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -32,7 +33,9 @@ export default function Navbar({
   urgentCount,
   onOpenNewActivity,
   onOpenEmergency,
-  onOpenLogin
+  onOpenLogin,
+  onOpenReminderSettings,
+  reminderMessage
 }) {
   const { isDark, toggleTheme, fontSize, cycleFontSize } = useTheme();
   const { currentUser, logout } = useAuth();
@@ -404,6 +407,16 @@ export default function Navbar({
                   tone="var(--accent-amber-text)"
                   isActive={false}
                   onClick={() => { onOpenEmergency(); setIsMenuOpen(false); }}
+                />
+                <DrawerRow
+                  item={{
+                    label: 'Recordatorio de llamada',
+                    hint: reminderMessage ? `Ahora: “${reminderMessage}”` : 'Editar el aviso diario',
+                    icon: Phone
+                  }}
+                  tone="var(--accent-rose-text)"
+                  isActive={false}
+                  onClick={() => { onOpenReminderSettings(); setIsMenuOpen(false); }}
                 />
                 <DrawerRow
                   item={{ label: 'Reporte imprimible', hint: 'Versión PDF de todo el viaje', icon: Printer }}

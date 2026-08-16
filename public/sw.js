@@ -40,15 +40,29 @@ self.addEventListener('fetch', (event) => {
   // to cache.put() them throws and was crashing every fetch that touched one.
   if (request.method !== 'GET' || !request.url.startsWith('http')) return;
 
+  // Same-origin only. The background-refresh branch below re-caches whatever
+  // it already holds without checking `response.type`, so letting third-party
+  // requests in here would mean this worker storing and then replaying other
+  // origins' responses — including Google's auth endpoints and any
+  // credentialed response they return — from our cache, indefinitely. Those
+  // requests go straight to the network instead.
+  if (new URL(request.url).origin !== self.location.origin) return;
+
+  // Never cache the Google Identity script or anything auth-shaped, even if
+  // it were same-origin: a stale copy of an auth flow is its own hazard.
+  if (request.url.includes('/gsi/') || request.url.includes('accounts.google')) return;
+
   const isNavigation = request.mode === 'navigate';
 
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Serve from cache immediately, refresh in the background.
+        // Serve from cache immediately, refresh in the background. The
+        // `type === 'basic'` check matches the cold path below: only plain
+        // same-origin responses are worth storing, never opaque or redirected ones.
         fetch(request)
           .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
+            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
               caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse));
             }
           })

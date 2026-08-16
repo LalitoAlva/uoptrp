@@ -84,12 +84,21 @@ const ToastMixin = Swal.mixin({
   },
 });
 
-/** Replaces alert() for non-blocking feedback. type: success | error | warning | info */
+/**
+ * Replaces alert() for non-blocking feedback. type: success | error | warning | info
+ *
+ * The message goes through SweetAlert2's `text` option, never `title`:
+ * `title` is injected as HTML, and the strings reaching this function are not
+ * all developer-authored — the daily reminder text is user-editable, place
+ * names can come from an imported CSV/JSON, and the sign-in failure toast
+ * interpolates an email out of a Google credential. `text` is written with
+ * textContent, so none of those can smuggle markup into the page.
+ */
 export function notify(message, type = 'success') {
   const tokens = themeTokens();
   ToastMixin.fire({
     icon: type,
-    title: message,
+    text: typeof message === 'string' ? message : String(message ?? ''),
     background: tokens.background,
     color: tokens.color,
     customClass: { popup: 'spa-card !text-sm' },

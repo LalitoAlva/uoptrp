@@ -29,22 +29,57 @@ const INITIAL_USERS = [
   }
 ];
 
+const VALID_ROLES = ['admin', 'editor', 'viewer'];
+
+/**
+ * Shapes one stored user record.
+ *
+ * This list IS the access-control list and it lives in localStorage, so treat
+ * every field as untrusted: an unknown `role` string would otherwise flow
+ * straight into the `isAdmin` / `canEdit` checks, and a non-string `email`
+ * would throw inside the whitelist comparison during sign-in. Anything that
+ * doesn't fit the expected shape is dropped or downgraded to `viewer` (the
+ * least-privileged role) rather than being trusted.
+ */
+function sanitizeUser(user) {
+  if (!user || typeof user !== 'object') return null;
+  if (typeof user.email !== 'string' || !user.email.includes('@')) return null;
+
+  return {
+    id: typeof user.id === 'string' ? user.id : `user-${Date.now()}`,
+    name: typeof user.name === 'string' ? user.name : user.email.split('@')[0],
+    email: user.email,
+    avatar: typeof user.avatar === 'string' ? user.avatar : '',
+    role: VALID_ROLES.includes(user.role) ? user.role : 'viewer',
+    isOwner: user.isOwner === true,
+    lastLogin: typeof user.lastLogin === 'string' ? user.lastLogin : null
+  };
+}
+
+function readStoredUsers() {
+  try {
+    const saved = localStorage.getItem('nyc_app_users_v2');
+    if (!saved) return INITIAL_USERS;
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return INITIAL_USERS;
+    const cleaned = parsed.map(sanitizeUser).filter(Boolean);
+    // Never leave the app with an empty whitelist — that would lock everyone
+    // out with no way back in from the UI.
+    return cleaned.length > 0 ? cleaned : INITIAL_USERS;
+  } catch {
+    return INITIAL_USERS;
+  }
+}
+
 export function AuthProvider({ children }) {
-  const [users, setUsers] = useState(() => {
-    try {
-      const saved = localStorage.getItem('nyc_app_users_v2');
-      return saved ? JSON.parse(saved) : INITIAL_USERS;
-    } catch {
-      return INITIAL_USERS;
-    }
-  });
+  const [users, setUsers] = useState(readStoredUsers);
 
   // No default profile: a fresh device (or after logout) starts with no
   // active session, so the app can gate all content behind picking one.
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('nyc_current_user_v2');
-      return saved ? JSON.parse(saved) : null;
+      return saved ? sanitizeUser(JSON.parse(saved)) : null;
     } catch {
       return null;
     }
@@ -105,13 +140,28 @@ export function AuthProvider({ children }) {
     setCurrentUser(null);
   };
 
+  /**
+   * Grants someone access. Adding a row here is what lets that Gmail account
+   * sign in, so the email is validated and de-duplicated, and the role is
+   * checked against the allowlist instead of being taken at face value.
+   */
   const addUser = (userData) => {
+    const email = typeof userData?.email === 'string' ? userData.email.trim().toLowerCase() : '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      notify('Ese correo no tiene un formato válido.', 'error');
+      return;
+    }
+    if (users.some(u => u.email.toLowerCase() === email)) {
+      notify('Ese correo ya tiene acceso al viaje.', 'warning');
+      return;
+    }
+
     const newUser = {
       id: `user-${Date.now()}`,
-      name: userData.name || userData.email.split('@')[0],
-      email: userData.email,
-      avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(userData.email)}`,
-      role: userData.role || 'editor',
+      name: (typeof userData.name === 'string' && userData.name.trim()) || email.split('@')[0],
+      email,
+      avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(email)}`,
+      role: VALID_ROLES.includes(userData.role) ? userData.role : 'viewer',
       isOwner: false,
       lastLogin: null
     };
@@ -119,6 +169,7 @@ export function AuthProvider({ children }) {
   };
 
   const updateUserRole = (userId, newRole) => {
+    if (!VALID_ROLES.includes(newRole)) return;
     setUsers(prev => prev.map(u => {
       if (u.id === userId) {
         const updated = { ...u, role: newRole };

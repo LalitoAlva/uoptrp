@@ -1,4 +1,5 @@
 // Parsers for Recommendations & Imports
+import { sanitizeUrl } from './sanitize';
 
 export function parseSmartText(text) {
   if (!text || typeof text !== 'string') return [];
@@ -87,7 +88,10 @@ export function parseCSVRecommendations(csvContent) {
     if (!row || row.length === 0) continue;
 
     const cleanRow = row.map(cell => cell.replace(/^"|"$/g, '').trim());
-    const obj = {};
+    // Null-prototype: the header row is attacker-controlled in an imported
+    // file, and writing keys like `__proto__` or `constructor` onto a normal
+    // object literal reaches through to the prototype chain.
+    const obj = Object.create(null);
 
     headers.forEach((header, index) => {
       obj[header] = cleanRow[index] || '';
@@ -106,7 +110,9 @@ export function parseCSVRecommendations(csvContent) {
       subcategory: obj.subcategoria || obj.tipo || 'Personalizado',
       zone: obj.zona || obj.barrio || 'Nueva York',
       address: obj.direccion || obj.address || `${name}, NY`,
-      mapsUrl: obj.mapsurl || `https://maps.google.com/?q=${encodeURIComponent(name + ' NYC')}`,
+      // Screen the imported link here too, not only at render time, so a
+      // `javascript:` URL from a shared spreadsheet never even reaches storage.
+      mapsUrl: sanitizeUrl(obj.mapsurl) || `https://maps.google.com/?q=${encodeURIComponent(`${name} NYC`)}`,
       price: obj.precio || obj.price || '$$',
       paymentMethod: obj.metodopago || 'both',
       mustOrder: obj.imperdible || obj.mustorder || obj.especialidad || 'Recomendación especial',
@@ -119,20 +125,37 @@ export function parseCSVRecommendations(csvContent) {
   return list;
 }
 
+/**
+ * Escapes one value for CSV output.
+ *
+ * Beyond the usual quote-doubling, this neutralises **formula injection**:
+ * Excel, LibreOffice and Google Sheets treat a cell beginning with `=`, `+`,
+ * `-`, `@`, tab or CR as a formula and evaluate it on open. Recommendations
+ * can arrive from an imported CSV/JSON that came from someone else, so a spot
+ * named `=HYPERLINK("http://evil","Ver mapa")` — or worse, a DDE payload —
+ * would execute on the machine of whoever opens the export. Prefixing with a
+ * single quote makes the spreadsheet treat it as literal text.
+ */
+function csvCell(value) {
+  const str = value === null || value === undefined ? '' : String(value);
+  const neutralised = /^[=+\-@\t\r]/.test(str) ? `'${str}` : str;
+  return `"${neutralised.replace(/"/g, '""')}"`;
+}
+
 export function exportRecommendationsToCSV(recommendations) {
   const headers = ['nombre', 'categoria', 'subcategoria', 'zona', 'direccion', 'precio', 'metodoPago', 'imperdibles', 'tips', 'diaSugerido', 'mapsUrl'];
   const rows = recommendations.map(r => [
-    `"${(r.name || '').replace(/"/g, '""')}"`,
-    `"${(r.category || '').replace(/"/g, '""')}"`,
-    `"${(r.subcategory || '').replace(/"/g, '""')}"`,
-    `"${(r.zone || '').replace(/"/g, '""')}"`,
-    `"${(r.address || '').replace(/"/g, '""')}"`,
-    `"${(r.price || '').replace(/"/g, '""')}"`,
-    `"${(r.paymentMethod || '').replace(/"/g, '""')}"`,
-    `"${(r.mustOrder || '').replace(/"/g, '""')}"`,
-    `"${(r.tips || '').replace(/"/g, '""')}"`,
-    `"${r.daySuggested || ''}"`,
-    `"${(r.mapsUrl || '').replace(/"/g, '""')}"`
+    csvCell(r.name),
+    csvCell(r.category),
+    csvCell(r.subcategory),
+    csvCell(r.zone),
+    csvCell(r.address),
+    csvCell(r.price),
+    csvCell(r.paymentMethod),
+    csvCell(r.mustOrder),
+    csvCell(r.tips),
+    csvCell(r.daySuggested),
+    csvCell(r.mapsUrl)
   ]);
 
   const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');

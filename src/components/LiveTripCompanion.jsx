@@ -10,6 +10,7 @@ import {
 } from '../utils/icons';
 import { sanitizeUrl } from '../utils/sanitize';
 import { STATUS_ORDER, STATUS_CONFIG, getStatus, getStatusConfig, getCategory } from '../utils/activityMeta';
+import NearbyAlerts from './NearbyAlerts';
 import confetti from 'canvas-confetti';
 
 /**
@@ -47,16 +48,28 @@ export default function LiveTripCompanion({ tripData, onChangeActivityStatus, on
   return (
     <div className="w-full space-y-6 sm:space-y-8">
 
+      {/* ── Purpose of this screen ───────────────────────────────────── */}
+      <header className="space-y-2">
+        <span className="spa-eyebrow">
+          <span className="relative flex w-2 h-2">
+            <span className="absolute inline-flex w-full h-full rounded-full bg-[var(--accent-primary)] animate-soft-pulse" />
+            <span className="relative inline-flex w-2 h-2 rounded-full bg-[var(--accent-primary)]" />
+          </span>
+          Asistente en vivo
+        </span>
+        <h1 className="font-heading font-black text-2xl sm:text-3xl text-[var(--text-primary)] leading-tight">
+          Qué sigue ahora mismo
+        </h1>
+        <p className="text-[13px] sm:text-sm text-[var(--text-secondary)] leading-relaxed max-w-2xl">
+          Tu pantalla de calle: la siguiente parada en grande, cómo llegar de un toque, qué lugares de
+          tu lista tienes cerca y el día completo de un vistazo.
+        </p>
+      </header>
+
       {/* ── Day switcher ─────────────────────────────────────────────── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <span className="spa-eyebrow">
-            <span className="relative flex w-2 h-2">
-              <span className="absolute inline-flex w-full h-full rounded-full bg-[var(--accent-primary)] animate-soft-pulse" />
-              <span className="relative inline-flex w-2 h-2 rounded-full bg-[var(--accent-primary)]" />
-            </span>
-            Asistente en vivo
-          </span>
+          <span className="spa-eyebrow">Elige el día</span>
           <span className="text-xs font-bold text-[var(--text-muted)]">
             {doneToday}/{currentDay.timeline.length} hechas hoy
           </span>
@@ -176,6 +189,9 @@ export default function LiveTripCompanion({ tripData, onChangeActivityStatus, on
           <p className="text-sm text-[var(--text-muted)]">Todas las paradas están marcadas.</p>
         </div>
       )}
+
+      {/* ── What's around me right now ───────────────────────────────── */}
+      <NearbyAlerts recommendations={tripData.recommendations} />
 
       {/* ── Up next ──────────────────────────────────────────────────── */}
       {upNext.length > 0 && (

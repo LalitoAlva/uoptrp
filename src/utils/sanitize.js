@@ -25,7 +25,14 @@ export function sanitizeUrl(url) {
   if (typeof url !== 'string' || !url.trim()) return null;
   try {
     const parsed = new URL(url, window.location.origin);
-    return SAFE_URL_PROTOCOLS.includes(parsed.protocol) ? url : null;
+    if (!SAFE_URL_PROTOCOLS.includes(parsed.protocol)) return null;
+    // Return the *parsed* URL rather than the original string: otherwise the
+    // value we validated and the value we hand to href are two different
+    // strings, and anything the URL parser normalised away (stray control
+    // characters, tabs and newlines inside the scheme, whitespace) would
+    // reach the DOM unchecked. Returning `href` guarantees the browser gets
+    // exactly the URL that passed the protocol check.
+    return parsed.href;
   } catch {
     return null;
   }

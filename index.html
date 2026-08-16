@@ -2,7 +2,15 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- The Content-Security-Policy is injected here at build time by the
+         `csp` plugin in vite.config.js, and also sent as a real HTTP header
+         by render.yaml. It is deliberately absent in dev: Vite's React
+         refresh preamble is an inline script, which a policy without
+         'unsafe-inline' would (correctly) block. -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
     <title>NYC · US Open 2026 — Lalo & Fefe</title>
     <meta name="description" content="App interactiva de seguimiento de viaje a Nueva York y US Open 2026. Itinerario detallado, Arthur Ashe Stadium, Go City Pass, recomendaciones y presupuesto." />
     
@@ -28,25 +36,7 @@
     <!-- Google Identity Services — real Google Sign-In, no backend required -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
-      // Register Service Worker for PWA — production only. A SW intercepting
-      // fetches during `npm run dev` fights Vite's HMR (stale cached module
-      // scripts get served with the wrong MIME type, WebSocket reconnects
-      // misbehave), so it's explicitly skipped on localhost.
-      const isLocalDev = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
-      if ('serviceWorker' in navigator && !isLocalDev) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((reg) => console.log('PWA ServiceWorker registrado con éxito:', reg.scope))
-            .catch((err) => console.log('Error registrando ServiceWorker:', err));
-        });
-      } else if ('serviceWorker' in navigator && isLocalDev) {
-        // Also unregister any SW left over from a previous production build
-        // preview, so a stale cache can't haunt local dev either.
-        navigator.serviceWorker.getRegistrations().then((regs) => {
-          regs.forEach((reg) => reg.unregister());
-        });
-      }
-    </script>
+    <!-- External rather than inline so the CSP can forbid inline scripts. -->
+    <script src="/register-sw.js"></script>
   </body>
 </html>

@@ -11,6 +11,7 @@ import {
   Camera,
   Coins
 } from '../utils/icons';
+import PageHeader from './PageHeader';
 import confetti from 'canvas-confetti';
 
 export default function BooksTechView({ books, onToggleBook, onAddBook, onDeleteBook }) {
@@ -42,27 +43,16 @@ export default function BooksTechView({ books, onToggleBook, onAddBook, onDelete
   };
 
   return (
-    <div className="w-full space-y-4">
-      
-      {/* Header Banner */}
-      <div className="spa-banner p-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
-              <BookOpen className="w-5 h-5" />
-            </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-orange-500">
-              Compras Especializadas NYC
-            </span>
-          </div>
-          <h2 className="font-heading font-black text-2xl text-[var(--text-primary)] tracking-tight">
-            Strand Bookstore & Guía Tech (B&H / Apple)
-          </h2>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
-            Wishlist de libros de segunda mano de Strand ("18 Miles of Books") y puntos de electrónica.
-          </p>
-        </div>
-      </div>
+    <div className="w-full space-y-7">
+
+      <PageHeader
+        eyebrow="Compras especializadas"
+        title="Libros & tech"
+        description="Tu wishlist para Strand Bookstore (las “18 millas de libros”) y los puntos donde conviene comprar electrónica en Nueva York. Marca cada libro cuando ya lo tengas en la mano."
+        icon={BookOpen}
+        accent="var(--accent-amber-text)"
+        accentBg="color-mix(in srgb, var(--accent-amber) 16%, transparent)"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         

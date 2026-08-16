@@ -73,37 +73,41 @@ export default function AdminPanel({
 
   return (
     <div className="w-full space-y-4">
-      
-      {/* CMS Header */}
-      <div className="spa-banner p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="p-2 rounded-lg bg-[var(--accent-primary)]/10 text-[var(--accent-primary-text)]">
-                <Database className="w-5 h-5" />
-              </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary-text)]">
-                Panel de Administración de Contenido (CMS)
-              </span>
-            </div>
-            <h2 className="font-heading font-black text-2xl text-[var(--text-primary)] tracking-tight">
-              Catálogos Maestros de Información
-            </h2>
-            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
-              Altas, Bajas y Cambios de toda la información cargada para el viaje.
-            </p>
-          </div>
 
-          {!isAdmin && (
-            <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-500 text-xs font-medium flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 flex-shrink-0" />
-              Modo Consulta: Inicia sesión como Administrador (Lalo) para editar catálogos.
-            </div>
-          )}
+      {/* CMS Header */}
+      <div className="spa-banner p-6 sm:p-9 space-y-5">
+        <div className="flex items-start gap-4">
+          <span className="spa-tile-lg flex-shrink-0 bg-[var(--accent-primary-soft)] text-[var(--accent-primary-text)]">
+            <Database className="w-6 h-6" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <span className="spa-eyebrow">Panel de contenido (CMS)</span>
+            <h1 className="font-heading font-black text-2xl sm:text-4xl text-[var(--text-primary)] leading-tight mt-1">
+              Catálogos maestros
+            </h1>
+          </div>
         </div>
 
+        <p className="text-[13px] sm:text-[15px] text-[var(--text-secondary)] leading-relaxed max-w-2xl">
+          El lugar donde se edita todo el contenido del viaje de un solo tirón: paradas del itinerario,
+          pendientes, recomendaciones, pases, libros y gastos. Altas, bajas y cambios en una sola pantalla.
+        </p>
+
+        {!isAdmin && (
+          <div
+            className="flex items-start gap-3 p-4 rounded-2xl"
+            style={{ backgroundColor: 'color-mix(in srgb, var(--accent-amber) 14%, transparent)' }}
+          >
+            <Lock className="w-4 h-4 flex-shrink-0 mt-0.5 text-[var(--accent-amber-text)]" />
+            <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">
+              <strong className="text-[var(--text-primary)]">Modo consulta.</strong> Inicia sesión como
+              administrador para editar los catálogos.
+            </p>
+          </div>
+        )}
+
         {/* Catalog Selector Pills */}
-        <div className="flex items-center gap-1.5 mt-5 pt-4 border-t border-[var(--border-subtle)] overflow-x-auto">
+        <div className="spa-rail hide-scrollbar">
           {catalogs.map((cat) => {
             const Icon = cat.icon;
             const isActive = activeCatalog === cat.id;
@@ -111,19 +115,12 @@ export default function AdminPanel({
               <button
                 key={cat.id}
                 onClick={() => setActiveCatalog(cat.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
-                  isActive
-                    ? 'bg-[var(--accent-primary)] text-white shadow-sm'
-                    : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)]'
-                }`}
+                aria-pressed={isActive}
+                className={`spa-chip ${isActive ? 'spa-chip-accent' : ''}`}
               >
                 <Icon className="w-3.5 h-3.5" />
-                <span>{cat.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                  isActive ? 'bg-white text-[var(--accent-primary-text)]' : 'bg-[var(--border-medium)] text-[var(--text-secondary)]'
-                }`}>
-                  {cat.count}
-                </span>
+                {cat.label}
+                <span className="font-mono text-[10px] opacity-70">{cat.count}</span>
               </button>
             );
           })}

@@ -25,7 +25,15 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { loadTripData, saveTripData } from './utils/storage';
 import { confirmAction, notify } from './utils/alerts';
-import { isReminderDueToday, dismissReminderForToday, getTodayKey } from './utils/dailyReminder';
+import ReminderSettingsSheet from './components/ReminderSettingsSheet';
+import {
+  isReminderDueToday,
+  dismissReminderForToday,
+  getTodayKey,
+  getReminderSettings,
+  saveReminderSettings,
+  clearDismissal
+} from './utils/dailyReminder';
 import { Phone, Check } from './utils/icons';
 
 function MainAppContent() {
@@ -44,6 +52,8 @@ function MainAppContent() {
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isReminderSheetOpen, setIsReminderSheetOpen] = useState(false);
+  const [reminderSettings, setReminderSettings] = useState(() => getReminderSettings());
   const [showMomReminder, setShowMomReminder] = useState(() => isReminderDueToday());
 
   // Auto-persist to localStorage on state changes
@@ -51,25 +61,31 @@ function MainAppContent() {
     saveTripData(tripData);
   }, [tripData]);
 
-  // Daily 8pm CDMX reminder to call home. Best-effort: only fires while the
-  // app is open (no push server here), backstopped by the persistent banner
-  // below in case the exact minute is missed.
+  // Daily reminder (message + hour configurable from Menú → Recordatorio de
+  // llamada). Best-effort: only fires while the app is open (no push server
+  // here), backstopped by the persistent banner below in case the exact
+  // minute is missed.
   useEffect(() => {
+    if (!reminderSettings.enabled) {
+      setShowMomReminder(false);
+      return;
+    }
+
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission().catch(() => {});
     }
 
     let lastFiredKey = null;
     const checkReminder = () => {
-      if (!isReminderDueToday()) return;
+      if (!isReminderDueToday(reminderSettings)) return;
       setShowMomReminder(true);
       const todayKey = getTodayKey();
       if (lastFiredKey === todayKey) return;
       lastFiredKey = todayKey;
-      notify('📞 Son las 8pm en CDMX — ¡no olvides llamar a la mamita preciosa!', 'info');
+      notify(reminderSettings.message, 'info');
       if ('Notification' in window && Notification.permission === 'granted') {
         try {
-          new Notification('NYC · US Open 2026', { body: 'Llama a la mamita preciosa 💛', icon: '/icon-192.png' });
+          new Notification('NYC · US Open 2026', { body: reminderSettings.message, icon: '/icon-192.png' });
         } catch {
           // Some browsers (notably iOS PWA) restrict the Notification constructor — the toast above still covers it.
         }
@@ -79,7 +95,17 @@ function MainAppContent() {
     checkReminder();
     const interval = setInterval(checkReminder, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [reminderSettings]);
+
+  const handleSaveReminder = (next) => {
+    const saved = saveReminderSettings(next);
+    // A changed hour/message should be able to fire again today rather than
+    // staying suppressed by an earlier "ya le hablé".
+    clearDismissal();
+    setReminderSettings(saved);
+    setShowMomReminder(isReminderDueToday(saved));
+    notify('Recordatorio actualizado', 'success');
+  };
 
   // ACTIVITY STATUS & CRUD
   const handleChangeActivityStatus = (dayNumber, activityId, newStatus) => {
@@ -335,6 +361,8 @@ function MainAppContent() {
         onOpenNewActivity={() => handleOpenNewActivity(1)}
         onOpenEmergency={() => setIsEmergencyModalOpen(true)}
         onOpenLogin={() => setIsLoginModalOpen(true)}
+        onOpenReminderSettings={() => setIsReminderSheetOpen(true)}
+        reminderMessage={reminderSettings.message}
       />
 
       {/* Daily reminder banner — visible on every tab from 8pm CDMX until dismissed for the day */}
@@ -344,9 +372,13 @@ function MainAppContent() {
             <span className="spa-tile flex-shrink-0 bg-[color-mix(in_srgb,var(--accent-rose)_16%,transparent)] text-[var(--accent-rose-text)]">
               <Phone className="w-4 h-4" />
             </span>
-            <p className="flex-1 text-[13px] sm:text-sm font-bold text-[var(--text-primary)] leading-snug">
-              Ya son las 8pm en CDMX — no olvides llamar a la mamita preciosa
-            </p>
+            <button
+              onClick={() => setIsReminderSheetOpen(true)}
+              className="flex-1 text-left text-[13px] sm:text-sm font-bold text-[var(--text-primary)] leading-snug"
+              title="Editar este recordatorio"
+            >
+              {reminderSettings.message}
+            </button>
             <button
               onClick={() => { dismissReminderForToday(); setShowMomReminder(false); }}
               className="spa-btn spa-btn-ghost h-10 min-h-0 px-4 text-xs flex-shrink-0"
@@ -535,6 +567,13 @@ function MainAppContent() {
       <PWAInstallPrompt
         isOpen={isInstallModalOpen}
         onClose={() => setIsInstallModalOpen(false)}
+      />
+
+      <ReminderSettingsSheet
+        isOpen={isReminderSheetOpen}
+        onClose={() => setIsReminderSheetOpen(false)}
+        settings={reminderSettings}
+        onSave={handleSaveReminder}
       />
 
     </div>

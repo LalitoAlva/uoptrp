@@ -10,6 +10,7 @@ import {
   Sparkles,
   PieChart
 } from '../utils/icons';
+import PageHeader from './PageHeader';
 import confetti from 'canvas-confetti';
 
 export default function BudgetView({ expenses, onAddExpense, onDeleteExpense }) {
@@ -56,65 +57,54 @@ export default function BudgetView({ expenses, onAddExpense, onDeleteExpense }) 
   ];
 
   return (
-    <div className="w-full space-y-4">
-      
-      {/* Header Banner */}
-      <div className="spa-banner p-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
-              <DollarSign className="w-5 h-5" />
-            </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-500">
-              Control de Gastos & Presupuesto
-            </span>
-          </div>
-          <h2 className="font-heading font-black text-2xl text-[var(--text-primary)] tracking-tight">
-            Presupuesto de Viaje & Calculadora de Efectivo
-          </h2>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
-            Registro de gastos compartidos entre Lalo y Fefe, conversor USD/MXN y guía de efectivo.
-          </p>
-        </div>
-      </div>
+    <div className="w-full space-y-7">
+
+      <PageHeader
+        eyebrow="Control de gastos"
+        title="Presupuesto del viaje"
+        description="Lleva aquí lo que van gastando Lalo y Fefe, convierte dólares a pesos al tipo de cambio que tú fijes y calcula cuánto efectivo necesitas para los lugares que no aceptan tarjeta."
+        icon={DollarSign}
+        accent="var(--accent-emerald-text)"
+        accentBg="color-mix(in srgb, var(--accent-emerald) 16%, transparent)"
+      />
 
       {/* Summary Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="spa-card p-4">
-          <span className="text-xs text-[var(--text-muted)] font-medium">Gasto Total Registrado</span>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl font-heading font-black text-[var(--text-primary)]">
+        <div className="spa-card p-5">
+          <span className="spa-eyebrow">Gasto total</span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="font-display text-3xl text-[var(--text-primary)]">
               ${totalUSD.toFixed(2)}
             </span>
             <span className="text-xs font-mono text-[var(--text-muted)]">USD</span>
           </div>
-          <span className="text-xs text-[var(--accent-primary-text)] font-mono font-medium">
+          <span className="block text-[13px] text-[var(--accent-primary-text)] font-mono font-bold mt-1">
             ≈ ${(totalMXN).toLocaleString('es-MX', { maximumFractionDigits: 0 })} MXN
           </span>
         </div>
 
-        <div className="spa-card p-4">
-          <span className="text-xs text-[var(--text-muted)] font-medium">Pagado por Lalo</span>
-          <div className="mt-1">
-            <span className="text-2xl font-heading font-black text-[var(--text-primary)]">
+        <div className="spa-card p-5">
+          <span className="spa-eyebrow">Pagado por Lalo</span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="font-display text-3xl text-[var(--text-primary)]">
               ${laloTotal.toFixed(2)}
             </span>
-            <span className="text-xs font-mono text-[var(--text-muted)] ml-1">USD</span>
+            <span className="text-xs font-mono text-[var(--text-muted)]">USD</span>
           </div>
-          <span className="text-xs text-[var(--text-muted)] font-medium">
+          <span className="block text-[13px] text-[var(--text-muted)] font-bold mt-1">
             {expenses.length > 0 ? Math.round((laloTotal / (totalUSD || 1)) * 100) : 0}% del total
           </span>
         </div>
 
-        <div className="spa-card p-4">
-          <span className="text-xs text-[var(--text-muted)] font-medium">Pagado por Fefe</span>
-          <div className="mt-1">
-            <span className="text-2xl font-heading font-black text-[var(--text-primary)]">
+        <div className="spa-card p-5">
+          <span className="spa-eyebrow">Pagado por Fefe</span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="font-display text-3xl text-[var(--text-primary)]">
               ${fefeTotal.toFixed(2)}
             </span>
-            <span className="text-xs font-mono text-[var(--text-muted)] ml-1">USD</span>
+            <span className="text-xs font-mono text-[var(--text-muted)]">USD</span>
           </div>
-          <span className="text-xs text-[var(--text-muted)] font-medium">
+          <span className="block text-[13px] text-[var(--text-muted)] font-bold mt-1">
             {expenses.length > 0 ? Math.round((fefeTotal / (totalUSD || 1)) * 100) : 0}% del total
           </span>
         </div>

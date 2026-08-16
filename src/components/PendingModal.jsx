@@ -1,44 +1,37 @@
 import React, { useState } from 'react';
+import BottomSheet from './BottomSheet';
 import {
-  X,
-  CheckSquare,
-  AlertTriangle,
+  ListCheck,
   AlertCircle,
-  Clock,
   Plus,
   Trash2,
-  Sparkles,
-  ExternalLink,
-  ShieldCheck,
-  Check
+  Check,
+  X
 } from '../utils/icons';
 import confetti from 'canvas-confetti';
 
-export default function PendingModal({ 
-  isOpen, 
-  onClose, 
-  tasks, 
-  onToggleTask, 
-  onAddTask, 
-  onDeleteTask 
+/**
+ * The full pendientes manager. Same list as the Pendientes screen, but with
+ * the add form — reachable from anywhere via the hero card or that screen's
+ * "Agregar pendiente" button.
+ */
+export default function PendingModal({
+  isOpen,
+  onClose,
+  tasks,
+  onToggleTask,
+  onAddTask,
+  onDeleteTask
 }) {
   const [newText, setNewText] = useState('');
   const [newDetails, setNewDetails] = useState('');
   const [newDeadline, setNewDeadline] = useState('');
-  const [newPriority, setNewPriority] = useState('urgent');
   const [showAddForm, setShowAddForm] = useState(false);
 
-  if (!isOpen) return null;
-
-  const handleToggle = (taskId) => {
-    onToggleTask(taskId);
-    const t = tasks.find(item => item.id === taskId);
-    if (t && !t.completed) {
-      confetti({
-        particleCount: 20,
-        spread: 40,
-        origin: { y: 0.8 }
-      });
+  const handleToggle = (task) => {
+    onToggleTask(task.id);
+    if (!task.completed) {
+      confetti({ particleCount: 25, spread: 45, origin: { y: 0.75 } });
     }
   };
 
@@ -51,7 +44,7 @@ export default function PendingModal({
       text: newText.trim(),
       details: newDetails.trim() || 'Sin notas adicionales',
       deadline: newDeadline.trim() || 'Antes del viaje',
-      priority: newPriority,
+      priority: 'urgent',
       completed: false
     });
 
@@ -65,159 +58,124 @@ export default function PendingModal({
   const completedCount = tasks.filter(t => t.completed).length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in-scale">
-      <div className="relative w-full max-w-2xl bg-[var(--bg-surface)] border border-[var(--border-medium)] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]">
-          <div className="flex items-center gap-2.5">
-            <span className="p-2 rounded-lg bg-rose-500/10 text-rose-500">
-              <AlertTriangle className="w-5 h-5" />
-            </span>
-            <div>
-              <h3 className="font-heading font-bold text-lg text-[var(--text-primary)]">
-                Checklist de Pendientes & Reservas Clave
-              </h3>
-              <p className="text-xs text-[var(--text-muted)]">
-                {pendingCount} pendientes por cerrar · {completedCount} listos
-              </p>
-            </div>
-          </div>
+    <BottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Pendientes & reservas"
+      subtitle={`${pendingCount} por cerrar · ${completedCount} listos`}
+      icon={ListCheck}
+      accent="var(--accent-rose-text)"
+      accentBg="color-mix(in srgb, var(--accent-rose) 16%, transparent)"
+      footer={
+        !showAddForm ? (
           <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors"
+            onClick={() => setShowAddForm(true)}
+            className="spa-btn spa-btn-primary w-full min-h-[3.25rem]"
           >
-            <X className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
+            Agregar pendiente
           </button>
-        </div>
+        ) : null
+      }
+    >
+      <div className="space-y-5">
 
-        {/* Task list and Add Form */}
-        <div className="p-6 space-y-4 overflow-y-auto flex-1 text-xs">
-          
-          {/* Add Form Toggle */}
-          {!showAddForm ? (
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="w-full py-2.5 rounded-xl border border-dashed border-[var(--border-medium)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-bold flex items-center justify-center gap-1.5 hover:bg-[var(--bg-surface-elevated)] transition-all"
-            >
-              <Plus className="w-4 h-4 text-[var(--accent-primary-text)]" />
-              <span>+ Agregar nuevo pendiente o reservación</span>
-            </button>
-          ) : (
-            <form onSubmit={handleAddSubmit} className="p-4 rounded-xl bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[var(--text-primary)]">Nuevo Requisito</span>
-                <button
-                  type="button"
-                  onClick={() => setShowAddForm(false)}
-                  className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                >
-                  Cancelar
-                </button>
-              </div>
-
-              <input
-                type="text"
-                placeholder="Título del pendiente (ej. Reservar Keens Steakhouse)..."
-                value={newText}
-                onChange={(e) => setNewText(e.target.value)}
-                className="w-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)]"
-                required
-              />
-
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  placeholder="Detalles / Enlaces..."
-                  value={newDetails}
-                  onChange={(e) => setNewDetails(e.target.value)}
-                  className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none"
-                />
-                <input
-                  type="text"
-                  placeholder="Fecha límite (ej. 30 días antes)..."
-                  value={newDeadline}
-                  onChange={(e) => setNewDeadline(e.target.value)}
-                  className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none"
-                />
-              </div>
-
-              <div className="flex justify-end pt-1">
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 bg-[var(--accent-primary)] text-white font-bold rounded-lg text-xs"
-                >
-                  Guardar Pendiente
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* Task Items */}
-          <div className="space-y-2">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                onClick={() => handleToggle(task.id)}
-                className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
-                  task.completed
-                    ? 'bg-[var(--bg-surface-elevated)]/50 border-[var(--border-subtle)] opacity-60'
-                    : 'bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--border-medium)]'
-                }`}
+        {showAddForm && (
+          <form onSubmit={handleAddSubmit} className="rounded-2xl bg-[var(--bg-surface-elevated)] p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="spa-eyebrow">Nuevo pendiente</span>
+              <button
+                type="button"
+                onClick={() => setShowAddForm(false)}
+                className="spa-tile-sm bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                aria-label="Cancelar"
               >
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className={`mt-0.5 w-4 h-4 rounded-lg flex items-center justify-center transition-all ${
-                    task.completed 
-                      ? 'bg-emerald-500 text-white font-bold text-[10px]' 
-                      : 'border border-[var(--border-strong)]'
-                  }`}>
-                    {task.completed && <Check className="w-2.5 h-2.5" />}
-                  </div>
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
 
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`font-bold text-xs text-[var(--text-primary)] ${task.completed ? 'line-through text-[var(--text-muted)]' : ''}`}>
-                        {task.text}
+            <input
+              type="text"
+              placeholder="¿Qué hay que cerrar? (ej. Reservar Keens)"
+              value={newText}
+              onChange={(e) => setNewText(e.target.value)}
+              className="spa-input"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Detalles, teléfono o enlace…"
+              value={newDetails}
+              onChange={(e) => setNewDetails(e.target.value)}
+              className="spa-input"
+            />
+            <input
+              type="text"
+              placeholder="Fecha límite (ej. 30 días antes)"
+              value={newDeadline}
+              onChange={(e) => setNewDeadline(e.target.value)}
+              className="spa-input"
+            />
+
+            <button type="submit" className="spa-btn spa-btn-primary w-full min-h-[3rem]">
+              <Check className="w-4 h-4" />
+              Guardar pendiente
+            </button>
+          </form>
+        )}
+
+        <ul className="space-y-2">
+          {tasks.map((task) => (
+            <li key={task.id}>
+              <div className={`spa-row items-start py-4 ${task.completed ? 'opacity-60' : ''}`}>
+                <button
+                  onClick={() => handleToggle(task)}
+                  aria-pressed={task.completed}
+                  aria-label={task.completed ? `Reabrir "${task.text}"` : `Marcar "${task.text}" como listo`}
+                  className="spa-tile-sm flex-shrink-0 transition-colors spa-pressable"
+                  style={{
+                    backgroundColor: task.completed ? 'var(--accent-emerald)' : 'var(--bg-surface-elevated)',
+                    color: task.completed ? '#fff' : 'transparent',
+                    border: task.completed ? 'none' : '1px solid var(--border-strong)'
+                  }}
+                >
+                  <Check className="w-3.5 h-3.5" />
+                </button>
+
+                <button onClick={() => handleToggle(task)} className="flex-1 min-w-0 text-left">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className={`font-heading font-bold text-[14px] leading-snug ${
+                      task.completed ? 'line-through text-[var(--text-muted)]' : 'text-[var(--text-primary)]'
+                    }`}>
+                      {task.text}
+                    </span>
+                    {task.priority === 'urgent' && !task.completed && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[color-mix(in_srgb,var(--accent-rose)_16%,transparent)] text-[var(--accent-rose-text)]">
+                        <AlertCircle className="w-2.5 h-2.5" />
+                        Urgente
                       </span>
-                      {task.priority === 'urgent' && !task.completed && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-lg bg-rose-500/10 text-rose-500 border border-rose-500/20 inline-flex items-center gap-1">
-                          <AlertCircle className="w-2.5 h-2.5" /> Urgente
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-[var(--text-muted)] mt-0.5 leading-relaxed">
+                    )}
+                  </span>
+                  {task.details && (
+                    <span className="block text-[12px] text-[var(--text-muted)] leading-snug mt-1.5">
                       {task.details}
-                    </p>
-                  </div>
-                </div>
+                    </span>
+                  )}
+                </button>
 
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteTask(task.id);
-                  }}
-                  className="p-1 text-[var(--text-muted)] hover:text-rose-500 transition-colors flex-shrink-0"
-                  title="Eliminar tarea"
+                  onClick={() => onDeleteTask(task.id)}
+                  className="spa-tile-sm flex-shrink-0 text-[var(--text-muted)] hover:text-[var(--accent-rose-text)] transition-colors"
+                  aria-label={`Eliminar "${task.text}"`}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
-            ))}
-          </div>
-
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] font-bold text-xs transition-colors"
-          >
-            Cerrar
-          </button>
-        </div>
+            </li>
+          ))}
+        </ul>
 
       </div>
-    </div>
+    </BottomSheet>
   );
 }

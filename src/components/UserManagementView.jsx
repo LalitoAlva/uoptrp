@@ -16,6 +16,7 @@ import {
 } from '../utils/icons';
 import { useAuth } from '../context/AuthContext';
 import { confirmAction, notify } from '../utils/alerts';
+import PageHeader from './PageHeader';
 import confetti from 'canvas-confetti';
 
 export default function UserManagementView({ onOpenLoginModal }) {
@@ -42,39 +43,20 @@ export default function UserManagementView({ onOpenLoginModal }) {
   };
 
   return (
-    <div className="w-full space-y-8">
-      
-      {/* Header Banner */}
-      <div className="spa-banner p-8 sm:p-10">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="p-2 rounded-lg bg-[var(--accent-primary)]/10 text-[var(--accent-primary-text)]">
-                <Users className="w-5 h-5" />
-              </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary-text)]">
-                Control de Acceso & Colaboradores
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-4xl font-heading font-black text-[var(--text-primary)] tracking-tight">
-              Administración de Usuarios & Permisos
-            </h1>
-            <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-2xl">
-              Gestiona los colaboradores con acceso al viaje NYC 2026. Asigna roles de Administrador, Editor o Lector y controla quién puede modificar el itinerario o registrar gastos.
-            </p>
-          </div>
+    <div className="w-full space-y-7">
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onOpenLoginModal}
-              className="px-4 py-2.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-bold text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95"
-            >
-              <Key className="w-4 h-4" />
-              <span>Cambiar Perfil / Iniciar Sesión</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Control de acceso"
+        title="Usuarios & permisos"
+        description="Quién puede entrar al viaje y qué puede hacer. Solo los correos de Gmail listados aquí logran iniciar sesión; el rol define si además pueden editar el itinerario y registrar gastos."
+        icon={Users}
+        actions={
+          <button onClick={onOpenLoginModal} className="spa-btn spa-btn-primary min-h-[3rem]">
+            <Key className="w-4 h-4" />
+            Cambiar perfil / Iniciar sesión
+          </button>
+        }
+      />
 
       {/* Current Active Session Spotlight Card */}
       <div className="spa-banner p-6 sm:p-8 border-l-4 border-l-[var(--accent-primary)] space-y-4">

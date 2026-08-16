@@ -84,11 +84,17 @@ export default function PendingListView({ tasks, onToggleTask, onDeleteTask, onO
             <h1 className="font-heading font-black text-2xl sm:text-4xl text-[var(--text-primary)] leading-tight mt-1">
               Pendientes &amp; reservas
             </h1>
-            <p className="text-[13px] sm:text-sm text-[var(--text-secondary)] mt-1.5">
-              {pending.length} por cerrar · {done.length} listos
-            </p>
           </div>
         </div>
+
+        <p className="text-[13px] sm:text-[15px] text-[var(--text-secondary)] leading-relaxed">
+          Todo lo que hay que reservar, comprar o activar <strong>antes</strong> de subir al avión:
+          restaurantes, boletos de tren, eSIM y seguro. Marca cada uno cuando quede cerrado.
+        </p>
+
+        <p className="text-[13px] font-bold text-[var(--text-muted)]">
+          {pending.length} por cerrar · {done.length} listos
+        </p>
 
         <div className="space-y-2">
           <div className="h-2 rounded-full bg-[var(--bg-sunken)] overflow-hidden">

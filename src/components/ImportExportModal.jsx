@@ -11,7 +11,8 @@ import {
 } from '../utils/icons';
 import {
   exportTripDataToJSON,
-  resetTripDataToDefault
+  resetTripDataToDefault,
+  normalizeTripData
 } from '../utils/storage';
 import {
   exportRecommendationsToCSV,
@@ -35,26 +36,41 @@ export default function ImportExportModal({
 
   if (!isOpen) return null;
 
+  // A backup file is untrusted input: it may have been edited by hand or sent
+  // by someone else. Cap the size so a huge file can't hang the tab, and push
+  // the parsed object through the same shape-normalisation the app applies to
+  // localStorage, so only known keys with the expected types get in.
+  const MAX_IMPORT_BYTES = 8 * 1024 * 1024;
+
+  const readFile = (file, onText) => {
+    if (file.size > MAX_IMPORT_BYTES) {
+      setStatusMsg({ type: 'error', text: 'El archivo es demasiado grande (máximo 8 MB).' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onerror = () => setStatusMsg({ type: 'error', text: 'No se pudo leer el archivo.' });
+    reader.onload = (event) => onText(String(event.target.result || ''));
+    reader.readAsText(file);
+  };
+
   // Handle JSON Full Backup Restore
   const handleJSONFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
+    readFile(file, (text) => {
       try {
-        const parsed = JSON.parse(event.target.result);
-        if (parsed.days && parsed.metadata) {
-          onRestoreTripData(parsed);
+        const parsed = JSON.parse(text);
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.days) && parsed.metadata) {
+          onRestoreTripData(normalizeTripData(parsed));
           setStatusMsg({ type: 'success', text: '¡Respaldo completo del viaje restaurado con éxito!' });
         } else {
           setStatusMsg({ type: 'error', text: 'El archivo JSON no tiene la estructura esperada del viaje.' });
         }
-      } catch (err) {
+      } catch {
         setStatusMsg({ type: 'error', text: 'Error al leer el archivo JSON: formato inválido.' });
       }
-    };
-    reader.readAsText(file);
+    });
   };
 
   // Handle CSV Recommendations Import
@@ -62,21 +78,19 @@ export default function ImportExportModal({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
+    readFile(file, (text) => {
       try {
-        const parsedRecs = parseCSVRecommendations(event.target.result);
+        const parsedRecs = parseCSVRecommendations(text);
         if (parsedRecs.length > 0) {
           onAddBatchRecommendations(parsedRecs);
           setStatusMsg({ type: 'success', text: `¡Se importaron ${parsedRecs.length} recomendaciones desde el archivo CSV!` });
         } else {
           setStatusMsg({ type: 'error', text: 'No se pudieron extraer filas válidas del archivo CSV.' });
         }
-      } catch (err) {
+      } catch {
         setStatusMsg({ type: 'error', text: 'Error al procesar el archivo CSV.' });
       }
-    };
-    reader.readAsText(file);
+    });
   };
 
   const handleDownloadSampleCSV = () => {

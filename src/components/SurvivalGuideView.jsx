@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import {
   Compass,
   Train,
+  Subway,
   Trophy,
   Coffee,
   CheckSquare,
-  ShieldCheck,
   Plus,
   Trash2,
   CreditCard,
@@ -13,18 +13,74 @@ import {
   Suitcase,
   Utensils,
   Banknote,
-  Check 
+  AlertTriangle,
+  Lightbulb,
+  Check
 } from '../utils/icons';
+import PageHeader from './PageHeader';
 import confetti from 'canvas-confetti';
 
+/** A numbered step in one of the mini-guides. */
+function Step({ n, title, children }) {
+  return (
+    <li className="flex items-start gap-3.5">
+      <span className="spa-tile-sm flex-shrink-0 bg-[var(--accent-primary-soft)] text-[var(--accent-primary-text)] font-display text-sm">
+        {n}
+      </span>
+      <div className="flex-1 min-w-0 pt-1">
+        <h4 className="font-heading font-bold text-[15px] text-[var(--text-primary)] leading-snug">{title}</h4>
+        <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed mt-1">{children}</p>
+      </div>
+    </li>
+  );
+}
+
+/** Coloured aside for the one thing per guide you must not get wrong. */
+function Callout({ tone = 'amber', icon: Icon = Lightbulb, title, children }) {
+  const tones = {
+    amber: { color: 'var(--accent-amber-text)', soft: 'color-mix(in srgb, var(--accent-amber) 14%, transparent)' },
+    rose: { color: 'var(--accent-rose-text)', soft: 'color-mix(in srgb, var(--accent-rose) 14%, transparent)' },
+    emerald: { color: 'var(--accent-emerald-text)', soft: 'color-mix(in srgb, var(--accent-emerald) 14%, transparent)' }
+  };
+  const t = tones[tone];
+  return (
+    <div className="flex items-start gap-3 p-4 rounded-2xl" style={{ backgroundColor: t.soft }}>
+      <Icon className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: t.color }} />
+      <div className="flex-1 min-w-0">
+        <span className="block text-[11px] font-black uppercase tracking-wider" style={{ color: t.color }}>
+          {title}
+        </span>
+        <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed mt-1">{children}</p>
+      </div>
+    </div>
+  );
+}
+
+function GuideCard({ icon: Icon, accent, accentBg, title, subtitle, children }) {
+  return (
+    <section className="spa-card p-5 sm:p-6 space-y-5">
+      <div className="flex items-start gap-3.5">
+        <span className="spa-tile flex-shrink-0" style={{ backgroundColor: accentBg, color: accent }}>
+          <Icon className="w-5 h-5" />
+        </span>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-heading font-black text-lg text-[var(--text-primary)] leading-tight">{title}</h3>
+          <p className="text-[13px] text-[var(--text-muted)] mt-1 leading-snug">{subtitle}</p>
+        </div>
+      </div>
+      {children}
+    </section>
+  );
+}
+
 export default function SurvivalGuideView() {
-  const [activeTab, setActiveTab] = useState('subway');
+  const [activeTab, setActiveTab] = useState('metro');
 
   const [packingList, setPackingList] = useState([
     { id: 'p1', text: 'Powerbank de 10,000–20,000 mAh (en equipaje de mano)', checked: true, tag: 'Esencial' },
     { id: 'p2', text: 'Tenis más cómodos probados (18,000+ pasos diarios)', checked: true, tag: 'Esencial' },
     { id: 'p3', text: 'Chamarra ligera / sudadera para noche de Arthur Ashe (~15°C)', checked: false, tag: 'Ropa' },
-    { id: 'p4', text: 'Lentes de sol + Protector solar SPF 50 para sesión diurna', checked: false, tag: 'US Open' },
+    { id: 'p4', text: 'Lentes de sol + protector solar SPF 50 para sesión diurna', checked: false, tag: 'US Open' },
     { id: 'p5', text: 'Mochila compacta (máx 35 x 30 x 15 cm para el estadio)', checked: false, tag: 'US Open' },
     { id: 'p6', text: 'Efectivo en billetes chicos (~$165 USD por persona)', checked: false, tag: 'Dinero' },
     { id: 'p7', text: 'eSIM Holafly descargada antes de salir de México', checked: false, tag: 'Tech' },
@@ -60,244 +116,323 @@ export default function SurvivalGuideView() {
     setPackingList(prev => prev.filter(i => i.id !== id));
   };
 
+  const packedCount = packingList.filter(p => p.checked).length;
+
+  const tabs = [
+    { id: 'metro', label: 'Metro', icon: Subway },
+    { id: 'tren', label: 'Tren', icon: Train },
+    { id: 'usopen', label: 'US Open', icon: Trophy },
+    { id: 'slang', label: 'Jerga', icon: Coffee },
+    { id: 'packing', label: 'Maleta', icon: CheckSquare, badge: `${packedCount}/${packingList.length}` }
+  ];
+
   return (
-    <div className="w-full space-y-4">
-      
-      {/* Header Banner */}
-      <div className="spa-banner p-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
-              <Compass className="w-5 h-5" />
-            </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-purple-500">
-              Guía de Tránsito & Secretos de Viaje
-            </span>
-          </div>
-          <h2 className="font-heading font-black text-2xl text-[var(--text-primary)] tracking-tight">
-            Manual del Neoyorquino & US Open Master
-          </h2>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
-            Tránsito MTA OMNY, trenes a Hudson Valley, cambio de sesión en Arthur Ashe y checklist interactivo.
-          </p>
-        </div>
+    <div className="w-full space-y-7">
 
-        {/* Tab Selector */}
-        <div className="flex items-center gap-1.5 mt-5 pt-4 border-t border-[var(--border-subtle)] overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('subway')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'subway'
-                ? 'bg-[var(--accent-primary)] text-white shadow-sm'
-                : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
-            }`}
-          >
-            <Train className="w-3.5 h-3.5" />
-            <span>Metro OMNY & Trenes</span>
-          </button>
+      <PageHeader
+        eyebrow="Manual de supervivencia"
+        title="Guía Pro de Nueva York"
+        description="Cómo moverte y cómo pedir sin parecer turista: una miniguía paso a paso del metro, otra del tren a Hudson Valley, la estrategia para Arthur Ashe, la jerga de las bodegas y tu checklist de maleta."
+        icon={Compass}
+        accent="#C4B5FD"
+        accentBg="rgba(139, 92, 246, 0.16)"
+      />
 
-          <button
-            onClick={() => setActiveTab('usopen')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'usopen'
-                ? 'bg-[var(--accent-primary)] text-white shadow-sm'
-                : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
-            }`}
-          >
-            <Trophy className="w-3.5 h-3.5" />
-            <span>Estrategia US Open</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('slang')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'slang'
-                ? 'bg-[var(--accent-primary)] text-white shadow-sm'
-                : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
-            }`}
-          >
-            <Coffee className="w-3.5 h-3.5" />
-            <span>Jerga & Cómo Pedir</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('packing')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'packing'
-                ? 'bg-[var(--accent-primary)] text-white shadow-sm'
-                : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
-            }`}
-          >
-            <CheckSquare className="w-3.5 h-3.5" />
-            <span>Checklist Maleta ({packingList.filter(p => p.checked).length}/{packingList.length})</span>
-          </button>
-        </div>
+      {/* Tab rail */}
+      <div className="spa-rail hide-scrollbar">
+        {tabs.map((tab) => {
+          const TabIcon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              aria-pressed={isActive}
+              className={`spa-chip ${isActive ? 'spa-chip-accent' : ''}`}
+            >
+              <TabIcon className="w-3.5 h-3.5" />
+              {tab.label}
+              {tab.badge && <span className="font-mono text-[10px] opacity-70">{tab.badge}</span>}
+            </button>
+          );
+        })}
       </div>
 
-      {/* TAB 1: SUBWAY */}
-      {activeTab === 'subway' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-          
-          <div className="spa-card p-4 space-y-2">
-            <span className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-1.5">
-              <CreditCard className="w-3.5 h-3.5" /> OMNY Contactless ($2.90 USD / viaje)
+      {/* ── MINIGUÍA: METRO ──────────────────────────────────────────── */}
+      {activeTab === 'metro' && (
+        <div className="space-y-4">
+          <GuideCard
+            icon={Subway}
+            accent="var(--accent-primary-text)"
+            accentBg="var(--accent-primary-soft)"
+            title="Miniguía del metro de NYC"
+            subtitle="De cero a moverte solo · 24 horas, todos los días"
+          >
+            <ol className="space-y-5">
+              <Step n="1" title="Paga con OMNY, no con MetroCard">
+                Acerca tu iPhone, Apple Watch o tarjeta contactless al lector redondo del torniquete.
+                Son <strong>$2.90 USD</strong> por viaje. Usa siempre el <em>mismo</em> método de pago: así el
+                sistema te reconoce y te aplica el tope semanal.
+              </Step>
+              <Step n="2" title="Después de 12 viajes, la semana es gratis">
+                El <em>fare cap</em> corre de lunes a domingo: a partir del viaje 13 ya no te cobra nada
+                hasta que empieza la semana siguiente.
+              </Step>
+              <Step n="3" title="Lee la línea, no el color">
+                Lo que importa es la <strong>letra o número</strong> (A, 1, 7…). El color solo indica por
+                qué avenida corre en Manhattan, y varias líneas distintas comparten color.
+              </Step>
+              <Step n="4" title="Círculo = local · rombo = express">
+                El local para en todas las estaciones; el express se salta la mayoría. Revisa el letrero
+                del andén y el frente del tren antes de subirte.
+              </Step>
+              <Step n="5" title="Elige bien el andén: Uptown o Downtown">
+                <strong>Uptown &amp; The Bronx</strong> es hacia el norte; <strong>Downtown &amp; Brooklyn</strong> hacia
+                el sur. Muchas estaciones tienen los dos andenes separados y sin paso entre ellos.
+              </Step>
+              <Step n="6" title="Mira el letrero de la entrada de la calle">
+                Si dice “Downtown only” o “Uptown only”, esa escalera solo lleva a ese sentido. Bajar por
+                la equivocada significa salir y volver a pagar.
+              </Step>
+              <Step n="7" title="Transbordo gratis a autobús">
+                Con el mismo método de pago tienes <strong>2 horas</strong> de transbordo gratuito entre metro y bus.
+              </Step>
+              <Step n="8" title="Para ir al US Open: línea 7">
+                Desde <strong>Times Sq–42 St</strong> toma el 7 hasta <strong>Mets–Willets Point</strong>. El de rombo
+                (express) ahorra unos 15 minutos. Al terminar la sesión de noche salen trenes cada pocos minutos.
+              </Step>
+            </ol>
+
+            <Callout tone="amber" icon={Lightbulb} title="Tip de local">
+              Google Maps y Citymapper traen el metro en vivo, incluyendo los desvíos de fin de semana
+              (muy frecuentes). Revisa la ruta justo antes de bajar al andén, no la noche anterior.
+            </Callout>
+
+            <Callout tone="rose" icon={AlertTriangle} title="De noche">
+              Espera en la zona marcada <em>“Off-Peak Waiting Area”</em>, donde se detiene el vagón del
+              conductor, y súbete a un vagón con gente en lugar de a uno vacío.
+            </Callout>
+          </GuideCard>
+
+          <div className="spa-card p-5 space-y-3">
+            <span className="spa-eyebrow">
+              <CreditCard className="w-3 h-3 text-[var(--accent-primary-text)]" />
+              Costos de un vistazo
             </span>
-            <p className="text-[var(--text-secondary)] leading-relaxed">
-              No compres MetroCard. Solo acerca tu iPhone (Apple Pay) o tarjeta de crédito en el torniquete.
-            </p>
-            <div className="p-2.5 rounded-lg bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-1 text-[var(--text-secondary)]">
-              <p>• <strong>Transbordo gratis:</strong> 2 horas entre metro y autobús usando la misma tarjeta.</p>
-              <p>• <strong>Fare Cap semanal:</strong> Del viaje 13 en adelante en 7 días, todos los viajes son gratis.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[
+                { label: 'Viaje sencillo', value: '$2.90' },
+                { label: 'Tope semanal', value: '$34' },
+                { label: 'Transbordo bus', value: 'Gratis' },
+                { label: 'Menores de 5', value: 'Gratis' }
+              ].map((item) => (
+                <div key={item.label} className="rounded-2xl bg-[var(--bg-surface-elevated)] p-3.5 text-center">
+                  <span className="block font-display text-xl text-[var(--text-primary)]">{item.value}</span>
+                  <span className="block text-[10px] font-bold uppercase tracking-wide text-[var(--text-muted)] mt-1.5">
+                    {item.label}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
-
-          <div className="spa-card p-4 space-y-2">
-            <span className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-purple-500 flex-shrink-0" aria-hidden="true" /> Metro Línea 7 Express a Arthur Ashe
-            </span>
-            <p className="text-[var(--text-secondary)] leading-relaxed">
-              Toma el <strong>tren con rombo &lt;7&gt;</strong> en Times Sq-42nd St directo a <strong>Mets-Willets Point</strong> (35 min).
-            </p>
-            <div className="p-2.5 rounded-lg bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-1 text-[var(--text-secondary)]">
-              <p>• El express se salta paradas intermedias en Queens y ahorra 15 min.</p>
-              <p>• Al terminar los partidos de noche, hay trenes saliendo cada 3 minutos a Manhattan.</p>
-            </div>
-          </div>
-
-          <div className="spa-card p-4 space-y-2 md:col-span-2">
-            <span className="font-bold text-sm text-amber-500 flex items-center gap-1.5">
-              <Train className="w-3.5 h-3.5" /> Metro North Hudson Line (Día 6) — Tip de la Ventanilla
-            </span>
-            <p className="text-[var(--text-secondary)] leading-relaxed">
-              Compra los boletos en la app <em>MTA TrainTime</em>. Al salir de Grand Central con rumbo norte hacia Cold Spring, siéntate del <strong>LADO IZQUIERDO del tren</strong> para tener vista ininterrumpida de todo el río Hudson y los acantilados de Palisades.
-            </p>
-          </div>
-
         </div>
       )}
 
-      {/* TAB 2: US OPEN */}
+      {/* ── MINIGUÍA: TREN ───────────────────────────────────────────── */}
+      {activeTab === 'tren' && (
+        <div className="space-y-4">
+          <GuideCard
+            icon={Train}
+            accent="var(--accent-amber-text)"
+            accentBg="color-mix(in srgb, var(--accent-amber) 16%, transparent)"
+            title="Miniguía del tren a Hudson Valley"
+            subtitle="Metro-North · Hudson Line · Grand Central → Cold Spring"
+          >
+            <ol className="space-y-5">
+              <Step n="1" title="Compra en la app MTA TrainTime">
+                Es el boleto oficial y no necesitas imprimir nada. Selecciona
+                <strong> Grand Central → Cold Spring</strong>, Hudson Line. También muestra en vivo el andén y
+                qué tan lleno viene cada vagón.
+              </Step>
+              <Step n="2" title="Compra antes de subir">
+                Si compras a bordo con el conductor te cobran un recargo. Ten el boleto listo desde la estación.
+              </Step>
+              <Step n="3" title="Peak vs off-peak">
+                Entre semana en hora pico el boleto es más caro. Saliendo después de las <strong>09:30</strong>
+                (o en fin de semana) pagas tarifa off-peak.
+              </Step>
+              <Step n="4" title="Activa el boleto solo al abordar">
+                El boleto empieza a correr en cuanto lo activas. Hazlo ya en el andén o cuando el tren
+                arranque, nunca al comprarlo.
+              </Step>
+              <Step n="5" title="En Grand Central, mira el tablero">
+                El <em>track</em> (andén) se anuncia unos <strong>10 minutos antes</strong> de la salida. Ubica antes
+                el pasillo correcto y camina hacia el frente del tren para bajar más rápido en Cold Spring.
+              </Step>
+              <Step n="6" title="Siéntate del lado izquierdo">
+                Yendo al norte, la ventana izquierda te da el río Hudson y los acantilados de Palisades
+                prácticamente todo el trayecto (~1 h 20 min).
+              </Step>
+              <Step n="7" title="El conductor pasa a revisar">
+                Muestra la pantalla con el boleto ya activado. No hay torniquetes: el control es a bordo.
+              </Step>
+              <Step n="8" title="Llegando a Cold Spring">
+                La estación es un andén al aire libre, sin taquilla. El centro del pueblo y el río quedan
+                a unos <strong>3 minutos a pie</strong>.
+              </Step>
+            </ol>
+
+            <Callout tone="rose" icon={AlertTriangle} title="Lo único que no puedes olvidar">
+              Revisa el <strong>último tren de regreso</strong> antes de salir de la estación. Fuera de hora pico
+              pasan aproximadamente cada hora, y perder el último significa taxi carísimo de vuelta a Manhattan.
+            </Callout>
+
+            <Callout tone="emerald" icon={Lightbulb} title="Otras líneas útiles">
+              <strong>LIRR</strong> sale de Grand Central y Penn Station hacia Long Island.
+              <strong> AirTrain + LIRR/subway</strong> conecta con JFK, y el <strong>NJ Transit</strong> desde Penn
+              Station te lleva a Newark si el vuelo sale de EWR.
+            </Callout>
+          </GuideCard>
+        </div>
+      )}
+
+      {/* ── US OPEN ──────────────────────────────────────────────────── */}
       {activeTab === 'usopen' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-          <div className="spa-card p-4 space-y-2">
-            <span className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-1.5">
-              <Star className="w-3.5 h-3.5 text-amber-400" /> La "Ventana Dorada" (14:30 a 17:30)
-            </span>
-            <p className="text-[var(--text-secondary)] leading-relaxed">
-              El domingo 6, la Sesión 15 (Día) termina ~14:30 y las puertas de la Sesión 16 abren a las 17:00.
-            </p>
-            <div className="p-2.5 rounded-lg bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-1 text-[var(--text-secondary)]">
-              <p>1. Aprovecha para comprar el <strong>Honey Deuce</strong> sin filas masivas.</p>
-              <p>2. Ve canchas exteriores (Grandstand o Court 17).</p>
-              <p>3. O toma el metro 1 estación a <strong>Chinatown Flushing</strong> para comer dumplings calientes.</p>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <GuideCard
+            icon={Star}
+            accent="var(--accent-amber-text)"
+            accentBg="color-mix(in srgb, var(--accent-amber) 16%, transparent)"
+            title="La ventana dorada"
+            subtitle="Domingo 6 · entre la sesión de día y la de noche (14:30–17:30)"
+          >
+            <ol className="space-y-5">
+              <Step n="1" title="Compra el Honey Deuce sin fila">
+                Justo cuando termina la sesión 15 las barras se vacían por un rato.
+              </Step>
+              <Step n="2" title="Ve canchas exteriores">
+                Grandstand y Court 17 tienen partidos con acceso incluido y a metros de la cancha.
+              </Step>
+              <Step n="3" title="O baja a Flushing por dumplings">
+                Una estación de metro te deja en Chinatown Flushing; se come mejor y más barato que dentro.
+              </Step>
+            </ol>
+          </GuideCard>
 
-          <div className="spa-card p-4 space-y-2">
-            <span className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-1.5">
-              <Suitcase className="w-3.5 h-3.5" /> Reglas de Mochila y Clima
-            </span>
-            <p className="text-[var(--text-secondary)] leading-relaxed">
-              Tamaño máximo permitido en Arthur Ashe: <strong>35 x 30 x 15 cm</strong>. No se permiten mochilas rígidas ni botellas de vidrio.
-            </p>
-            <div className="p-2.5 rounded-lg bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-1 text-[var(--text-secondary)]">
-              <p>• La tarde puede estar a 27°C y con sol intenso (lleva bloqueador SPF 50 y lentes).</p>
-              <p>• La noche bajo el techo de Arthur Ashe baja a ~15°C con brisa (lleva sudadera ligera).</p>
-            </div>
-          </div>
+          <GuideCard
+            icon={Suitcase}
+            accent="var(--accent-primary-text)"
+            accentBg="var(--accent-primary-soft)"
+            title="Mochila y clima"
+            subtitle="Lo que sí entra al estadio y cómo vestirte"
+          >
+            <ol className="space-y-5">
+              <Step n="1" title="Tamaño máximo: 35 × 30 × 15 cm">
+                No se permiten mochilas rígidas, maletas ni botellas de vidrio.
+              </Step>
+              <Step n="2" title="Tarde: 27 °C y sol directo">
+                Protector solar SPF 50, lentes y gorra. Las gradas altas no tienen sombra.
+              </Step>
+              <Step n="3" title="Noche: ~15 °C con brisa">
+                Bajo el techo de Arthur Ashe refresca rápido: lleva sudadera ligera.
+              </Step>
+            </ol>
+          </GuideCard>
         </div>
       )}
 
-      {/* TAB 3: SLANG */}
+      {/* ── SLANG ────────────────────────────────────────────────────── */}
       {activeTab === 'slang' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-          <div className="spa-card p-4 space-y-2">
-            <span className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-1.5">
-              <Utensils className="w-3.5 h-3.5" /> Cómo pedir en una Bodega de NYC
-            </span>
-            <p className="text-[var(--text-secondary)]">
-              El desayuno oficial se pide en una sola frase rápida en el mostrador:
-            </p>
-            <div className="p-2.5 rounded-lg bg-[var(--bg-surface-elevated)] font-mono text-[var(--text-primary)] border border-[var(--border-subtle)]">
-              "Can I get a <strong>Bacon, Egg and Cheese on a roll</strong>, with salt, pepper, ketchup?"
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <GuideCard
+            icon={Utensils}
+            accent="var(--accent-emerald-text)"
+            accentBg="color-mix(in srgb, var(--accent-emerald) 16%, transparent)"
+            title="Pedir en una bodega"
+            subtitle="El desayuno oficial de Nueva York, en una sola frase"
+          >
+            <div className="rounded-2xl bg-[var(--bg-surface-elevated)] p-4 font-mono text-[13px] text-[var(--text-primary)] leading-relaxed">
+              “Can I get a <strong>bacon, egg and cheese on a roll</strong>, with salt, pepper, ketchup?”
             </div>
-            <p className="text-[11px] text-[var(--text-muted)] flex items-start gap-1.5">
-              <Coffee className="w-3 h-3 mt-0.5 flex-shrink-0" />
-              <span><strong>Regular Coffee:</strong> Si pides café "regular", te darán café de filtro con leche y 2 azúcares por defecto.</span>
-            </p>
-          </div>
+            <Callout tone="amber" icon={Coffee} title="Regular coffee">
+              Si pides un café “regular” te lo dan de filtro <em>con leche y dos azúcares</em>. Si lo quieres
+              negro, pide “black coffee”.
+            </Callout>
+          </GuideCard>
 
-          <div className="spa-card p-4 space-y-2">
-            <span className="font-bold text-sm text-rose-500 flex items-center gap-1.5">
-              <Utensils className="w-3.5 h-3.5" /> El Ritual de Katz's Delicatessen
-            </span>
-            <p className="text-[var(--text-secondary)]">
-              Al entrar te dan un ticket de papel. <strong>¡No lo pierdas!</strong> Aunque no compres nada, se entrega a la salida.
-            </p>
-            <div className="p-2.5 rounded-lg bg-[var(--bg-surface-elevated)] font-mono text-[var(--text-primary)] border border-[var(--border-subtle)]">
-              "One <strong>Pastrami on rye, juicy</strong>, with mustard, please."
+          <GuideCard
+            icon={Utensils}
+            accent="var(--accent-rose-text)"
+            accentBg="color-mix(in srgb, var(--accent-rose) 16%, transparent)"
+            title="El ritual de Katz's"
+            subtitle="Delicatessen · Lower East Side"
+          >
+            <div className="rounded-2xl bg-[var(--bg-surface-elevated)] p-4 font-mono text-[13px] text-[var(--text-primary)] leading-relaxed">
+              “One <strong>pastrami on rye, juicy</strong>, with mustard, please.”
             </div>
-            <p className="text-[11px] text-[var(--text-muted)] flex items-start gap-1.5">
-              <Banknote className="w-3 h-3 mt-0.5 flex-shrink-0" />
-              <span>Deja $2 de propina en el vaso del cortador al inicio; te dará muestras calientes mientras prepara tu sándwich.</span>
-            </p>
-          </div>
+            <Callout tone="rose" icon={AlertTriangle} title="El ticket de papel">
+              Al entrar te dan un ticket. <strong>No lo pierdas</strong>: se entrega a la salida aunque no
+              consumas nada, y perderlo cuesta caro.
+            </Callout>
+            <Callout tone="emerald" icon={Banknote} title="Propina al cortador">
+              Deja $2 en el vaso del cortador al inicio y te dará muestras calientes mientras prepara el sándwich.
+            </Callout>
+          </GuideCard>
         </div>
       )}
 
-      {/* TAB 4: PACKING */}
+      {/* ── PACKING ──────────────────────────────────────────────────── */}
       {activeTab === 'packing' && (
-        <div className="space-y-3 text-xs">
+        <div className="space-y-4">
           <form onSubmit={handleAddItem} className="flex gap-2">
             <input
               type="text"
-              placeholder="Agregar artículo..."
+              placeholder="Agregar artículo a la maleta…"
               value={newItemText}
               onChange={(e) => setNewItemText(e.target.value)}
-              className="flex-1 bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded-lg px-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-primary)]"
+              className="spa-input flex-1 min-h-[3rem]"
             />
-            <button
-              type="submit"
-              className="px-3.5 py-1.5 bg-[var(--accent-primary)] text-white font-bold rounded-lg text-xs"
-            >
-              Agregar
+            <button type="submit" className="spa-btn spa-btn-primary min-h-[3rem] px-5 flex-shrink-0">
+              <Plus className="w-4 h-4" />
+              <span className="hidden xs:inline">Agregar</span>
             </button>
           </form>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             {packingList.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => togglePacking(item.id)}
-                className={`spa-card spa-card-hover p-3 flex items-center justify-between gap-3 cursor-pointer ${
-                  item.checked ? 'bg-[var(--bg-surface-elevated)] opacity-60' : ''
-                }`}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className={`w-4 h-4 rounded-lg flex items-center justify-center text-[10px] ${
-                    item.checked ? 'bg-emerald-500 text-white font-bold' : 'border border-[var(--border-strong)]'
+              <div key={item.id} className={`spa-row py-4 ${item.checked ? 'opacity-60' : ''}`}>
+                <button
+                  onClick={() => togglePacking(item.id)}
+                  aria-pressed={item.checked}
+                  aria-label={item.text}
+                  className="spa-tile-sm flex-shrink-0 transition-colors spa-pressable"
+                  style={{
+                    backgroundColor: item.checked ? 'var(--accent-emerald)' : 'var(--bg-surface-elevated)',
+                    color: item.checked ? '#fff' : 'transparent',
+                    border: item.checked ? 'none' : '1px solid var(--border-strong)'
+                  }}
+                >
+                  <Check className="w-3.5 h-3.5" />
+                </button>
+
+                <button onClick={() => togglePacking(item.id)} className="flex-1 min-w-0 text-left">
+                  <span className={`block text-[14px] font-bold leading-snug ${
+                    item.checked ? 'line-through text-[var(--text-muted)]' : 'text-[var(--text-primary)]'
                   }`}>
-                    {item.checked && <Check className="w-2.5 h-2.5" />}
-                  </div>
-                  <span className={`text-[var(--text-primary)] truncate ${item.checked ? 'line-through text-[var(--text-muted)]' : ''}`}>
                     {item.text}
                   </span>
-                </div>
-
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-lg bg-[var(--bg-surface-elevated)] text-[var(--text-muted)] border border-[var(--border-subtle)]">
+                  <span className="block text-[11px] font-black uppercase tracking-wider text-[var(--text-muted)] mt-1">
                     {item.tag}
                   </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteItem(item.id);
-                    }}
-                    className="p-1 text-[var(--text-muted)] hover:text-rose-500"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                </button>
+
+                <button
+                  onClick={() => handleDeleteItem(item.id)}
+                  className="spa-tile-sm flex-shrink-0 text-[var(--text-muted)] hover:text-[var(--accent-rose-text)] transition-colors"
+                  aria-label={`Eliminar ${item.text}`}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             ))}
           </div>

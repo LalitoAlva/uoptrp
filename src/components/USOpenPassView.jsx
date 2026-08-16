@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  Trophy, 
-  Ticket, 
-  Clock, 
-  MapPin, 
-  Sparkles, 
-  Check, 
-  Plus, 
-  Minus, 
-  ExternalLink,
-  ShieldCheck,
-  AlertTriangle,
+import {
+  Trophy,
+  Ticket,
+  Clock,
+  MapPin,
+  Check,
+  Plus,
+  Minus,
   Wine
 } from '../utils/icons';
+import PageHeader from './PageHeader';
 import confetti from 'canvas-confetti';
 
 export default function USOpenPassView({ 
@@ -38,183 +35,167 @@ export default function USOpenPassView({
     }
   };
 
+  const attractionsDone = tripData.goCityPass.attractions.filter(a => a.completed).length;
+
   return (
-    <div className="w-full space-y-4">
-      
-      {/* Header Banner */}
-      <div className="spa-card p-6 border border-[var(--border-subtle)]">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-lg bg-[var(--accent-primary)]/10 text-[var(--accent-primary-text)]">
-              <Trophy className="w-5 h-5" />
-            </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary-text)]">
-              Acceso Oficial & Entradas
-            </span>
+    <div className="w-full space-y-7">
+
+      <PageHeader
+        eyebrow="Acceso oficial & entradas"
+        title="US Open y pases de ciudad"
+        description="Aquí vive toda la logística de tus 4 sesiones en Arthur Ashe, el paquete Sports Traveler, el Go City Explorer Pass y la cuenta de Honey Deuces."
+        icon={Trophy}
+        stats={[
+          { label: 'Sesiones', value: tripData.sportsTravelerPackage.sessions.length, icon: Trophy },
+          {
+            label: 'Atracciones',
+            value: `${attractionsDone}/${tripData.goCityPass.attractions.length}`,
+            icon: Ticket,
+            color: 'var(--accent-tennis-text)',
+            soft: 'color-mix(in srgb, var(--accent-tennis) 16%, transparent)'
+          },
+          {
+            label: 'Honey Deuce',
+            value: `${honeyCount}/${honeyTarget}`,
+            icon: Wine,
+            color: '#F9A8D4',
+            soft: 'rgba(236, 72, 153, 0.16)'
+          }
+        ]}
+      />
+
+      {/* ── Honey Deuce tracker — the one thing you tap during a match, so it
+           leads on mobile and moves aside on desktop. ─────────────────── */}
+      <section className="spa-card p-6 space-y-5">
+        <div className="flex items-center gap-3.5">
+          <span className="spa-tile" style={{ backgroundColor: 'rgba(236, 72, 153, 0.16)', color: '#F9A8D4' }}>
+            <Wine className="w-5 h-5" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <h2 className="font-heading font-black text-lg text-[var(--text-primary)] leading-tight">
+              Honey Deuce Tracker
+            </h2>
+            <p className="text-[13px] text-[var(--text-muted)] mt-0.5">El cóctel oficial del US Open · $25 USD</p>
           </div>
-          <h2 className="font-heading font-black text-2xl text-[var(--text-primary)] tracking-tight">
-            US Open Arthur Ashe & Go City Explorer Pass
-          </h2>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
-            Toda la logística de tus 4 sesiones de tenis, paquete Sports Traveler y atracciones de Nueva York.
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        
-        {/* Left Column: 4 Arthur Ashe Sessions */}
-        <div className="lg:col-span-2 space-y-4">
-          
-          <div className="spa-card p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
-              <div className="flex items-center gap-2">
-                <span className="p-2 rounded-lg bg-[var(--accent-primary)]/10 text-[var(--accent-primary-text)]"><Trophy className="w-4 h-4" /></span>
-                <div>
-                  <h3 className="font-heading font-bold text-base text-[var(--text-primary)]">
-                    4 Sesiones en Arthur Ashe Stadium
-                  </h3>
-                  <p className="text-xs text-[var(--text-muted)]">Paquete oficial Sports Traveler</p>
-                </div>
-              </div>
-              <span className="text-xs font-mono font-bold bg-[var(--accent-primary)]/15 text-[var(--accent-primary-text)] px-2.5 py-1 rounded">
-                Promenade / Loge
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {tripData.sportsTravelerPackage.sessions.map((sess, idx) => (
-                <div 
-                  key={idx}
-                  className="p-4 rounded-xl bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono font-black text-xs text-[var(--accent-primary-text)] bg-[var(--bg-surface)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">
-                      {sess.session}
-                    </span>
-                    <span className="text-[10px] font-bold text-[var(--text-muted)]">{sess.date}</span>
-                  </div>
-
-                  <h4 className="font-heading font-bold text-sm text-[var(--text-primary)]">
-                    {sess.name}
-                  </h4>
-
-                  <div className="text-xs text-[var(--text-secondary)] space-y-1">
-                    <div className="flex items-center gap-1.5 font-mono">
-                      <Clock className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                      <span>{sess.time}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                      <span>{sess.stadium}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Go City Pass Box */}
-          <div className="spa-card p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
-              <div className="flex items-center gap-2">
-                <span className="p-2 rounded-lg bg-cyan-500/10 text-cyan-500"><Ticket className="w-4 h-4" /></span>
-                <div>
-                  <h3 className="font-heading font-bold text-base text-[var(--text-primary)]">
-                    Go City Explorer Pass (3 Atracciones)
-                  </h3>
-                  <p className="text-xs text-[var(--text-muted)]">Pase digital en la App móvil de Go City</p>
-                </div>
-              </div>
-              <span className="text-xs font-bold bg-cyan-500/10 text-cyan-500 px-2.5 py-1 rounded">
-                Activo
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              {tripData.goCityPass.attractions.map((att) => (
-                <div
-                  key={att.id}
-                  onClick={() => onToggleGoCityAttraction(att.id)}
-                  className={`p-3.5 rounded-xl border cursor-pointer transition-all space-y-1.5 ${
-                    att.completed
-                      ? 'bg-emerald-500/10 border-emerald-500/30'
-                      : 'bg-[var(--bg-surface-elevated)] border-[var(--border-subtle)] hover:border-[var(--border-medium)]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[var(--text-primary)]">{att.name}</span>
-                    <div className={`w-4 h-4 rounded flex items-center justify-center text-[10px] ${
-                      att.completed ? 'bg-emerald-500 text-white font-bold' : 'border border-[var(--border-strong)]'
-                    }`}>
-                      {att.completed && <Check className="w-2.5 h-2.5" />}
-                    </div>
-                  </div>
-                  <span className="text-[11px] text-cyan-500 font-bold block">{att.window}</span>
-                  <p className="text-[11px] text-[var(--text-muted)]">{att.status}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
         </div>
 
-        {/* Right Column: Honey Deuce Cocktail Tracker */}
-        <div className="space-y-4">
-          
-          <div className="spa-card p-5 space-y-4 bg-gradient-to-b from-[var(--bg-surface)] to-[var(--bg-surface-elevated)]">
-            <div className="flex items-center gap-2">
-              <span className="p-2 rounded-lg bg-pink-500/10 text-pink-500">
-                <Wine className="w-5 h-5" />
-              </span>
-              <div>
-                <h3 className="font-heading font-bold text-base text-[var(--text-primary)]">
-                  Honey Deuce Tracker
-                </h3>
-                <p className="text-xs text-[var(--text-muted)]">El cóctel oficial del US Open ($25 USD)</p>
-              </div>
-            </div>
+        <div className="rounded-2xl bg-[var(--bg-surface-elevated)] p-6 text-center space-y-1">
+          <span className="font-display text-6xl text-[var(--text-primary)] block">
+            {honeyCount}<span className="text-2xl text-[var(--text-muted)]"> / {honeyTarget}</span>
+          </span>
+          <p className="text-[13px] text-[var(--text-secondary)] pb-2">Vasos conmemorativos coleccionados</p>
 
-            <div className="bg-[var(--bg-surface)] p-4 rounded-xl border border-[var(--border-subtle)] text-center space-y-2">
-              <span className="text-4xl font-heading font-black text-[var(--text-primary)] block">
-                {honeyCount} <span className="text-lg text-[var(--text-muted)]">/ {honeyTarget}</span>
-              </span>
-              <p className="text-xs text-[var(--text-secondary)]">
-                Vasos conmemorativos coleccionados
-              </p>
-              <div className="flex items-center justify-center gap-2 pt-2">
-                <button
-                  onClick={handleDecrementHoney}
-                  disabled={honeyCount === 0}
-                  className="w-9 h-9 rounded-lg bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] font-bold flex items-center justify-center disabled:opacity-30"
-                >
-                  <Minus className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={handleDrinkHoneyDeuce}
-                  className="px-4 py-2 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
-                >
-                  <Plus className="w-4 h-4 stroke-[3]" />
-                  <span>+1 Honey Deuce</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Honey Deuce Recipe */}
-            <div className="text-xs text-[var(--text-secondary)] space-y-1.5 p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-              <span className="font-bold text-[var(--text-primary)] block text-[11px] uppercase tracking-wider">
-                Receta Oficial:
-              </span>
-              <p>• Vodka Grey Goose (1.5 oz)</p>
-              <p>• Limonada fresca recién exprimida (3.0 oz)</p>
-              <p>• Licor de frambuesa Chambord (0.5 oz)</p>
-              <p>• 3 esferas de melón verde ("pelotas de tenis") 🍈</p>
-            </div>
+          <div className="flex items-center justify-center gap-2.5">
+            <button
+              onClick={handleDecrementHoney}
+              disabled={honeyCount === 0}
+              className="spa-tile bg-[var(--bg-surface)] text-[var(--text-secondary)] disabled:opacity-30 spa-pressable"
+              aria-label="Quitar un Honey Deuce"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <button onClick={handleDrinkHoneyDeuce} className="spa-btn spa-btn-primary min-h-[3rem] px-6">
+              <Plus className="w-4 h-4" />
+              +1 Honey Deuce
+            </button>
           </div>
-
         </div>
 
-      </div>
+        <div className="rounded-2xl bg-[var(--bg-surface-elevated)] p-4 space-y-1.5">
+          <span className="spa-eyebrow">Receta oficial</span>
+          <ul className="text-[13px] text-[var(--text-secondary)] space-y-1 pt-1">
+            <li>Vodka Grey Goose (1.5 oz)</li>
+            <li>Limonada fresca recién exprimida (3.0 oz)</li>
+            <li>Licor de frambuesa Chambord (0.5 oz)</li>
+            <li>3 esferas de melón verde (las "pelotas de tenis")</li>
+          </ul>
+        </div>
+      </section>
+
+      {/* ── Sessions ──────────────────────────────────────────────────── */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <span className="spa-eyebrow">
+            <Trophy className="w-3 h-3 text-[var(--accent-primary-text)]" />
+            Arthur Ashe Stadium
+          </span>
+          <span className="text-[11px] font-mono font-bold text-[var(--text-muted)]">Promenade / Loge</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {tripData.sportsTravelerPackage.sessions.map((sess, idx) => (
+            <article key={idx} className="spa-card p-5 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="spa-chip h-8 font-mono text-[11px]" style={{ backgroundColor: 'var(--accent-primary-soft)', color: 'var(--accent-primary-text)', borderColor: 'transparent' }}>
+                  {sess.session}
+                </span>
+                <span className="text-[11px] font-bold text-[var(--text-muted)]">{sess.date}</span>
+              </div>
+
+              <h3 className="font-heading font-bold text-base text-[var(--text-primary)] leading-snug">
+                {sess.name}
+              </h3>
+
+              <div className="space-y-1.5 text-[13px] text-[var(--text-secondary)]">
+                <div className="flex items-center gap-2 font-mono">
+                  <Clock className="w-3.5 h-3.5 text-[var(--accent-primary-text)] flex-shrink-0" />
+                  {sess.time}
+                </div>
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-3.5 h-3.5 text-[var(--text-muted)] flex-shrink-0 mt-0.5" />
+                  <span className="leading-snug">{sess.stadium}</span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Go City ───────────────────────────────────────────────────── */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <span className="spa-eyebrow">
+            <Ticket className="w-3 h-3 text-[var(--accent-tennis-text)]" />
+            Go City Explorer Pass
+          </span>
+          <span className="text-[11px] font-bold text-[var(--text-muted)]">Pase digital en la app</span>
+        </div>
+
+        <div className="space-y-2">
+          {tripData.goCityPass.attractions.map((att) => (
+            <button
+              key={att.id}
+              onClick={() => onToggleGoCityAttraction(att.id)}
+              aria-pressed={att.completed}
+              className={`spa-row py-4 ${att.completed ? 'border-[color-mix(in_srgb,var(--accent-emerald)_40%,transparent)]' : ''}`}
+            >
+              <span
+                className="spa-tile-sm flex-shrink-0"
+                style={{
+                  backgroundColor: att.completed
+                    ? 'var(--accent-emerald)'
+                    : 'var(--bg-surface-elevated)',
+                  color: att.completed ? '#fff' : 'transparent',
+                  border: att.completed ? 'none' : '1px solid var(--border-strong)'
+                }}
+              >
+                <Check className="w-3.5 h-3.5" />
+              </span>
+
+              <span className="flex-1 min-w-0">
+                <span className={`block font-heading font-bold text-[15px] leading-snug ${
+                  att.completed ? 'text-[var(--text-muted)] line-through' : 'text-[var(--text-primary)]'
+                }`}>
+                  {att.name}
+                </span>
+                <span className="block text-[13px] text-[var(--text-muted)] mt-0.5 leading-snug">
+                  {att.window} · {att.status}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
 
     </div>
   );

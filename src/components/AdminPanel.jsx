@@ -75,7 +75,7 @@ export default function AdminPanel({
     <div className="w-full space-y-4">
       
       {/* CMS Header */}
-      <div className="spa-card p-6 border border-[var(--border-subtle)]">
+      <div className="spa-banner p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export default function AdminPanel({
                           className="hover:bg-[var(--bg-surface-elevated)]/50 transition-colors"
                         >
                           <td className="py-2.5 px-3 font-bold text-[var(--text-primary)]">
-                            <span className="w-6 h-6 rounded bg-[var(--bg-surface-elevated)] inline-flex items-center justify-center text-xs">
+                            <span className="w-6 h-6 rounded-lg bg-[var(--bg-surface-elevated)] inline-flex items-center justify-center text-xs">
                               D{act.dayNumber}
                             </span>
                           </td>
@@ -211,7 +211,7 @@ export default function AdminPanel({
                             {act.sub && <div className="text-[11px] text-[var(--text-muted)] truncate max-w-xs">{act.sub}</div>}
                           </td>
                           <td className="py-2.5 px-3">
-                            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-lg bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
                               {act.category}
                             </span>
                           </td>
@@ -219,7 +219,7 @@ export default function AdminPanel({
                             <select
                               value={currentStatus}
                               onChange={(e) => onChangeActivityStatus(act.dayNumber, act.id, e.target.value)}
-                              className="bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded px-2 py-1 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none"
+                              className="bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded-lg px-2 py-1 text-[11px] font-bold text-[var(--text-primary)] focus:outline-none"
                             >
                               <option value="fijo">🔒 Inamovible</option>
                               <option value="opcional">💡 Opcional</option>
@@ -232,14 +232,14 @@ export default function AdminPanel({
                             <div className="flex items-center justify-end gap-1">
                               <button
                                 onClick={() => onEditActivity(act.dayNumber, act)}
-                                className="p-1 rounded bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                                className="p-1 rounded-lg bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                                 title="Editar"
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => onDeleteActivity(act.dayNumber, act.id)}
-                                className="p-1 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-500"
+                                className="p-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-500"
                                 title="Eliminar"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -282,7 +282,7 @@ export default function AdminPanel({
               >
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5">
-                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded flex items-center gap-1 ${
+                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-lg flex items-center gap-1 ${
                       t.priority === 'urgent' ? 'bg-rose-500/10 text-rose-500' : 'bg-amber-500/10 text-amber-500'
                     }`}>
                       {t.priority === 'urgent' ? <AlertCircle className="w-2.5 h-2.5" /> : <AlertTriangle className="w-2.5 h-2.5" />}
@@ -328,7 +328,7 @@ export default function AdminPanel({
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-lg bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
                       {rec.category}
                     </span>
                     <button

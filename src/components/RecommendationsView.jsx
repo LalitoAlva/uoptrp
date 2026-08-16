@@ -24,6 +24,8 @@ import {
   Award
 } from '../utils/icons';
 import { sanitizeUrl } from '../utils/sanitize';
+import PageHeader from './PageHeader';
+import BottomSheet from './BottomSheet';
 import confetti from 'canvas-confetti';
 
 export default function RecommendationsView({ 
@@ -37,6 +39,7 @@ export default function RecommendationsView({
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedZone, setSelectedZone] = useState('all');
   const [filterVisited, setFilterVisited] = useState('all'); // 'all', 'visited', 'pending'
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   const categories = [
     { id: 'all', label: 'Todo', icon: Sparkles, color: 'text-[var(--accent-primary-text)]' },
@@ -133,143 +136,100 @@ export default function RecommendationsView({
 
   const visitedCount = recommendations.filter(r => r.visited).length;
 
+  const activeExtraFilters = (selectedZone !== 'all' ? 1 : 0) + (filterVisited !== 'all' ? 1 : 0);
+
   return (
-    <div className="w-full space-y-8">
-      
-      {/* Header Banner */}
-      <div className="spa-card p-8 sm:p-10 border border-[var(--border-subtle)]">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-3xl">
-            <div className="flex items-center gap-2">
-              <span className="p-2 rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary-text)]">
-                <Sparkles className="w-5 h-5" />
-              </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary-text)]">
-                Directorio Curado de Autor · NYC 2026
-              </span>
-            </div>
-            
-            <h1 className="text-3xl sm:text-5xl font-heading font-black text-[var(--text-primary)] tracking-tight">
-              Recomendaciones & Spots Imperdibles
-            </h1>
-            
-            <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-              La selección definitiva para comer, beber craft beer, escuchar jazz en vivo y visitar los tesoros escondidos de Manhattan, Brooklyn, Queens y Hudson Valley.
-            </p>
+    <div className="w-full space-y-7">
 
-            {/* Quick Stats Chips */}
-            <div className="flex flex-wrap gap-2 pt-2">
-              <div className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)]">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>Lugares Curados:</span>
-                <span className="font-mono text-[var(--accent-primary-text)]">{recommendations.length}</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Visitados:</span>
-                <span className="font-mono">{visitedCount} de {recommendations.length}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3 w-full lg:w-auto">
-            <button
-              onClick={onOpenImportExport}
-              className="flex-1 lg:flex-none px-4 py-2.5 rounded bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-bold flex items-center justify-center gap-2 transition-colors"
-            >
+      <PageHeader
+        eyebrow="Directorio curado · NYC 2026"
+        title="Recomendaciones & spots imperdibles"
+        description="La selección definitiva para comer, beber craft beer, escuchar jazz en vivo y visitar los tesoros escondidos de Manhattan, Brooklyn, Queens y Hudson Valley."
+        icon={Sparkles}
+        stats={[
+          { label: 'Lugares', value: recommendations.length, icon: MapPin },
+          {
+            label: 'Visitados',
+            value: `${visitedCount}/${recommendations.length}`,
+            icon: CheckCircle2,
+            color: 'var(--accent-emerald-text)',
+            soft: 'color-mix(in srgb, var(--accent-emerald) 16%, transparent)'
+          }
+        ]}
+        actions={
+          <>
+            <button onClick={onOpenNewRec} className="spa-btn spa-btn-primary flex-1 sm:flex-none min-h-[3rem]">
+              <Plus className="w-4 h-4" />
+              Nuevo spot
+            </button>
+            <button onClick={onOpenImportExport} className="spa-btn spa-btn-ghost flex-1 sm:flex-none min-h-[3rem]">
               <Download className="w-4 h-4 text-[var(--accent-primary-text)]" />
-              <span>Importar / Exportar</span>
+              Importar / Exportar
             </button>
+          </>
+        }
+      />
 
-            <button
-              onClick={onOpenNewRec}
-              className="flex-1 lg:flex-none px-5 py-2.5 rounded bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-all"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span>+ Nuevo Spot</span>
-            </button>
+      {/* Search + category rail stay in reach; the two long dropdowns moved
+          into a sheet so the top of this screen isn't a form on a phone. */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="search"
+              placeholder="Buscar lugar, platillo o zona…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="spa-input pl-11 min-h-[3rem]"
+            />
           </div>
+          <button
+            onClick={() => setIsFilterSheetOpen(true)}
+            className={`spa-tile flex-shrink-0 ${
+              activeExtraFilters > 0
+                ? 'bg-[var(--accent-primary)] text-white'
+                : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)]'
+            }`}
+            aria-label="Más filtros"
+          >
+            <Filter className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Category Quick Filter Pills Bar */}
-        <div className="mt-8 pt-6 border-t border-[var(--border-subtle)] space-y-4">
-          
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            {categories.map((c) => {
-              const isSelected = selectedCategory === c.id;
-              const count = c.id === 'all' 
-                ? recommendations.length 
-                : recommendations.filter(r => r.category === c.id).length;
-              
-              return (
-                <button
-                  key={c.id}
-                  onClick={() => setSelectedCategory(c.id)}
-                  className={`px-3.5 py-2 rounded text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-                    isSelected
-                      ? 'bg-[var(--accent-primary)] text-white shadow-sm'
-                      : 'bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] border border-[var(--border-subtle)]'
-                  }`}
-                >
-                  <span>{c.label}</span>
-                  <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
-                    isSelected ? 'bg-white/20 text-white' : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
-                  }`}>
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+        <div className="spa-rail hide-scrollbar">
+          {categories.map((c) => {
+            const isSelected = selectedCategory === c.id;
+            const count = c.id === 'all'
+              ? recommendations.length
+              : recommendations.filter(r => r.category === c.id).length;
+            const CatIcon = c.icon;
 
-          {/* Search, Zone and Visited Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
-            <div className="relative md:col-span-2">
-              <Search className="w-4 h-4 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Buscar por nombre, comida, platillo imperdible, zona..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded text-xs text-[var(--text-primary)] font-medium focus:outline-none focus:border-[var(--accent-primary)]"
-              />
-            </div>
-
-            <select
-              value={selectedZone}
-              onChange={(e) => setSelectedZone(e.target.value)}
-              className="bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded px-3 py-2.5 text-xs text-[var(--text-primary)] font-bold focus:outline-none"
-            >
-              <option value="all">📍 Todas las Zonas de NYC</option>
-              {zones.filter(z => z !== 'all').map((z) => (
-                <option key={z} value={z}>
-                  {z}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={filterVisited}
-              onChange={(e) => setFilterVisited(e.target.value)}
-              className="bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded px-3 py-2.5 text-xs text-[var(--text-primary)] font-bold focus:outline-none"
-            >
-              <option value="all">Todos los Estados</option>
-              <option value="pending">⏳ Por Visitar</option>
-              <option value="visited">✅ Ya Visitados</option>
-            </select>
-          </div>
-
+            return (
+              <button
+                key={c.id}
+                onClick={() => setSelectedCategory(c.id)}
+                aria-pressed={isSelected}
+                className={`spa-chip ${isSelected ? 'spa-chip-accent' : ''}`}
+              >
+                {CatIcon && <CatIcon className="w-3.5 h-3.5" />}
+                {c.label}
+                <span className="font-mono text-[10px] opacity-70">{count}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Grid of Eye-Catching Recommendation Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {/* Grid of recommendation cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredRecs.length === 0 ? (
-          <div className="col-span-full spa-card p-12 text-center text-[var(--text-muted)] text-sm space-y-2">
-            <Sparkles className="w-8 h-8 text-[var(--text-muted)] mx-auto opacity-50" />
-            <p className="font-bold text-[var(--text-primary)]">No se encontraron recomendaciones con estos filtros.</p>
-            <p className="text-xs">Prueba seleccionando otra categoría o borra el texto de búsqueda.</p>
+          <div className="col-span-full spa-card p-12 text-center space-y-3">
+            <span className="spa-tile-lg mx-auto bg-[var(--bg-surface-elevated)] text-[var(--text-muted)]">
+              <Sparkles className="w-6 h-6" />
+            </span>
+            <p className="font-heading font-bold text-lg text-[var(--text-primary)]">Sin resultados</p>
+            <p className="text-sm text-[var(--text-muted)]">Prueba con otra categoría o borra el texto de búsqueda.</p>
           </div>
         ) : (
           filteredRecs.map((rec) => {
@@ -287,13 +247,13 @@ export default function RecommendationsView({
                   
                   {/* Top Badges & Category Header */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded border ${config.badgeClass} flex items-center gap-1`}>
+                    <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-lg border ${config.badgeClass} flex items-center gap-1`}>
                       <config.icon className="w-3 h-3" />
                       <span>{rec.category}</span>
                     </span>
                     
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-[var(--text-primary)] bg-[var(--bg-surface-elevated)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">
+                      <span className="font-mono text-xs font-bold text-[var(--text-primary)] bg-[var(--bg-surface-elevated)] px-2 py-0.5 rounded-lg border border-[var(--border-subtle)]">
                         {rec.price || '$$'}
                       </span>
                       <button
@@ -313,7 +273,7 @@ export default function RecommendationsView({
 
                   {/* Must Try Spotlight Banner (Eye-Catching) */}
                   {rec.mustTry && (
-                    <div className="p-3 rounded bg-amber-500/10 border border-amber-500/25 space-y-1">
+                    <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/25 space-y-1">
                       <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
                         <Flame className="w-3 h-3 fill-amber-500" />
                         <span>Qué Pedir / Imperdible:</span>
@@ -348,40 +308,31 @@ export default function RecommendationsView({
                 </div>
 
                 {/* Card Action Footer */}
-                <div className="pt-4 mt-4 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2 text-xs">
+                <div className="pt-4 mt-4 border-t border-[var(--border-subtle)] flex items-center gap-2">
                   <button
                     onClick={() => handleToggle(rec.id)}
-                    className={`px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 transition-all ${
-                      rec.visited
-                        ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                        : 'bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] border border-[var(--border-subtle)]'
-                    }`}
+                    aria-pressed={rec.visited}
+                    className="spa-chip flex-1 justify-center"
+                    style={rec.visited ? {
+                      backgroundColor: 'color-mix(in srgb, var(--accent-emerald) 16%, transparent)',
+                      color: 'var(--accent-emerald-text)',
+                      borderColor: 'transparent'
+                    } : undefined}
                   >
-                    <Check className={`w-3.5 h-3.5 ${rec.visited ? 'text-emerald-500' : 'text-[var(--text-muted)]'}`} />
-                    <span>{rec.visited ? 'Visitado' : 'Por Visitar'}</span>
+                    <Check className="w-3.5 h-3.5" />
+                    {rec.visited ? 'Visitado' : 'Por visitar'}
                   </button>
 
-                  {safeMapsUrl ? (
-                    <a
-                      href={safeMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-1.5 rounded bg-[var(--accent-primary)]/10 hover:bg-[var(--accent-primary)]/20 text-[var(--accent-primary-text)] font-bold flex items-center gap-1 transition-colors"
-                    >
-                      <span>Maps</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  ) : (
-                    <a
-                      href={`https://maps.google.com/?q=${encodeURIComponent(rec.name + ' NYC')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-1.5 rounded bg-[var(--bg-surface-elevated)] text-[var(--accent-primary-text)] font-bold flex items-center gap-1 hover:underline"
-                    >
-                      <span>Maps</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  )}
+                  <a
+                    href={safeMapsUrl || `https://maps.google.com/?q=${encodeURIComponent(`${rec.name} NYC`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="spa-chip"
+                    style={{ backgroundColor: 'var(--accent-primary-soft)', color: 'var(--accent-primary-text)', borderColor: 'transparent' }}
+                  >
+                    Maps
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
                 </div>
 
               </div>
@@ -389,6 +340,78 @@ export default function RecommendationsView({
           })
         )}
       </div>
+
+      {/* Zone + visited filters */}
+      <BottomSheet
+        isOpen={isFilterSheetOpen}
+        onClose={() => setIsFilterSheetOpen(false)}
+        title="Filtros"
+        subtitle="Acota por zona de la ciudad o por estado"
+        icon={Filter}
+        footer={
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => { setSelectedZone('all'); setFilterVisited('all'); }}
+              className="spa-btn spa-btn-ghost w-full min-h-[3rem]"
+            >
+              Limpiar
+            </button>
+            <button
+              onClick={() => setIsFilterSheetOpen(false)}
+              className="spa-btn spa-btn-primary w-full min-h-[3rem]"
+            >
+              Ver resultados
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-7">
+          <div className="space-y-2.5">
+            <span className="spa-eyebrow">Estado</span>
+            <div className="grid grid-cols-1 gap-2">
+              {[
+                { id: 'all', label: 'Todos' },
+                { id: 'pending', label: 'Por visitar' },
+                { id: 'visited', label: 'Ya visitados' }
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => setFilterVisited(opt.id)}
+                  aria-pressed={filterVisited === opt.id}
+                  className={`flex items-center gap-3 w-full min-h-[3.25rem] px-4 rounded-2xl text-left text-sm font-bold transition-colors spa-pressable ${
+                    filterVisited === opt.id
+                      ? 'bg-[var(--accent-primary)] text-white'
+                      : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            <span className="spa-eyebrow">Zona</span>
+            <div className="grid grid-cols-1 gap-2">
+              {zones.map((z) => (
+                <button
+                  key={z}
+                  onClick={() => setSelectedZone(z)}
+                  aria-pressed={selectedZone === z}
+                  className={`flex items-center gap-3 w-full min-h-[3.25rem] px-4 rounded-2xl text-left text-sm font-bold transition-colors spa-pressable ${
+                    selectedZone === z
+                      ? 'bg-[var(--accent-primary)] text-white'
+                      : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
+                  }`}
+                >
+                  <Compass className={`w-4 h-4 flex-shrink-0 ${selectedZone === z ? 'text-white' : 'text-[var(--accent-primary-text)]'}`} />
+                  {z === 'all' ? 'Todas las zonas' : z}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </BottomSheet>
 
     </div>
   );

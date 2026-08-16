@@ -4,6 +4,7 @@
 // again later, this is the only file that needs to change.
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { config } from '@fortawesome/fontawesome-svg-core';
 import {
   faCircleExclamation,
   faTriangleExclamation,
@@ -101,8 +102,30 @@ import {
   faTrainSubway,
   faBowlFood,
   faBowlRice,
-  faSuitcase
+  faSuitcase,
+  faChevronRight,
+  faChevronLeft,
+  faSliders,
+  faListCheck,
+  faEllipsis,
+  faHouse,
+  faBell,
+  faDiagramProject,
+  faBookmark,
+  faStopwatch,
+  faMugHot,
+  faPersonWalking,
+  faGear
 } from '@fortawesome/free-solid-svg-icons';
+
+// Font Awesome injects its stylesheet into <head> at runtime, *unlayered*.
+// Unlayered rules beat anything in a cascade layer, so its `.svg-inline--fa
+// { height: 1em }` silently defeated every `w-4 h-4` Tailwind class on every
+// icon in the app: glyphs rendered at their natural aspect ratio (e.g. 20×16
+// inside a 28px circle) and read as off-centre. We switch the injection off
+// and re-declare the handful of base styles inside `@layer base` in
+// index.css, where the utility classes can win.
+config.autoAddCss = false;
 
 function makeIcon(icon, displayName) {
   const Icon = React.forwardRef(function IconComponent({ className, ...rest }, ref) {
@@ -210,6 +233,19 @@ export const Subway = makeIcon(faTrainSubway, 'Subway');
 export const BowlFood = makeIcon(faBowlFood, 'BowlFood');
 export const BowlRice = makeIcon(faBowlRice, 'BowlRice');
 export const Suitcase = makeIcon(faSuitcase, 'Suitcase');
+export const ChevronRight = makeIcon(faChevronRight, 'ChevronRight');
+export const ChevronLeft = makeIcon(faChevronLeft, 'ChevronLeft');
+export const Sliders = makeIcon(faSliders, 'Sliders');
+export const ListCheck = makeIcon(faListCheck, 'ListCheck');
+export const Ellipsis = makeIcon(faEllipsis, 'Ellipsis');
+export const Home = makeIcon(faHouse, 'Home');
+export const Bell = makeIcon(faBell, 'Bell');
+export const Route = makeIcon(faDiagramProject, 'Route');
+export const Bookmark = makeIcon(faBookmark, 'Bookmark');
+export const Stopwatch = makeIcon(faStopwatch, 'Stopwatch');
+export const MugHot = makeIcon(faMugHot, 'MugHot');
+export const Walking = makeIcon(faPersonWalking, 'Walking');
+export const Gear = makeIcon(faGear, 'Gear');
 
 // Maps the emoji glyphs already stored in initialData.js's extraCards.icon
 // field to a Font Awesome component, so content data doesn't need a rewrite

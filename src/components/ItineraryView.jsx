@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import DayCard from './DayCard';
-import { TennisBall, Beer, Utensils, Landmark, BookOpen, Plane, Lock, Lightbulb, CheckCircle2, CircleXmark, Calendar } from '../utils/icons';
+import BottomSheet from './BottomSheet';
+import {
+  TennisBall, Beer, Utensils, Landmark, BookOpen, Plane,
+  Lock, Lightbulb, CheckCircle2, CircleXmark, Calendar,
+  Sliders, X, Clock
+} from '../utils/icons';
+import { getStatus } from '../utils/activityMeta';
 
 export default function ItineraryView({
   tripData,
@@ -13,9 +19,10 @@ export default function ItineraryView({
   const [selectedDayTab, setSelectedDayTab] = useState(1);
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   const categories = [
-    { id: 'all', label: 'Todo', icon: null },
+    { id: 'all', label: 'Todo', icon: Calendar },
     { id: 'tennis', label: 'US Open', icon: TennisBall },
     { id: 'beer', label: 'Bares', icon: Beer },
     { id: 'food', label: 'Comida', icon: Utensils },
@@ -24,152 +31,205 @@ export default function ItineraryView({
     { id: 'logistics', label: 'Logística', icon: Plane }
   ];
 
-  let totalFijo = 0;
-  let totalOpcional = 0;
-  let totalHecho = 0;
-  let totalNoHecho = 0;
-
-  tripData.days.forEach(d => {
-    d.timeline.forEach(t => {
-      const st = t.status || (t.completed ? 'hecho' : 'pendiente');
-      if (st === 'fijo') totalFijo++;
-      else if (st === 'opcional') totalOpcional++;
-      else if (st === 'hecho') totalHecho++;
-      else if (st === 'no_hecho') totalNoHecho++;
-    });
-  });
+  const counts = { fijo: 0, opcional: 0, hecho: 0, no_hecho: 0, pendiente: 0 };
+  tripData.days.forEach(d => d.timeline.forEach(t => { counts[getStatus(t)]++; }));
 
   const statuses = [
-    { id: 'all', label: 'Todos los estados', icon: null },
-    { id: 'fijo', label: `Inamovibles (${totalFijo})`, icon: Lock },
-    { id: 'opcional', label: `Opcionales (${totalOpcional})`, icon: Lightbulb },
-    { id: 'hecho', label: `Hechos (${totalHecho})`, icon: CheckCircle2 },
-    { id: 'no_hecho', label: `No hechos (${totalNoHecho})`, icon: CircleXmark },
+    { id: 'all', label: 'Todos', icon: Calendar },
+    { id: 'pendiente', label: 'Por hacer', icon: Clock, count: counts.pendiente },
+    { id: 'fijo', label: 'Inamovibles', icon: Lock, count: counts.fijo },
+    { id: 'opcional', label: 'Opcionales', icon: Lightbulb, count: counts.opcional },
+    { id: 'hecho', label: 'Hechos', icon: CheckCircle2, count: counts.hecho },
+    { id: 'no_hecho', label: 'Omitidos', icon: CircleXmark, count: counts.no_hecho },
   ];
 
-  const daysToRender = selectedDayTab === 'all' 
-    ? tripData.days 
+  const daysToRender = selectedDayTab === 'all'
+    ? tripData.days
     : tripData.days.filter(d => d.dayNumber === selectedDayTab);
 
+  const activeFilters = [
+    filterStatus !== 'all' && {
+      key: 'status',
+      label: statuses.find(s => s.id === filterStatus)?.label,
+      clear: () => setFilterStatus('all')
+    },
+    filterCategory !== 'all' && {
+      key: 'category',
+      label: categories.find(c => c.id === filterCategory)?.label,
+      clear: () => setFilterCategory('all')
+    }
+  ].filter(Boolean);
+
+  /** Big pill option used inside the filter sheet — 52px+ tall. */
+  const FilterOption = ({ option, isActive, onClick }) => {
+    const Icon = option.icon;
+    return (
+      <button
+        onClick={onClick}
+        aria-pressed={isActive}
+        className={`flex items-center gap-3 w-full min-h-[3.25rem] px-4 rounded-2xl text-left text-sm font-bold transition-colors spa-pressable ${
+          isActive
+            ? 'bg-[var(--accent-primary)] text-white'
+            : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
+        }`}
+      >
+        {Icon && <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-[var(--accent-primary-text)]'}`} />}
+        <span className="flex-1">{option.label}</span>
+        {typeof option.count === 'number' && (
+          <span className={`font-mono text-xs ${isActive ? 'text-white/80' : 'text-[var(--text-muted)]'}`}>
+            {option.count}
+          </span>
+        )}
+      </button>
+    );
+  };
+
   return (
-    <div className="w-full space-y-10">
-      
-      {/* Top Filter Bar with ample padding */}
-      <div className="spa-card p-6 sm:p-8 space-y-5">
-        
-        {/* Day Selector — compact tall tiles instead of wide pills, so more
-            days fit before needing to scroll and the row reads as a proper
-            day-picker strip rather than stretched-out buttons. */}
-        <div className="flex items-stretch gap-2 overflow-x-auto pb-1">
+    <div className="w-full space-y-6 sm:space-y-8">
+
+      {/* ── Sticky day picker ────────────────────────────────────────────
+          Pinned under the header so switching days never means scrolling
+          back to the top of a long timeline. */}
+      <div className="sticky top-[var(--header-h)] z-30 -mx-[1.125rem] sm:-mx-7 lg:-mx-10 px-[1.125rem] sm:px-7 lg:px-10 py-3 spa-blur border-b border-[var(--border-subtle)]">
+
+        <div className="spa-rail hide-scrollbar">
           {tripData.days.map((day) => {
             const isSelected = selectedDayTab === day.dayNumber;
             const [weekday, dayNum] = day.date.split(' ');
+            const done = day.timeline.filter(t => getStatus(t) === 'hecho').length;
+            const allDone = day.timeline.length > 0 && done === day.timeline.length;
             return (
               <button
                 key={day.dayNumber}
                 onClick={() => setSelectedDayTab(day.dayNumber)}
-                className={`flex flex-col items-center justify-center gap-1.5 w-[72px] sm:w-[84px] flex-shrink-0 py-4 rounded-lg font-bold transition-colors ${
+                aria-pressed={isSelected}
+                className={`relative flex flex-col items-center justify-center gap-1 w-[4.25rem] h-[4.5rem] rounded-2xl font-bold transition-colors spa-pressable ${
                   isSelected
-                    ? 'bg-[var(--accent-primary)] text-white shadow-sm'
-                    : 'bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] border border-[var(--border-subtle)]'
+                    ? 'bg-[var(--accent-primary)] text-white shadow-[0_10px_24px_-14px_var(--accent-primary)]'
+                    : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
                 }`}
               >
-                <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-black ${
-                  isSelected ? 'bg-white text-[var(--accent-primary-text)]' : 'bg-[var(--border-medium)] text-[var(--text-primary)]'
-                }`}>
-                  {day.dayNumber}
+                <span className={`text-[10px] uppercase tracking-widest leading-none ${isSelected ? 'text-white/75' : 'text-[var(--text-muted)]'}`}>
+                  {weekday?.slice(0, 3)}
                 </span>
-                <span className="text-[11px] uppercase tracking-wide whitespace-nowrap">{weekday?.slice(0, 3)} {dayNum}</span>
+                <span className="font-display text-2xl leading-none">{dayNum}</span>
+                {allDone && (
+                  <span className={`absolute bottom-2 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-[var(--accent-emerald)]'}`} />
+                )}
               </button>
             );
           })}
 
           <button
             onClick={() => setSelectedDayTab('all')}
-            className={`flex flex-col items-center justify-center gap-1.5 w-[84px] flex-shrink-0 py-4 rounded-lg font-bold text-[11px] transition-colors ${
+            aria-pressed={selectedDayTab === 'all'}
+            className={`flex flex-col items-center justify-center gap-1.5 w-[4.25rem] h-[4.5rem] rounded-2xl font-bold transition-colors spa-pressable ${
               selectedDayTab === 'all'
-                ? 'bg-[var(--accent-primary)] text-white shadow-sm'
-                : 'bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] border border-[var(--border-subtle)]'
+                ? 'bg-[var(--accent-primary)] text-white'
+                : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
             }`}
           >
             <Calendar className="w-4 h-4" />
-            <span className="uppercase tracking-wide">Ver Todo</span>
+            <span className="text-[10px] uppercase tracking-wide leading-none">Todo</span>
           </button>
         </div>
 
-        {/* Status and Category Filter Chips */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-[var(--border-subtle)] text-xs sm:text-sm">
-          
-          {/* Status filter */}
-          <div className="flex items-center gap-2 overflow-x-auto">
-            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mr-1">Estado:</span>
-            {statuses.map((st) => (
-              <button
-                key={st.id}
-                onClick={() => setFilterStatus(st.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-colors whitespace-nowrap ${
-                  filterStatus === st.id
-                    ? 'bg-[var(--text-primary)] text-[var(--bg-surface)]'
-                    : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
-                }`}
-              >
-                {st.icon && <st.icon className="w-3 h-3" />}
-                {st.label}
-              </button>
-            ))}
-          </div>
+        {/* Filters live behind one button; whatever is active shows as a
+            removable chip so the state is never hidden. */}
+        <div className="flex items-center gap-2 mt-3 overflow-x-auto hide-scrollbar">
+          <button
+            onClick={() => setIsFilterSheetOpen(true)}
+            className={`spa-chip flex-shrink-0 ${activeFilters.length > 0 ? 'spa-chip-accent' : ''}`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            Filtros
+            {activeFilters.length > 0 && (
+              <span className="w-5 h-5 rounded-full bg-white/25 text-[10px] font-black flex items-center justify-center">
+                {activeFilters.length}
+              </span>
+            )}
+          </button>
 
-          {/* Category filter */}
-          <div className="flex items-center gap-1.5 overflow-x-auto">
-            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mr-1">Tipo:</span>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setFilterCategory(cat.id)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap ${
-                  filterCategory === cat.id
-                    ? 'bg-[var(--accent-primary)] text-white font-bold'
-                    : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface-hover)]'
-                }`}
-              >
-                {cat.icon && <cat.icon className="w-3 h-3" />}
-                {cat.label}
-              </button>
-            ))}
-          </div>
-
+          {activeFilters.map((f) => (
+            <button key={f.key} onClick={f.clear} className="spa-chip flex-shrink-0">
+              {f.label}
+              <X className="w-3 h-3 opacity-60" />
+            </button>
+          ))}
         </div>
-
       </div>
 
-      {/* Days List — generous gap plus an explicit divider when several days
-          stack together ("Ver Todo"), so it's unambiguous where one day ends
-          and the next begins instead of relying on whitespace alone. */}
-      <div className="space-y-20 sm:space-y-28">
-        {daysToRender.map((day, idx) => (
-          <div key={day.dayNumber}>
-            {idx > 0 && (
-              <div className="flex items-center gap-4 mb-20 sm:mb-28" aria-hidden="true">
-                <div className="flex-1 h-px bg-[var(--border-medium)]" />
-                <span className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)] px-3 py-1 rounded-full border border-[var(--border-medium)] bg-[var(--bg-app)]">
-                  Día {day.dayNumber}
-                </span>
-                <div className="flex-1 h-px bg-[var(--border-medium)]" />
-              </div>
-            )}
-            <DayCard
-              day={day}
-              filterCategory={filterCategory}
-              filterStatus={filterStatus}
-              onChangeActivityStatus={onChangeActivityStatus}
-              onEditActivity={onEditActivity}
-              onDeleteActivity={onDeleteActivity}
-              onMoveActivity={onMoveActivity}
-              onAddActivityToDay={onAddActivityToDay}
-            />
-          </div>
+      {/* ── Days ─────────────────────────────────────────────────────── */}
+      <div className="space-y-8 sm:space-y-12">
+        {daysToRender.map((day) => (
+          <DayCard
+            key={day.dayNumber}
+            day={day}
+            filterCategory={filterCategory}
+            filterStatus={filterStatus}
+            onChangeActivityStatus={onChangeActivityStatus}
+            onEditActivity={onEditActivity}
+            onDeleteActivity={onDeleteActivity}
+            onMoveActivity={onMoveActivity}
+            onAddActivityToDay={onAddActivityToDay}
+          />
         ))}
       </div>
+
+      {/* ── Filter sheet ─────────────────────────────────────────────── */}
+      <BottomSheet
+        isOpen={isFilterSheetOpen}
+        onClose={() => setIsFilterSheetOpen(false)}
+        title="Filtrar paradas"
+        subtitle="Se aplica a todos los días visibles"
+        icon={Sliders}
+        footer={
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => { setFilterStatus('all'); setFilterCategory('all'); }}
+              className="spa-btn spa-btn-ghost w-full min-h-[3rem]"
+            >
+              Limpiar
+            </button>
+            <button
+              onClick={() => setIsFilterSheetOpen(false)}
+              className="spa-btn spa-btn-primary w-full min-h-[3rem]"
+            >
+              Ver resultados
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-7">
+          <div className="space-y-2.5">
+            <span className="spa-eyebrow">Estado</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {statuses.map((st) => (
+                <FilterOption
+                  key={st.id}
+                  option={st}
+                  isActive={filterStatus === st.id}
+                  onClick={() => setFilterStatus(st.id)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            <span className="spa-eyebrow">Tipo de parada</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {categories.map((cat) => (
+                <FilterOption
+                  key={cat.id}
+                  option={cat}
+                  isActive={filterCategory === cat.id}
+                  onClick={() => setFilterCategory(cat.id)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </BottomSheet>
 
     </div>
   );

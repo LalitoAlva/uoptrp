@@ -63,12 +63,12 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
           {/* Driver Card */}
           <div className="rounded-xl bg-[var(--bg-surface-elevated)] border-2 border-amber-500/40 p-4 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-lg">
                 Show to Taxi / Uber Driver:
               </span>
               <button
                 onClick={handleCopyHotel}
-                className="text-[11px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 bg-[var(--bg-surface)] px-2 py-0.5 rounded border border-[var(--border-subtle)]"
+                className="text-[11px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 bg-[var(--bg-surface)] px-2 py-0.5 rounded-lg border border-[var(--border-subtle)]"
               >
                 {copiedHotel ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                 <span>{copiedHotel ? 'Copiado' : 'Copiar'}</span>
@@ -110,7 +110,7 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
               </span>
               <button
                 onClick={handleCopyChris}
-                className="text-[10px] font-bold text-[var(--text-secondary)] bg-[var(--bg-surface)] px-1.5 py-0.5 rounded border border-[var(--border-subtle)]"
+                className="text-[10px] font-bold text-[var(--text-secondary)] bg-[var(--bg-surface)] px-1.5 py-0.5 rounded-lg border border-[var(--border-subtle)]"
               >
                 {copiedChris ? 'Copiado' : 'Copiar'}
               </button>
@@ -127,11 +127,11 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
               Vuelos Directos United Airlines
             </span>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
-              <div className="p-2 rounded bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+              <div className="p-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
                 <span className="font-bold text-emerald-500 block">Ida · Vie 4 Sep</span>
                 <span className="font-bold text-[var(--text-primary)]">MEX 07:10 → EWR 14:08</span>
               </div>
-              <div className="p-2 rounded bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+              <div className="p-2 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
                 <span className="font-bold text-rose-500 block">Regreso · Jue 10 Sep</span>
                 <span className="font-bold text-[var(--text-primary)]">EWR 17:25 → MEX 20:45</span>
               </div>

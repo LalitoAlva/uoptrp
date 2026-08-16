@@ -59,7 +59,7 @@ export default function BudgetView({ expenses, onAddExpense, onDeleteExpense }) 
     <div className="w-full space-y-4">
       
       {/* Header Banner */}
-      <div className="spa-card p-6 border border-[var(--border-subtle)]">
+      <div className="spa-banner p-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">

@@ -6,107 +6,219 @@
    app's own sun/moon toggle whenever the OS theme differs from it. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Small-phone breakpoint. Plenty of secondary labels are worth showing on a
+   390px iPhone but not on a 320px SE, and Tailwind ships nothing below `sm`. */
+@theme {
+  --breakpoint-xs: 25rem;
+}
+
+/* =========================================================================
+   DESIGN TOKENS
+   Mobile-first system inspired by the big consumer apps (Spotify / Starbucks):
+   near-black canvas, few but confident surfaces, one loud accent, generous
+   air between things, and touch targets you can hit without looking.
+   ========================================================================= */
 :root {
-  /* Ultra High Contrast Dark Mode */
-  --bg-app: #090D16;
-  --bg-surface: #0F172A;
-  --bg-surface-elevated: #1E293B;
-  --bg-surface-hover: #334155;
-  
-  --text-primary: #FFFFFF;       /* Crisp Pure White */
-  --text-secondary: #E2E8F0;     /* Highly Visible Slate 200 */
-  --text-muted: #94A3B8;         /* Clear Slate 400 */
-  
-  --border-subtle: #1E293B;
-  --border-medium: #334155;
-  --border-strong: #64748B;
+  /* Canvas & surfaces — deep, slightly blue-black so photos and accent
+     colors pop against it. */
+  --bg-app: #07090F;
+  --bg-surface: #101724;
+  --bg-surface-elevated: #18202F;
+  --bg-surface-hover: #232D3E;
+  --bg-sunken: #0B111B;
 
-  --accent-primary: #0284C7;
-  --accent-primary-hover: #0369A1;
+  --text-primary: #FFFFFF;
+  --text-secondary: #D7E0EC;
+  --text-muted: #8FA0B6;
+
+  --border-subtle: #1E2937;
+  --border-medium: #2E3A4C;
+  --border-strong: #4A5A70;
+
+  --accent-primary: #0B84D8;
+  --accent-primary-hover: #0A6FB6;
   /* Standalone blue TEXT (links, active labels, icon accents) needs to be
-     brighter than --accent-primary in dark mode: #0284C7 only hits ~3.6-4.4:1
-     against these surfaces, under the WCAG AA 4.5:1 floor. --accent-primary
-     itself stays as-is since it's mostly a button FILL with white text on
-     top, where a brighter blue would fail the opposite way. */
-  --accent-primary-text: #38BDF8;
-  --accent-tennis: #65A30D;
-  --accent-amber: #D97706;
-  --accent-rose: #E11D48;
-  --accent-emerald: #059669;
-  --accent-indigo: #4F46E5;
+     brighter than --accent-primary in dark mode: the button fill only hits
+     ~3.6-4.4:1 against these surfaces, under the WCAG AA 4.5:1 floor. */
+  --accent-primary-text: #4CC2FF;
+  --accent-primary-soft: rgba(11, 132, 216, 0.16);
 
-  /* Soft elevation system (dark surfaces need punchier, higher-opacity shadows to read) */
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 12px 28px -10px rgba(0, 0, 0, 0.55);
-  --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 20px 40px -12px rgba(0, 0, 0, 0.65);
-  --shadow-pop: 0 24px 60px -16px rgba(0, 0, 0, 0.7);
+  --accent-tennis: #A3E635;
+  --accent-tennis-text: #BEF264;
+  --accent-amber: #F59E0B;
+  --accent-amber-text: #FBBF24;
+  --accent-rose: #F43F5E;
+  --accent-rose-text: #FB7185;
+  --accent-emerald: #10B981;
+  --accent-emerald-text: #34D399;
+  --accent-indigo: #6366F1;
+  --accent-indigo-text: #A5B4FC;
+
+  /* Elevation — dark surfaces need punchier shadows to read as lifted. */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 32px -14px rgba(0, 0, 0, 0.7);
+  --shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.45), 0 24px 48px -16px rgba(0, 0, 0, 0.8);
+  --shadow-pop: 0 -8px 60px -12px rgba(0, 0, 0, 0.8);
+  --shadow-nav: 0 -6px 28px -8px rgba(0, 0, 0, 0.7);
+
+  /* Rhythm — one place to retune how airy the whole app feels. */
+  --page-gap: 2rem;          /* space between major sections on mobile   */
+  --page-gap-lg: 3rem;       /* …and on desktop                          */
+  --card-pad: 1.25rem;
+  --card-pad-lg: 1.75rem;
+  --radius-card: 1.25rem;
+  --radius-sheet: 1.75rem;
+  --tap: 3.25rem;            /* 52px minimum comfortable touch target    */
+
+  --header-h: 3.75rem;
+  --tabbar-h: 4.5rem;
 
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: dark;
 }
 
-/* Ultra High Contrast Light Mode */
 html.light {
-  --bg-app: #F8FAFC;
+  --bg-app: #F6F8FB;
   --bg-surface: #FFFFFF;
   --bg-surface-elevated: #F1F5F9;
-  --bg-surface-hover: #E2E8F0;
+  --bg-surface-hover: #E4EAF2;
+  --bg-sunken: #EDF1F7;
 
-  --text-primary: #000000;       /* Solid Pitch Black */
-  --text-secondary: #1E293B;     /* Deep Slate 800 - Ultra High Contrast */
-  --text-muted: #475569;         /* Slate 600 - Fully Legible */
+  --text-primary: #080C14;
+  --text-secondary: #33415A;
+  --text-muted: #62748E;
 
-  --border-subtle: #CBD5E1;
-  --border-medium: #94A3B8;
-  --border-strong: #64748B;
+  --border-subtle: #E2E8F0;
+  --border-medium: #CBD5E1;
+  --border-strong: #94A3B8;
 
-  --accent-primary: #0284C7;      /* Vivid Deep Blue */
-  --accent-primary-hover: #0369A1;
-  /* Darker than --accent-primary here — #0284C7 only hits ~3.9-4.1:1 against
-     these light surfaces, under the WCAG AA 4.5:1 floor for text. */
-  --accent-primary-text: #0369A1;
-  --accent-tennis: #4D7C0F;
+  --accent-primary: #0B7BCB;
+  --accent-primary-hover: #0A67AB;
+  /* Darker than --accent-primary here — the button fill only hits ~3.9-4.1:1
+     against these light surfaces, under the WCAG AA 4.5:1 floor for text. */
+  --accent-primary-text: #0A639F;
+  --accent-primary-soft: rgba(11, 123, 203, 0.1);
+
+  --accent-tennis: #65A30D;
+  --accent-tennis-text: #4D7C0F;
   --accent-amber: #D97706;
+  --accent-amber-text: #B45309;
   --accent-rose: #E11D48;
+  --accent-rose-text: #BE123C;
   --accent-emerald: #059669;
+  --accent-emerald-text: #047857;
   --accent-indigo: #4F46E5;
+  --accent-indigo-text: #4338CA;
 
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 24px -10px rgba(15, 23, 42, 0.14);
-  --shadow-card-hover: 0 2px 4px rgba(15, 23, 42, 0.06), 0 20px 36px -12px rgba(15, 23, 42, 0.18);
-  --shadow-pop: 0 24px 60px -16px rgba(15, 23, 42, 0.28);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05), 0 12px 28px -14px rgba(15, 23, 42, 0.18);
+  --shadow-card-hover: 0 2px 6px rgba(15, 23, 42, 0.07), 0 22px 42px -16px rgba(15, 23, 42, 0.22);
+  --shadow-pop: 0 -8px 60px -12px rgba(15, 23, 42, 0.25);
+  --shadow-nav: 0 -6px 24px -10px rgba(15, 23, 42, 0.18);
 
   color-scheme: light;
 }
 
+/* Font Awesome base styles, re-homed from the library's runtime-injected
+   stylesheet (see `config.autoAddCss = false` in utils/icons.jsx). Living in
+   @layer base means an icon's `w-4 h-4` utilities now actually size it, and
+   the glyph is letterboxed and centred inside that square by the SVG
+   viewBox's default preserveAspectRatio. */
+@layer base {
+  .svg-inline--fa {
+    display: inline-block;
+    height: 1em;
+    overflow: visible;
+    vertical-align: -0.125em;
+  }
+  .svg-inline--fa .fa-primary { fill: currentColor; opacity: 1; }
+  .svg-inline--fa .fa-secondary { fill: currentColor; opacity: 0.4; }
+}
+
+/* NOTE: this rule must NOT reset margin/padding/box-sizing.
+   It is unlayered, and unlayered declarations beat anything inside a cascade
+   layer regardless of specificity — so `* { padding: 0 }` here silently
+   defeated every Tailwind `p-*` / `px-*` utility in the app, which is why
+   card content used to sit flush against its own borders. Tailwind's own
+   preflight (in @layer base) already zeroes margin, padding and box-sizing,
+   so all this rule needs to carry is the tap-highlight tweak. */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
 html {
   font-size: 16px;
   transition: font-size 0.15s ease;
+  -webkit-text-size-adjust: 100%;
+  /* `clip` rather than `hidden`: full-bleed strips (the sticky day picker)
+     use negative margins to escape the page gutter, and `hidden` would both
+     create a scroll container and break `position: sticky` inside it. */
+  overflow-x: clip;
 }
 
 body {
   background-color: var(--bg-app);
+  /* Soft ambient glow — a couple of large, faint radial gradients pinned to
+     the viewport so every screen sits on a lit surface instead of a flat
+     fill. Kept restrained so it stays out of the way of text contrast. */
+  background-image:
+    radial-gradient(ellipse 90% 40% at 50% -8%, rgba(11, 132, 216, 0.22), transparent 60%),
+    radial-gradient(ellipse 60% 30% at 100% 12%, rgba(163, 230, 53, 0.08), transparent 55%),
+    radial-gradient(ellipse 60% 35% at 0% 96%, rgba(245, 158, 11, 0.06), transparent 50%);
+  background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   transition: background-color 0.15s ease, color 0.15s ease;
-  line-height: 1.65;
+  line-height: 1.6;
   font-weight: 500;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Soft, Modern Elevated Cards */
+html.light body {
+  background-image:
+    radial-gradient(ellipse 90% 40% at 50% -8%, rgba(11, 123, 203, 0.12), transparent 60%),
+    radial-gradient(ellipse 60% 30% at 100% 12%, rgba(101, 163, 13, 0.07), transparent 55%),
+    radial-gradient(ellipse 60% 35% at 0% 96%, rgba(217, 119, 6, 0.05), transparent 50%);
+}
+
+/* =========================================================================
+   COMPONENTS
+   Everything below lives in @layer components on purpose. These classes set
+   `display`, padding and colors, and an unlayered rule would beat every
+   Tailwind utility in the app — a `hidden md:flex` on a `.spa-tile-sm` button
+   would never hide. Inside the components layer, utilities win, so a class
+   sets the default look and utilities override it per usage.
+   ========================================================================= */
+@layer components {
+
+/* ── Layout ─────────────────────────────────────────────────────────────
+   The single source of truth for horizontal page rhythm. Every screen,
+   header and footer uses this so nothing drifts out of alignment. */
+.page-x {
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+  padding-inline: 1.125rem;
+}
+@media (min-width: 640px) { .page-x { padding-inline: 1.75rem; } }
+@media (min-width: 1024px) { .page-x { padding-inline: 2.5rem; } }
+
+/* Vertical rhythm between top-level sections of a screen. */
+.stack > * + * { margin-top: var(--page-gap); }
+@media (min-width: 768px) { .stack > * + * { margin-top: var(--page-gap-lg); } }
+
+.stack-sm > * + * { margin-top: 0.875rem; }
+.stack-md > * + * { margin-top: 1.25rem; }
+
+/* =========================================================================
+   SURFACES
+   ========================================================================= */
+
 .spa-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
@@ -117,32 +229,314 @@ body {
   transform: translateY(-2px);
 }
 
+/* Featured / highlight banner — a warmer wash for the one or two things per
+   screen that deserve first attention (hero countdown, "up next" strips). */
+.spa-banner {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent-primary) 22%, transparent) 0%, var(--bg-surface) 55%);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 30%, var(--border-subtle));
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
 .spa-surface-elevated {
   background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: 0.75rem;
+  border-radius: 1rem;
 }
 
-/* Softer, warmer radius scale — overrides Tailwind's utility classes globally.
-   Unlayered rules beat Tailwind's @layer utilities regardless of source order,
-   so this single block re-skins every rounded-* usage app-wide.
+/* Frosted bar used by the sticky header and the bottom tab bar. */
+.spa-blur {
+  background-color: color-mix(in srgb, var(--bg-surface) 82%, transparent);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+}
+
+/* =========================================================================
+   LIST ROWS — the workhorse of the mobile screens. One tap target, roomy,
+   with an icon tile on the left and a chevron on the right.
+   ========================================================================= */
+
+.spa-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 0.875rem 1rem;
+  border-radius: 1rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  text-align: left;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+
+.spa-row:hover { border-color: var(--border-medium); background-color: var(--bg-surface-hover); }
+.spa-row:active { transform: scale(0.985); }
+
+/* Squircle icon tile — the recurring visual anchor on rows and stat cards.
+   All three sizes carry the centering themselves: they're used standalone all
+   over the app, and a size-only modifier would leave its contents parked in
+   the top-left corner. */
+.spa-tile,
+.spa-tile-lg,
+.spa-tile-sm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.spa-tile { width: 2.75rem; height: 2.75rem; border-radius: 0.875rem; }
+.spa-tile-lg { width: 3.25rem; height: 3.25rem; border-radius: 1rem; }
+.spa-tile-sm { width: 2.25rem; height: 2.25rem; border-radius: 0.75rem; }
+
+/* =========================================================================
+   CONTROLS
+   ========================================================================= */
+
+/* Pill chip used by every filter row. Tall enough to tap on a phone. */
+.spa-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding-inline: 0.9375rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.spa-chip:hover { background-color: var(--bg-surface-hover); color: var(--text-primary); }
+
+.spa-chip-active {
+  background-color: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-app);
+}
+
+.spa-chip-accent {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #fff;
+}
+
+/* Buttons */
+.spa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding-inline: 1.125rem;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.875rem;
+  transition: background-color 0.15s ease, transform 0.12s ease, border-color 0.15s ease;
+}
+.spa-btn:active { transform: scale(0.96); }
+
+.spa-btn-primary {
+  background-color: var(--accent-primary);
+  color: #fff;
+  box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--accent-primary) 90%, transparent);
+}
+.spa-btn-primary:hover { background-color: var(--accent-primary-hover); }
+
+.spa-btn-ghost {
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+.spa-btn-ghost:hover { background-color: var(--bg-surface-hover); }
+
+/* Big square-ish action used inside sheets (status picker, quick actions). */
+.spa-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4375rem;
+  min-height: 4.75rem;
+  padding: 0.625rem 0.375rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+.spa-action:hover { background-color: var(--bg-surface-hover); color: var(--text-primary); }
+.spa-action:active { transform: scale(0.95); }
+
+.spa-pressable { transition: transform 0.12s ease; }
+.spa-pressable:active { transform: scale(0.96); }
+
+/* Small uppercase label that introduces a block of content. */
+.spa-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Inline form fields — 44px+ so mobile keyboards don't fight the layout. */
+.spa-input {
+  width: 100%;
+  min-height: 2.875rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.875rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.spa-input::placeholder { color: var(--text-muted); font-weight: 500; }
+.spa-input:focus { outline: none; border-color: var(--accent-primary); background-color: var(--bg-surface); }
+
+/* =========================================================================
+   BOTTOM SHEET — the pattern that keeps the mobile screens uncluttered:
+   secondary detail (tips, guides, per-stop actions, filters) lives here
+   instead of stacked inline.
+   ========================================================================= */
+
+.spa-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fadeInBackdrop 0.2s ease forwards;
+}
+
+.spa-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 92dvh;
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-medium);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  box-shadow: var(--shadow-pop);
+  animation: sheetUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* On tablet and up the same component becomes a centered dialog. */
+@media (min-width: 768px) {
+  .spa-sheet {
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    top: 50%;
+    width: min(42rem, calc(100vw - 4rem));
+    max-height: 88dvh;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sheet);
+    animation: sheetPop 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+.spa-sheet-handle {
+  width: 2.75rem;
+  height: 0.3125rem;
+  border-radius: 999px;
+  background-color: var(--border-strong);
+  margin: 0.75rem auto 0.25rem;
+  flex-shrink: 0;
+}
+@media (min-width: 768px) { .spa-sheet-handle { display: none; } }
+
+.spa-sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Misc ─────────────────────────────────────────────────────────────── */
+
+.hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Horizontal card rails (Spotify-style "swipe through the shelf"). */
+.spa-rail {
+  display: flex;
+  gap: 0.875rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.25rem;
+}
+.spa-rail > * { scroll-snap-align: start; flex-shrink: 0; }
+
+/* Oversized display numerals (countdown, trackers) read better tightened up. */
+.font-display {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Clamp long descriptions on dense mobile rows. */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Keeps content clear of the fixed bottom tab bar + the home indicator. */
+.mobile-safe-bottom {
+  padding-bottom: calc(var(--tabbar-h) + 1.5rem + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1280px) {
+  .mobile-safe-bottom { padding-bottom: 3rem; }
+}
+
+} /* end @layer components */
+
+/* Softer, warmer radius scale — overrides Tailwind's utility classes
+   globally. Unlayered rules beat Tailwind's @layer utilities regardless of
+   source order, so this single block re-skins every rounded-* usage app-wide.
    Kept close to Tailwind's own defaults: `rounded` covers hundreds of small
-   chips/badges/icon-buttons app-wide, so a big jump there visibly clips their
+   chips/badges/icon-buttons, so a big jump there visibly clips their
    content — only the larger utilities get a noticeable "softer" bump. */
-.rounded { border-radius: 0.375rem; }
-.rounded-md { border-radius: 0.5rem; }
-.rounded-lg { border-radius: 0.625rem; }
-.rounded-xl { border-radius: 0.875rem; }
-.rounded-2xl { border-radius: 1.25rem; }
+.rounded { border-radius: 0.5rem; }
+.rounded-md { border-radius: 0.625rem; }
+.rounded-lg { border-radius: 0.75rem; }
+.rounded-xl { border-radius: 1rem; }
+.rounded-2xl { border-radius: 1.375rem; }
+.rounded-3xl { border-radius: 1.75rem; }
 
 /* Accessible focus ring — every interactive element gets a visible, on-brand ring */
 :focus-visible {
-  outline: 2px solid var(--accent-primary);
+  outline: 2px solid var(--accent-primary-text);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
-/* Respect users who've asked for less motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -152,73 +546,62 @@ body {
   }
 }
 
-/* High Contrast Headings */
-h1, h2, h3, h4, h5, h6, .font-heading {
-  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
-  color: var(--text-primary);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
-}
+/* Headings live in @layer base so a per-usage `text-*` utility still wins. */
+@layer base {
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
+    color: var(--text-primary);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
 
-.font-mono {
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-}
-
-/* Custom Clean Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-/* Mobile Safe Padding */
-.mobile-safe-bottom {
-  padding-bottom: calc(90px + env(safe-area-inset-bottom, 20px));
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 }
 
 /* Animations */
 @keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.99);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.99); }
+  to { opacity: 1; transform: scale(1); }
 }
-
-.animate-in-scale {
-  animation: fadeInScale 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+.animate-in-scale { animation: fadeInScale 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
 @keyframes slideInPanel {
   from { opacity: 0; transform: translateX(-16px); }
   to { opacity: 1; transform: translateX(0); }
 }
-
-.animate-in-panel {
-  animation: slideInPanel 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+.animate-in-panel { animation: slideInPanel 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
 @keyframes fadeInBackdrop {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+.animate-in-backdrop { animation: fadeInBackdrop 0.2s ease forwards; }
 
-.animate-in-backdrop {
-  animation: fadeInBackdrop 0.18s ease forwards;
+@keyframes sheetUp {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes sheetPop {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.97); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-rise { animation: riseIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes softPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.82); }
+}
+.animate-soft-pulse { animation: softPulse 2s ease-in-out infinite; }
 
 /* Print Styles */
 @media print {
@@ -226,6 +609,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
     background: #FFFFFF !important;
     color: #000000 !important;
     font-size: 11pt !important;
+    background-image: none !important;
   }
   .no-print, header, footer, nav, button:not(.printable-btn) {
     display: none !important;

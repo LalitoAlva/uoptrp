@@ -13,7 +13,7 @@ export default function PWAInstallPrompt({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in-scale">
-      <div className="relative w-full max-w-lg spa-card overflow-hidden p-6 space-y-5">
+      <div className="relative w-full max-w-lg bg-[var(--bg-surface)] border border-[var(--border-medium)] rounded-2xl shadow-2xl overflow-hidden p-6 space-y-5">
 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">

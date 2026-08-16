@@ -40,7 +40,7 @@ export default class ErrorBoundary extends React.Component {
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="w-full py-2.5 rounded bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors active:scale-95"
+            className="w-full py-2.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors active:scale-95"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Recargar la aplicación</span>

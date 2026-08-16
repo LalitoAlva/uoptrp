@@ -34,7 +34,7 @@ export default function PrintableReport({ tripData, onBack }) {
         {/* Document Cover / Header */}
         <header className="border-b-2 border-slate-900 pb-6 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-xs font-black uppercase tracking-widest bg-slate-950 text-white px-2.5 py-1 rounded">
+            <span className="text-xs font-black uppercase tracking-widest bg-slate-950 text-white px-2.5 py-1 rounded-lg">
               Plan Maestro de Viaje · 2026
             </span>
             <span className="font-mono text-xs font-bold text-slate-600">
@@ -123,7 +123,7 @@ export default function PrintableReport({ tripData, onBack }) {
             >
               <div className="bg-slate-900 text-white p-3 rounded-lg flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-7 h-7 rounded bg-white text-slate-950 font-bold flex items-center justify-center text-xs">
+                  <span className="w-7 h-7 rounded-lg bg-white text-slate-950 font-bold flex items-center justify-center text-xs">
                     {day.dayNumber}
                   </span>
                   <div>
@@ -149,17 +149,17 @@ export default function PrintableReport({ tripData, onBack }) {
                             {item.title}
                           </h4>
                           {currentStatus === 'fijo' && (
-                            <span className="text-[8px] font-bold px-1 rounded bg-indigo-100 text-indigo-800 inline-flex items-center gap-0.5">
+                            <span className="text-[8px] font-bold px-1 rounded-lg bg-indigo-100 text-indigo-800 inline-flex items-center gap-0.5">
                               <Lock className="w-2 h-2" /> Inamovible
                             </span>
                           )}
                           {currentStatus === 'opcional' && (
-                            <span className="text-[8px] font-bold px-1 rounded bg-amber-100 text-amber-800 inline-flex items-center gap-0.5">
+                            <span className="text-[8px] font-bold px-1 rounded-lg bg-amber-100 text-amber-800 inline-flex items-center gap-0.5">
                               <Lightbulb className="w-2 h-2" /> Opcional
                             </span>
                           )}
                           {currentStatus === 'hecho' && (
-                            <span className="text-[8px] font-bold px-1 rounded bg-emerald-100 text-emerald-800 inline-flex items-center gap-0.5">
+                            <span className="text-[8px] font-bold px-1 rounded-lg bg-emerald-100 text-emerald-800 inline-flex items-center gap-0.5">
                               <Check className="w-2 h-2" /> Hecho
                             </span>
                           )}
@@ -205,7 +205,7 @@ export default function PrintableReport({ tripData, onBack }) {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {(tripData.strandBooksList || []).map((b) => (
-              <div key={b.id} className="p-2 rounded border border-slate-300 bg-slate-50">
+              <div key={b.id} className="p-2 rounded-lg border border-slate-300 bg-slate-50">
                 <span className="text-[9px] font-bold text-slate-500 uppercase">{b.category}</span>
                 <h4 className="font-bold text-slate-900 text-xs">{b.title}</h4>
                 <p className="text-[11px] text-slate-600">{b.author} · {b.notes}</p>

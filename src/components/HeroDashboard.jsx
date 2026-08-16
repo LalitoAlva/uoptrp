@@ -4,47 +4,33 @@ import {
   Trophy,
   Ticket,
   AlertTriangle,
-  Calendar,
-  ArrowRight,
-  Lock,
-  Lightbulb,
-  CheckCircle2,
-  CircleXmark,
+  ChevronRight,
   Wine,
-  Landmark,
-  TennisBall
+  Plane,
+  CheckCircle2
 } from '../utils/icons';
+import { getStatus } from '../utils/activityMeta';
 
-export default function HeroDashboard({ 
-  tripData, 
-  onOpenTasks, 
-  onNavigateTab 
-}) {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    isPast: false
-  });
+export default function HeroDashboard({ tripData, onOpenTasks, onNavigateTab }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, isPast: false });
 
   useEffect(() => {
     const calculateCountdown = () => {
       const target = new Date(tripData.metadata.targetDate).getTime();
-      const now = new Date().getTime();
-      const diff = target - now;
+      const diff = target - Date.now();
 
       if (diff <= 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPast: true });
         return;
       }
 
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-      setTimeLeft({ days, hours, minutes, seconds, isPast: false });
+      setTimeLeft({
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        minutes: Math.floor((diff % 3600000) / 60000),
+        seconds: Math.floor((diff % 60000) / 1000),
+        isPast: false
+      });
     };
 
     calculateCountdown();
@@ -53,220 +39,202 @@ export default function HeroDashboard({
   }, [tripData.metadata.targetDate]);
 
   let totalActivities = 0;
-  let fijoCount = 0;
-  let opcionalCount = 0;
   let hechoCount = 0;
-  let noHechoCount = 0;
-
   tripData.days.forEach(day => {
     day.timeline.forEach(item => {
       totalActivities++;
-      const st = item.status || (item.completed ? 'hecho' : 'pendiente');
-      if (st === 'fijo') fijoCount++;
-      else if (st === 'opcional') opcionalCount++;
-      else if (st === 'hecho') hechoCount++;
-      else if (st === 'no_hecho') noHechoCount++;
+      if (getStatus(item) === 'hecho') hechoCount++;
     });
   });
+  const tripProgress = totalActivities > 0 ? Math.round((hechoCount / totalActivities) * 100) : 0;
 
   const urgentCount = tripData.urgentTasks.filter(t => !t.completed).length;
+  const honeyCount = tripData.honeyDeuceTracker?.currentCount || 0;
+
+  const countdownUnits = [
+    { value: timeLeft.days, label: 'Días' },
+    { value: String(timeLeft.hours).padStart(2, '0'), label: 'Horas' },
+    { value: String(timeLeft.minutes).padStart(2, '0'), label: 'Min' },
+    { value: String(timeLeft.seconds).padStart(2, '0'), label: 'Seg' }
+  ];
+
+  const quickCards = [
+    {
+      id: 'hotel',
+      eyebrow: '6 noches',
+      title: 'Marriott Marquis',
+      detail: 'Times Square · 1535 Broadway',
+      foot: 'Check-in 16:00 · Vie 4',
+      icon: Hotel,
+      color: 'var(--accent-amber-text)',
+      soft: 'color-mix(in srgb, var(--accent-amber) 16%, transparent)',
+      onClick: () => onNavigateTab('itinerary')
+    },
+    {
+      id: 'ashe',
+      eyebrow: '4 sesiones',
+      title: 'Arthur Ashe Stadium',
+      detail: 'Dom 6 (S15, S16) · Lun 7 (S17, S18)',
+      foot: `Honey Deuce ${honeyCount}/4`,
+      footIcon: Wine,
+      icon: Trophy,
+      color: 'var(--accent-primary-text)',
+      soft: 'var(--accent-primary-soft)',
+      onClick: () => onNavigateTab('usopen')
+    },
+    {
+      id: 'gocity',
+      eyebrow: '3 atracciones',
+      title: 'Go City Explorer Pass',
+      detail: 'Intrepid · Top of the Rock · MoMA',
+      foot: 'Pase en la app móvil',
+      icon: Ticket,
+      color: 'var(--accent-tennis-text)',
+      soft: 'color-mix(in srgb, var(--accent-tennis) 16%, transparent)',
+      onClick: () => onNavigateTab('usopen')
+    },
+    {
+      id: 'pendientes',
+      eyebrow: `${urgentCount} por cerrar`,
+      title: 'Pendientes clave',
+      detail: 'Keens · Jazz · eSIM · Metro North',
+      foot: 'Revisar la lista',
+      icon: AlertTriangle,
+      color: urgentCount > 0 ? 'var(--accent-rose-text)' : 'var(--accent-emerald-text)',
+      soft: urgentCount > 0
+        ? 'color-mix(in srgb, var(--accent-rose) 16%, transparent)'
+        : 'color-mix(in srgb, var(--accent-emerald) 16%, transparent)',
+      onClick: onOpenTasks
+    }
+  ];
 
   return (
-    <div className="w-full space-y-8">
-      
-      {/* Top Banner Card */}
-      <div className="spa-card p-8 sm:p-10 bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-          
-          {/* Main Title & Details */}
-          <div className="space-y-4 max-w-3xl">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary-text)] border border-[var(--accent-primary)]/20">
-                Viaje Oficial · {tripData.metadata.travelers}
+    <div className="w-full space-y-6 sm:space-y-8">
+
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      <div className="spa-banner p-6 sm:p-10 animate-rise">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+
+          <div className="space-y-4 lg:max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="spa-chip h-8 text-[11px]" style={{ backgroundColor: 'var(--accent-primary-soft)', color: 'var(--accent-primary-text)', borderColor: 'transparent' }}>
+                Viaje oficial · {tripData.metadata.travelers}
               </span>
-              <span className="text-xs font-mono font-medium text-[var(--text-secondary)] bg-[var(--bg-surface-elevated)] px-3 py-1 rounded border border-[var(--border-subtle)]">
+              <span className="spa-chip h-8 text-[11px] font-mono">
                 {tripData.metadata.dates}
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-heading font-black text-[var(--text-primary)] tracking-tight">
-              Nueva York <span className="text-[var(--accent-primary-text)]">·</span> US Open 2026
+            <h1 className="font-display text-[2.5rem] leading-[1.02] sm:text-6xl text-[var(--text-primary)]">
+              Nueva York
+              <span className="block text-[var(--accent-primary-text)]">US Open 2026</span>
             </h1>
 
-            <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
-              7 días · 4 sesiones estelares en Arthur Ashe · Hudson Valley · Go City Pass y la mejor ruta gastronómica, cervecera y cultural de Manhattan y Queens.
+            <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed max-w-xl">
+              7 días · 4 sesiones estelares en Arthur Ashe · Hudson Valley · Go City Pass y la mejor
+              ruta gastronómica, cervecera y cultural de Manhattan y Queens.
             </p>
 
-            {/* Status Breakdown Bar */}
-            <div className="flex flex-wrap gap-2.5 pt-2">
-              <div className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                <Lock className="w-3.5 h-3.5" />
-                <span>Inamovibles:</span>
-                <span className="font-mono">{fijoCount}</span>
+            {/* Trip progress replaces the old row of four counter badges */}
+            <div className="space-y-2 pt-1 max-w-sm">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="flex items-center gap-1.5 text-[var(--text-secondary)]">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[var(--accent-emerald-text)]" />
+                  {hechoCount} de {totalActivities} paradas vividas
+                </span>
+                <span className="font-mono text-[var(--text-muted)]">{tripProgress}%</span>
               </div>
-
-              <div className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                <Lightbulb className="w-3.5 h-3.5" />
-                <span>Opcionales:</span>
-                <span className="font-mono">{opcionalCount}</span>
+              <div className="h-2 rounded-full bg-[var(--bg-sunken)] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-[var(--accent-emerald)] transition-[width] duration-700"
+                  style={{ width: `${tripProgress}%` }}
+                />
               </div>
-
-              <div className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Realizados:</span>
-                <span className="font-mono">{hechoCount}</span>
-              </div>
-
-              {noHechoCount > 0 && (
-                <div className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                  <CircleXmark className="w-3.5 h-3.5" />
-                  <span>Omitidos:</span>
-                  <span className="font-mono">{noHechoCount}</span>
-                </div>
-              )}
             </div>
           </div>
 
-          {/* Countdown Clock Box */}
-          <div className="w-full lg:w-auto bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded p-5 sm:p-6 flex flex-col items-center justify-center">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-3">
-              <Calendar className="w-4 h-4 text-[var(--accent-primary-text)]" />
-              <span>Tiempo para el Despegue</span>
-            </div>
+          {/* Countdown */}
+          <div className="w-full lg:w-auto flex-shrink-0">
+            <span className="spa-eyebrow mb-3">
+              <Plane className="w-3.5 h-3.5 text-[var(--accent-primary-text)]" />
+              Tiempo para el despegue
+            </span>
 
             {timeLeft.isPast ? (
-              <div className="text-center py-2 flex items-center justify-center gap-2">
-                <span className="text-xl font-black text-emerald-500">¡EL VIAJE ESTÁ EN MARCHA!</span>
-                <Landmark className="w-5 h-5 text-emerald-500" />
-                <TennisBall className="w-5 h-5 text-emerald-500" />
+              <div className="spa-surface-elevated px-6 py-5 text-center">
+                <span className="font-heading font-black text-xl text-[var(--accent-emerald-text)]">
+                  ¡El viaje está en marcha!
+                </span>
               </div>
             ) : (
-              <div className="grid grid-cols-4 gap-2.5 text-center">
-                <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-3 py-2.5 min-w-[60px]">
-                  <span className="block font-mono font-bold text-xl sm:text-3xl text-[var(--text-primary)]">
-                    {timeLeft.days}
-                  </span>
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Días</span>
-                </div>
-                <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-3 py-2.5 min-w-[60px]">
-                  <span className="block font-mono font-bold text-xl sm:text-3xl text-[var(--accent-primary-text)]">
-                    {String(timeLeft.hours).padStart(2, '0')}
-                  </span>
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Horas</span>
-                </div>
-                <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-3 py-2.5 min-w-[60px]">
-                  <span className="block font-mono font-bold text-xl sm:text-3xl text-[var(--text-primary)]">
-                    {String(timeLeft.minutes).padStart(2, '0')}
-                  </span>
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Min</span>
-                </div>
-                <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-3 py-2.5 min-w-[60px]">
-                  <span className="block font-mono font-bold text-xl sm:text-3xl text-[var(--text-secondary)]">
-                    {String(timeLeft.seconds).padStart(2, '0')}
-                  </span>
-                  <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Seg</span>
-                </div>
+              <div className="grid grid-cols-4 gap-2 lg:gap-2.5">
+                {countdownUnits.map((unit) => (
+                  <div
+                    key={unit.label}
+                    className="spa-surface-elevated py-3.5 lg:px-5 text-center"
+                  >
+                    <span className="block font-display text-2xl sm:text-4xl text-[var(--text-primary)] tabular-nums">
+                      {unit.value}
+                    </span>
+                    <span className="block text-[10px] font-black uppercase tracking-wider text-[var(--text-muted)] mt-1.5">
+                      {unit.label}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
 
-            <div className="mt-3 text-xs text-[var(--text-muted)] text-center font-mono">
-              Vuelo UA Directo · Vie 4 Sep 07:10 MEX
-            </div>
+            <p className="text-[11px] text-[var(--text-muted)] font-mono text-center mt-3">
+              Vuelo UA directo · Vie 4 Sep 07:10 MEX
+            </p>
           </div>
 
         </div>
       </div>
 
-      {/* 4 Core Logistic Cards — tighter gap, content centered in each card */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ── Quick cards ──────────────────────────────────────────────────
+          A swipeable rail on phones, a grid from `sm` up. Keeping them off
+          the vertical stack is what saves ~600px of scroll on mobile. */}
+      <div>
+        <span className="spa-eyebrow mb-3">Lo esencial del viaje</span>
+        <div className="spa-rail hide-scrollbar sm:grid sm:grid-cols-2 xl:grid-cols-4 sm:gap-4 sm:overflow-visible">
+          {quickCards.map((card) => {
+            const Icon = card.icon;
+            const FootIcon = card.footIcon;
+            return (
+              <button
+                key={card.id}
+                onClick={card.onClick}
+                className="spa-card spa-card-hover p-5 w-[16.5rem] sm:w-auto text-left flex flex-col spa-pressable"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="spa-tile" style={{ backgroundColor: card.soft, color: card.color }}>
+                    <Icon className="w-5 h-5" />
+                  </span>
+                  <span
+                    className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full"
+                    style={{ backgroundColor: card.soft, color: card.color }}
+                  >
+                    {card.eyebrow}
+                  </span>
+                </div>
 
-        {/* Card 1: Hotel */}
-        <div
-          onClick={() => onNavigateTab('itinerary')}
-          className="spa-card spa-card-hover p-5 cursor-pointer flex flex-col items-center text-center"
-        >
-          <div className="p-2.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 mb-2.5">
-            <Hotel className="w-5 h-5" />
-          </div>
-          <span className="text-[10px] font-bold uppercase bg-[var(--bg-surface-elevated)] text-[var(--text-muted)] px-2 py-0.5 rounded mb-2">
-            6 Noches
-          </span>
-          <h3 className="font-heading font-bold text-base text-[var(--text-primary)]">
-            Marriott Marquis
-          </h3>
-          <p className="text-xs text-[var(--text-muted)] mt-1">Times Square, 1535 Broadway</p>
-          <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] w-full flex items-center justify-center gap-1.5 text-xs text-[var(--text-secondary)]">
-            <span>Check-in 16:00 (Vie 4)</span>
-            <ArrowRight className="w-3.5 h-3.5 text-[var(--accent-primary-text)]" />
-          </div>
+                <h3 className="font-heading font-bold text-base text-[var(--text-primary)] mt-4 leading-snug">
+                  {card.title}
+                </h3>
+                <p className="text-[13px] text-[var(--text-muted)] mt-1 leading-snug flex-1">
+                  {card.detail}
+                </p>
+
+                <span className="flex items-center gap-1.5 mt-4 pt-3.5 border-t border-[var(--border-subtle)] text-xs font-bold text-[var(--text-secondary)]">
+                  {FootIcon && <FootIcon className="w-3.5 h-3.5" style={{ color: card.color }} />}
+                  <span className="flex-1">{card.foot}</span>
+                  <ChevronRight className="w-3 h-3" style={{ color: card.color }} />
+                </span>
+              </button>
+            );
+          })}
         </div>
-
-        {/* Card 2: Arthur Ashe */}
-        <div
-          onClick={() => onNavigateTab('usopen')}
-          className="spa-card spa-card-hover p-5 cursor-pointer flex flex-col items-center text-center"
-        >
-          <div className="p-2.5 rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary-text)] mb-2.5">
-            <Trophy className="w-5 h-5" />
-          </div>
-          <span className="text-[10px] font-bold uppercase bg-[var(--accent-primary)]/15 text-[var(--accent-primary-text)] px-2 py-0.5 rounded mb-2">
-            4 Sesiones
-          </span>
-          <h3 className="font-heading font-bold text-base text-[var(--text-primary)]">
-            Arthur Ashe Stadium
-          </h3>
-          <p className="text-xs text-[var(--text-muted)] mt-1">Dom 6 (S15, S16) & Lun 7 (S17, S18)</p>
-          <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] w-full flex items-center justify-center gap-1.5 text-xs text-[var(--text-secondary)]">
-            <Wine className="w-3.5 h-3.5 text-rose-400" />
-            <span>Honey Deuce: {tripData.honeyDeuceTracker?.currentCount || 0}/4</span>
-            <ArrowRight className="w-3.5 h-3.5 text-[var(--accent-primary-text)]" />
-          </div>
-        </div>
-
-        {/* Card 3: Go City Pass */}
-        <div
-          onClick={() => onNavigateTab('usopen')}
-          className="spa-card spa-card-hover p-5 cursor-pointer flex flex-col items-center text-center"
-        >
-          <div className="p-2.5 rounded bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 mb-2.5">
-            <Ticket className="w-5 h-5" />
-          </div>
-          <span className="text-[10px] font-bold uppercase bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 px-2 py-0.5 rounded mb-2">
-            3 Atracciones
-          </span>
-          <h3 className="font-heading font-bold text-base text-[var(--text-primary)]">
-            Go City Explorer Pass
-          </h3>
-          <p className="text-xs text-[var(--text-muted)] mt-1">Intrepid, Top of Rock, MoMA</p>
-          <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] w-full flex items-center justify-center gap-1.5 text-xs text-[var(--text-secondary)]">
-            <span>En App Móvil</span>
-            <ArrowRight className="w-3.5 h-3.5 text-cyan-500" />
-          </div>
-        </div>
-
-        {/* Card 4: Pendientes */}
-        <div
-          onClick={onOpenTasks}
-          className="spa-card spa-card-hover p-5 cursor-pointer flex flex-col items-center text-center"
-        >
-          <div className="p-2.5 rounded bg-rose-500/10 text-rose-500 mb-2.5">
-            <AlertTriangle className="w-5 h-5" />
-          </div>
-          <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded mb-2 ${
-            urgentCount > 0 ? 'bg-rose-500/10 text-rose-500' : 'bg-emerald-500/10 text-emerald-500'
-          }`}>
-            {urgentCount} Requisitos
-          </span>
-          <h3 className="font-heading font-bold text-base text-[var(--text-primary)]">
-            Pendientes Clave
-          </h3>
-          <p className="text-xs text-[var(--text-muted)] mt-1">Keens, Jazz, eSIM, Metro North</p>
-          <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] w-full flex items-center justify-center gap-1.5 text-xs text-[var(--text-secondary)]">
-            <span>Revisar lista</span>
-            <ArrowRight className="w-3.5 h-3.5 text-rose-500" />
-          </div>
-        </div>
-
       </div>
 
     </div>

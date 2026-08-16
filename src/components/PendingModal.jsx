@@ -166,7 +166,7 @@ export default function PendingModal({
                 }`}
               >
                 <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center transition-all ${
+                  <div className={`mt-0.5 w-4 h-4 rounded-lg flex items-center justify-center transition-all ${
                     task.completed 
                       ? 'bg-emerald-500 text-white font-bold text-[10px]' 
                       : 'border border-[var(--border-strong)]'
@@ -180,7 +180,7 @@ export default function PendingModal({
                         {task.text}
                       </span>
                       {task.priority === 'urgent' && !task.completed && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-500 border border-rose-500/20 inline-flex items-center gap-1">
+                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-lg bg-rose-500/10 text-rose-500 border border-rose-500/20 inline-flex items-center gap-1">
                           <AlertCircle className="w-2.5 h-2.5" /> Urgente
                         </span>
                       )}

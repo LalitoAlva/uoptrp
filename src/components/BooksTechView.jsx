@@ -45,7 +45,7 @@ export default function BooksTechView({ books, onToggleBook, onAddBook, onDelete
     <div className="w-full space-y-4">
       
       {/* Header Banner */}
-      <div className="spa-card p-6 border border-[var(--border-subtle)]">
+      <div className="spa-banner p-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
@@ -77,7 +77,7 @@ export default function BooksTechView({ books, onToggleBook, onAddBook, onDelete
                 </h3>
                 <p className="text-xs text-[var(--text-muted)]">Libros de finanzas, ingeniería, economía y sistemas</p>
               </div>
-              <span className="text-xs font-mono font-bold bg-orange-500/10 text-orange-500 px-2.5 py-1 rounded">
+              <span className="text-xs font-mono font-bold bg-orange-500/10 text-orange-500 px-2.5 py-1 rounded-lg">
                 {books.filter(b => b.acquired).length} / {books.length} conseguidos
               </span>
             </div>
@@ -121,7 +121,7 @@ export default function BooksTechView({ books, onToggleBook, onAddBook, onDelete
                   }`}
                 >
                   <div className="flex items-start gap-2.5 min-w-0">
-                    <div className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center text-[10px] ${
+                    <div className={`mt-0.5 w-4 h-4 rounded-lg flex items-center justify-center text-[10px] ${
                       b.acquired ? 'bg-emerald-500 text-white font-bold' : 'border border-[var(--border-strong)]'
                     }`}>
                       {b.acquired && <Check className="w-2.5 h-2.5" />}

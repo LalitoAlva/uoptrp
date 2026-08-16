@@ -64,7 +64,7 @@ export default function SurvivalGuideView() {
     <div className="w-full space-y-4">
       
       {/* Header Banner */}
-      <div className="spa-card p-6 border border-[var(--border-subtle)]">
+      <div className="spa-banner p-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
@@ -269,12 +269,12 @@ export default function SurvivalGuideView() {
               <div
                 key={item.id}
                 onClick={() => togglePacking(item.id)}
-                className={`spa-card p-3 flex items-center justify-between gap-3 cursor-pointer ${
+                className={`spa-card spa-card-hover p-3 flex items-center justify-between gap-3 cursor-pointer ${
                   item.checked ? 'bg-[var(--bg-surface-elevated)] opacity-60' : ''
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className={`w-4 h-4 rounded flex items-center justify-center text-[10px] ${
+                  <div className={`w-4 h-4 rounded-lg flex items-center justify-center text-[10px] ${
                     item.checked ? 'bg-emerald-500 text-white font-bold' : 'border border-[var(--border-strong)]'
                   }`}>
                     {item.checked && <Check className="w-2.5 h-2.5" />}
@@ -285,7 +285,7 @@ export default function SurvivalGuideView() {
                 </div>
 
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[var(--bg-surface-elevated)] text-[var(--text-muted)] border border-[var(--border-subtle)]">
+                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-lg bg-[var(--bg-surface-elevated)] text-[var(--text-muted)] border border-[var(--border-subtle)]">
                     {item.tag}
                   </span>
                   <button

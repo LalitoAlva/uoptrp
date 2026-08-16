@@ -80,7 +80,7 @@ export default function RecommendationModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in-scale">
-      <div className="relative w-full max-w-2xl spa-card overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-2xl bg-[var(--bg-surface)] border border-[var(--border-medium)] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] flex-shrink-0">

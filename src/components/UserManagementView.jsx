@@ -45,11 +45,11 @@ export default function UserManagementView({ onOpenLoginModal }) {
     <div className="w-full space-y-8">
       
       {/* Header Banner */}
-      <div className="spa-card p-8 sm:p-10 border border-[var(--border-subtle)]">
+      <div className="spa-banner p-8 sm:p-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="p-2 rounded bg-[var(--accent-primary)]/10 text-[var(--accent-primary-text)]">
+              <span className="p-2 rounded-lg bg-[var(--accent-primary)]/10 text-[var(--accent-primary-text)]">
                 <Users className="w-5 h-5" />
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary-text)]">
@@ -67,7 +67,7 @@ export default function UserManagementView({ onOpenLoginModal }) {
           <div className="flex items-center gap-3">
             <button
               onClick={onOpenLoginModal}
-              className="px-4 py-2.5 rounded bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-bold text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95"
+              className="px-4 py-2.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-bold text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95"
             >
               <Key className="w-4 h-4" />
               <span>Cambiar Perfil / Iniciar Sesión</span>
@@ -77,7 +77,7 @@ export default function UserManagementView({ onOpenLoginModal }) {
       </div>
 
       {/* Current Active Session Spotlight Card */}
-      <div className="spa-card p-6 sm:p-8 border-l-4 border-l-[var(--accent-primary)] space-y-4">
+      <div className="spa-banner p-6 sm:p-8 border-l-4 border-l-[var(--accent-primary)] space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <img 
@@ -91,7 +91,7 @@ export default function UserManagementView({ onOpenLoginModal }) {
                 <h3 className="text-lg font-heading font-black text-[var(--text-primary)]">
                   {currentUser?.name}
                 </h3>
-                <span className={`text-xs font-bold px-2.5 py-0.5 rounded ${
+                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-lg ${
                   currentUser?.role === 'admin' 
                     ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' 
                     : currentUser?.role === 'editor'
@@ -108,7 +108,7 @@ export default function UserManagementView({ onOpenLoginModal }) {
           <div className="flex items-center gap-2">
             <button
               onClick={logout}
-              className="px-3.5 py-1.5 rounded bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-rose-500 flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-1.5 rounded-lg bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-rose-500 flex items-center gap-1.5 transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Cerrar Sesión</span>
@@ -142,7 +142,7 @@ export default function UserManagementView({ onOpenLoginModal }) {
                     placeholder="Ej. Fefe, Carlos..."
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
-                    className="w-full bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded px-3 py-2 text-xs text-[var(--text-primary)] font-medium focus:outline-none focus:border-[var(--accent-primary)]"
+                    className="w-full bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] font-medium focus:outline-none focus:border-[var(--accent-primary)]"
                   />
                 </div>
 
@@ -155,7 +155,7 @@ export default function UserManagementView({ onOpenLoginModal }) {
                     placeholder="correo@gmail.com..."
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}
-                    className="w-full bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded px-3 py-2 text-xs text-[var(--text-primary)] font-medium focus:outline-none focus:border-[var(--accent-primary)]"
+                    className="w-full bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] font-medium focus:outline-none focus:border-[var(--accent-primary)]"
                     required
                   />
                 </div>
@@ -167,7 +167,7 @@ export default function UserManagementView({ onOpenLoginModal }) {
                   <select
                     value={newRole}
                     onChange={(e) => setNewRole(e.target.value)}
-                    className="w-full bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded px-3 py-2 text-xs text-[var(--text-primary)] font-bold focus:outline-none"
+                    className="w-full bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-xs text-[var(--text-primary)] font-bold focus:outline-none"
                   >
                     <option value="editor">✏️ Editor (Puede editar actividades y gastos)</option>
                     <option value="viewer">👁️ Lector (Solo lectura)</option>
@@ -176,7 +176,7 @@ export default function UserManagementView({ onOpenLoginModal }) {
                 </div>
 
                 {invitedSuccess && (
-                  <div className="p-2.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center gap-2">
+                  <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center gap-2">
                     <Check className="w-4 h-4" />
                     <span>¡Usuario agregado exitosamente!</span>
                   </div>
@@ -184,14 +184,14 @@ export default function UserManagementView({ onOpenLoginModal }) {
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-bold rounded text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-2.5 bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-bold rounded-lg text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                   <UserPlus className="w-4 h-4" />
                   <span>Agregar Usuario</span>
                 </button>
               </form>
             ) : (
-              <div className="p-4 rounded bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs space-y-2">
+              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs space-y-2">
                 <span className="font-bold flex items-center gap-1.5"><Key className="w-3.5 h-3.5" /> Modo Restringido</span>
                 <p>Solo los Administradores (Lalo) pueden dar de alta o modificar colaboradores del viaje.</p>
               </div>
@@ -205,15 +205,15 @@ export default function UserManagementView({ onOpenLoginModal }) {
               Matriz de Permisos por Rol
             </h4>
             <div className="space-y-2 text-[var(--text-secondary)] text-[11px] leading-relaxed">
-              <div className="p-2.5 rounded bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-1">
+              <div className="p-2.5 rounded-lg bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-1">
                 <span className="font-bold text-amber-500 flex items-center gap-1.5"><Crown className="w-3.5 h-3.5" /> Administrador (Lalo):</span>
                 <p>Permisos totales: altas, bajas y cambios en todos los catálogos del CMS, gestión de usuarios, respaldos y configuración del viaje.</p>
               </div>
-              <div className="p-2.5 rounded bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-1">
+              <div className="p-2.5 rounded-lg bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-1">
                 <span className="font-bold text-[var(--accent-primary-text)] flex items-center gap-1.5"><Edit3 className="w-3.5 h-3.5" /> Editor (Fefe):</span>
                 <p>Puede cambiar estados ("Hice esto", "Se puede quitar", "Omitir"), agregar paradas, registrar gastos y notas.</p>
               </div>
-              <div className="p-2.5 rounded bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-1">
+              <div className="p-2.5 rounded-lg bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] space-y-1">
                 <span className="font-bold text-[var(--text-muted)] flex items-center gap-1.5"><Eye className="w-3.5 h-3.5" /> Lector (Familia / Invitado):</span>
                 <p>Consulta el itinerario, clima y horarios en vivo sin riesgo de modificar o borrar información.</p>
               </div>
@@ -260,12 +260,12 @@ export default function UserManagementView({ onOpenLoginModal }) {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-bold text-sm text-[var(--text-primary)] truncate">{u.name}</span>
                           {isCurrent && (
-                            <span className="text-[10px] font-bold px-2 py-0.2 rounded bg-[var(--accent-primary)] text-white">
+                            <span className="text-[10px] font-bold px-2 py-0.2 rounded-lg bg-[var(--accent-primary)] text-white">
                               Activo Ahora
                             </span>
                           )}
                           {u.isOwner && (
-                            <span className="text-[10px] font-bold px-2 py-0.2 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                            <span className="text-[10px] font-bold px-2 py-0.2 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400">
                               Propietario
                             </span>
                           )}
@@ -280,7 +280,7 @@ export default function UserManagementView({ onOpenLoginModal }) {
                         <select
                           value={u.role}
                           onChange={(e) => updateUserRole(u.id, e.target.value)}
-                          className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded px-3 py-1.5 text-xs text-[var(--text-primary)] font-bold focus:outline-none"
+                          className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-lg px-3 py-1.5 text-xs text-[var(--text-primary)] font-bold focus:outline-none"
                         >
                           <option value="admin">👑 Admin</option>
                           <option value="editor">✏️ Editor</option>

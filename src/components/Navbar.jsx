@@ -20,7 +20,8 @@ import {
   Crown,
   Edit3,
   Eye,
-  LogOut
+  LogOut,
+  ChevronRight
 } from '../utils/icons';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -42,22 +43,15 @@ export default function Navbar({
   useEffect(() => {
     const updateClocks = () => {
       const now = new Date();
-      const cdmxStr = new Intl.DateTimeFormat('es-MX', {
-        timeZone: 'America/Mexico_City',
+      const format = (timeZone) => new Intl.DateTimeFormat('es-MX', {
+        timeZone,
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
       }).format(now);
 
-      const nycStr = new Intl.DateTimeFormat('es-MX', {
-        timeZone: 'America/New_York',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      }).format(now);
-
-      setCdmxTime(cdmxStr);
-      setNycTime(nycStr);
+      setCdmxTime(format('America/Mexico_City'));
+      setNycTime(format('America/New_York'));
     };
 
     updateClocks();
@@ -80,34 +74,31 @@ export default function Navbar({
     };
   }, [isMenuOpen]);
 
-  // Core: quick-access items for the mobile thumb bar (max 4 + "Menú" = 5 total)
+  // Quick-access items for the mobile thumb bar (max 4 + "Menú" = 5 total)
   const primaryNavItems = [
-    { id: 'itinerary', label: 'Itinerario', icon: Calendar },
-    { id: 'live', label: 'En Vivo', icon: Zap },
-    { id: 'pendientes', label: 'Pendientes', icon: CheckSquare, badge: urgentCount > 0 ? urgentCount : null },
-    { id: 'usopen', label: 'US Open', icon: Trophy },
+    { id: 'itinerary', label: 'Itinerario', icon: Calendar, hint: 'Los 7 días, parada por parada' },
+    { id: 'live', label: 'En Vivo', icon: Zap, hint: 'Qué sigue ahora mismo' },
+    { id: 'pendientes', label: 'Pendientes', icon: CheckSquare, hint: 'Reservas y trámites antes del vuelo', badge: urgentCount > 0 ? urgentCount : null },
+    { id: 'usopen', label: 'US Open', icon: Trophy, hint: 'Sesiones, pases y Honey Deuce' },
   ];
 
-  // Reference & planning screens
   const secondaryNavItems = [
-    { id: 'recommendations', label: 'Recomendaciones', icon: Sparkles },
-    { id: 'guide', label: 'Guía Pro', icon: Compass },
-    { id: 'budget', label: 'Gastos', icon: DollarSign },
+    { id: 'recommendations', label: 'Recomendaciones', icon: Sparkles, hint: 'Lugares por descubrir' },
+    { id: 'guide', label: 'Guía Pro', icon: Compass, hint: 'Metro, propinas, libros y tech' },
+    { id: 'budget', label: 'Gastos', icon: DollarSign, hint: 'Presupuesto y gastos del viaje' },
   ];
 
-  // Meta / configuration screens, kept visually separate from the trip experience
   const adminNavItems = [
-    { id: 'admin', label: 'Catálogos CMS', icon: Database },
-    { id: 'users', label: 'Usuarios', icon: Users },
+    { id: 'admin', label: 'Catálogos CMS', icon: Database, hint: 'Editar todo el contenido' },
+    { id: 'users', label: 'Usuarios', icon: Users, hint: 'Perfiles y permisos' },
   ];
 
-  const allNavItems = [...primaryNavItems, ...secondaryNavItems, ...adminNavItems];
   const isSecondaryTabActive = [...secondaryNavItems, ...adminNavItems].some(item => item.id === currentTab);
 
   const getFontSizeLabel = () => {
-    if (fontSize === 'xlarge') return 'A+ Grande (130%)';
-    if (fontSize === 'large') return 'A Mediana (115%)';
-    return 'A Normal (100%)';
+    if (fontSize === 'xlarge') return 'Grande (130%)';
+    if (fontSize === 'large') return 'Mediana (115%)';
+    return 'Normal (100%)';
   };
 
   const goTo = (tabId) => {
@@ -115,152 +106,182 @@ export default function Navbar({
     setIsMenuOpen(false);
   };
 
+  const roleMeta = currentUser?.role === 'admin'
+    ? { icon: Crown, label: 'Admin' }
+    : currentUser?.role === 'editor'
+      ? { icon: Edit3, label: 'Editor' }
+      : { icon: Eye, label: 'Lector' };
+  const RoleIcon = roleMeta.icon;
+
+  /** Tall drawer row — icon tile, title, hint, chevron. Min 68px tall. */
+  const DrawerRow = ({ item, isActive, onClick, tone }) => {
+    const Icon = item.icon;
+    const toneColor = tone || (isActive ? '#fff' : 'var(--accent-primary-text)');
+    return (
+      <button
+        onClick={onClick}
+        className={`w-full flex items-center gap-3.5 px-3 py-3.5 min-h-[4.25rem] rounded-2xl text-left transition-colors spa-pressable ${
+          isActive
+            ? 'bg-[var(--accent-primary)] text-white shadow-[0_10px_24px_-14px_var(--accent-primary)]'
+            : 'text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)]'
+        }`}
+      >
+        <span
+          className="spa-tile flex-shrink-0"
+          style={{
+            backgroundColor: isActive ? 'rgba(255,255,255,0.18)' : 'var(--bg-surface-elevated)',
+            color: toneColor
+          }}
+        >
+          <Icon className="w-5 h-5" />
+        </span>
+
+        <span className="flex-1 min-w-0">
+          <span className="block font-heading font-bold text-[15px] leading-tight">{item.label}</span>
+          {item.hint && (
+            <span className={`block text-xs mt-0.5 leading-snug truncate ${isActive ? 'text-white/75' : 'text-[var(--text-muted)]'}`}>
+              {item.hint}
+            </span>
+          )}
+        </span>
+
+        {item.badge ? (
+          <span className="flex-shrink-0 min-w-[1.5rem] h-6 px-2 rounded-full bg-[var(--accent-rose)] text-white text-xs font-black flex items-center justify-center">
+            {item.badge}
+          </span>
+        ) : (
+          <ChevronRight className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-white/70' : 'text-[var(--text-muted)]'}`} />
+        )}
+      </button>
+    );
+  };
+
   return (
     <>
-      {/* Top Header Centered at 95% Width */}
-      <header className="sticky top-0 z-40 w-full bg-[var(--bg-surface)] border-b border-[var(--border-subtle)] py-3 transition-colors shadow-xs">
-        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+      {/* ── Sticky top header ────────────────────────────────────────────
+          Mobile keeps only what a thumb needs: menu, identity, type size,
+          theme and "add stop". Everything else moved into the drawer, which
+          is what un-crowds the top of every screen on a phone. */}
+      <header className="sticky top-0 z-40 w-full spa-blur border-b border-[var(--border-subtle)]">
+        <div className="page-x h-[var(--header-h)] flex items-center justify-between gap-3">
 
-          {/* Left cluster: hamburger (below xl) + Logo */}
-          <div className="flex items-center gap-3 min-w-0">
+          {/* Left: hamburger + wordmark */}
+          <div className="flex items-center gap-2.5 min-w-0">
             <button
               onClick={() => setIsMenuOpen(true)}
-              className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded transition-colors active:scale-95 ${
+              className={`spa-tile-sm flex-shrink-0 transition-colors spa-pressable ${
                 isSecondaryTabActive
                   ? 'bg-[var(--accent-primary)] text-white'
-                  : 'bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-primary)]'
+                  : 'bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)]'
               }`}
-              aria-haspopup="true"
+              aria-haspopup="dialog"
               aria-expanded={isMenuOpen}
               aria-label="Abrir menú de navegación"
             >
               <Menu className="w-4 h-4" />
             </button>
 
-            <div
+            <button
               onClick={() => setCurrentTab('itinerary')}
-              className="flex items-center gap-2.5 cursor-pointer flex-shrink-0 select-none min-w-0"
+              className="flex items-center gap-2.5 min-w-0 text-left"
+              aria-label="Ir al itinerario"
             >
-              <div className="w-8 h-8 rounded bg-[var(--accent-primary)] text-white flex items-center justify-center shadow-sm flex-shrink-0">
+              <span className="spa-tile-sm bg-[var(--accent-primary)] text-white flex-shrink-0">
                 <Trophy className="w-4 h-4" />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5 leading-none">
-                  <span className="font-heading font-black text-sm sm:text-base text-[var(--text-primary)] tracking-tight">
-                    NYC <span className="text-[var(--accent-primary-text)]">2026</span>
-                  </span>
-                  <span className="hidden sm:inline text-[10px] font-mono font-bold bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)] px-1.5 py-0.2 rounded">
-                    US OPEN
-                  </span>
-                </div>
-                <p className="hidden sm:block text-[11px] text-[var(--text-muted)] font-semibold">Lalo & Fefe · 4–10 Sep</p>
-              </div>
-            </div>
+              </span>
+              <span className="min-w-0">
+                <span className="block font-heading font-black text-[15px] leading-none tracking-tight text-[var(--text-primary)] whitespace-nowrap">
+                  NYC <span className="text-[var(--accent-primary-text)]">2026</span>
+                </span>
+                <span className="hidden xs:block text-[10px] text-[var(--text-muted)] font-bold mt-0.5 leading-none">
+                  US Open · Lalo &amp; Fefe
+                </span>
+              </span>
+            </button>
           </div>
 
+          {/* Right: utilities */}
+          <div className="flex items-center gap-1.5">
 
-          {/* Right Utilities & User Profile Actions */}
-          <div className="flex items-center gap-2">
-
-            {/* Clocks */}
-            <div className="hidden md:flex h-9 items-center gap-2 bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] px-3 rounded text-xs font-mono text-[var(--text-secondary)]">
+            <div className="hidden lg:flex h-9 items-center gap-2 spa-surface-elevated px-3 text-xs font-mono text-[var(--text-secondary)]">
               <span>CDMX <strong className="text-[var(--text-primary)]">{cdmxTime}</strong></span>
               <span className="text-[var(--border-strong)]">|</span>
               <span className="text-[var(--accent-primary-text)] font-bold">NYC <strong>{nycTime}</strong></span>
             </div>
 
-            {/* Font Size Toggle Button */}
             <button
               onClick={cycleFontSize}
-              className="h-9 flex items-center gap-1.5 px-2.5 rounded bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-primary)] font-bold text-xs transition-all active:scale-95"
+              className="spa-tile-sm bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] transition-colors spa-pressable"
               title={`Tamaño de letra: ${getFontSizeLabel()}`}
               aria-label={`Cambiar tamaño de letra. Actual: ${getFontSizeLabel()}`}
             >
-              <Type className="w-4 h-4 text-[var(--accent-primary-text)]" />
-              <span className="text-[11px] font-mono">
-                {fontSize === 'xlarge' ? 'A+++' : fontSize === 'large' ? 'A++' : 'A+'}
+              <span className="font-heading font-black text-[13px] leading-none text-[var(--accent-primary-text)]">
+                {fontSize === 'xlarge' ? 'A³' : fontSize === 'large' ? 'A²' : 'A¹'}
               </span>
             </button>
 
-            {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="h-9 w-9 flex items-center justify-center rounded bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-              title={isDark ? 'Cambiar a Modo Claro ☀️' : 'Cambiar a Modo Oscuro 🌙'}
+              className="spa-tile-sm bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] transition-colors spa-pressable"
+              title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
               aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
             >
               {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
             </button>
 
-            {/* Print Button */}
-            <button
-              onClick={() => setCurrentTab('printable')}
-              className="hidden sm:flex h-9 w-9 items-center justify-center rounded bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-              title="Reporte Imprimible / PDF"
-              aria-label="Ver reporte imprimible"
-            >
-              <Printer className="w-4 h-4" />
-            </button>
-
-            {/* Taxi Emergency Button */}
             <button
               onClick={onOpenEmergency}
-              className="hidden sm:flex h-9 px-3 rounded bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold text-xs items-center gap-1.5 transition-colors"
+              className="hidden md:flex spa-tile-sm bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 transition-colors spa-pressable"
               title="Ficha para el taxista"
+              aria-label="Ficha Taxi y Hotel"
             >
               <Car className="w-4 h-4" />
-              <span className="hidden lg:inline">Taxi & Hotel</span>
             </button>
 
-            {/* Profile Switcher — local family profiles, not a real login */}
             <button
               onClick={onOpenLogin}
-              className="hidden sm:flex h-9 items-center gap-2 px-2.5 rounded bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-bold transition-colors"
-              title="Cambiar de perfil (Lalo / Fefe / Invitado)"
+              className="hidden sm:flex h-9 items-center gap-2 pl-1 pr-3 rounded-full bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] transition-colors spa-pressable"
+              title="Cambiar de perfil"
             >
-              <img
-                src={currentUser?.avatar}
-                alt=""
-                className="w-5 h-5 rounded-full border border-[var(--border-medium)]"
-              />
-              <div className="hidden lg:flex flex-col items-start leading-tight text-left">
-                <span className="text-[var(--text-primary)]">{currentUser?.name}</span>
-                <span className="text-[9px] text-[var(--accent-primary-text)] font-bold uppercase flex items-center gap-1">
-                  {currentUser?.role === 'admin' ? <Crown className="w-2.5 h-2.5" /> : currentUser?.role === 'editor' ? <Edit3 className="w-2.5 h-2.5" /> : <Eye className="w-2.5 h-2.5" />}
-                  {currentUser?.role === 'admin' ? 'Admin' : currentUser?.role === 'editor' ? 'Editor' : 'Lector'}
+              <img src={currentUser?.avatar} alt="" className="w-7 h-7 rounded-full" />
+              <span className="hidden lg:flex flex-col items-start leading-none text-left">
+                <span className="text-xs font-bold text-[var(--text-primary)]">{currentUser?.name}</span>
+                <span className="text-[9px] text-[var(--accent-primary-text)] font-black uppercase flex items-center gap-1 mt-0.5">
+                  <RoleIcon className="w-2.5 h-2.5" />
+                  {roleMeta.label}
                 </span>
-              </div>
+              </span>
             </button>
 
-            {/* Quick Logout — only shown when a real profile (not guest) is active */}
-            {currentUser?.id !== 'guest' && (
-              <button
-                onClick={logout}
-                className="hidden sm:flex h-9 w-9 items-center justify-center rounded bg-[var(--bg-surface-elevated)] hover:bg-rose-500/10 border border-[var(--border-subtle)] hover:border-rose-500/30 text-[var(--text-muted)] hover:text-rose-500 transition-colors"
-                title="Cerrar sesión (pasar a Modo Lector)"
-                aria-label="Cerrar sesión"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            )}
+            <button
+              onClick={logout}
+              className="hidden sm:flex spa-tile-sm bg-[var(--bg-surface-elevated)] hover:bg-[color-mix(in_srgb,var(--accent-rose)_14%,transparent)] text-[var(--text-muted)] hover:text-[var(--accent-rose-text)] transition-colors spa-pressable"
+              title="Cerrar sesión"
+              aria-label="Cerrar sesión"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
 
-            {/* Add Activity Button */}
             <button
               onClick={onOpenNewActivity}
-              className="h-9 px-3.5 rounded bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+              className="spa-btn spa-btn-primary h-9 min-h-0 px-3 sm:px-4 text-xs"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Parada</span>
             </button>
 
           </div>
-
         </div>
       </header>
 
-      {/* Mobile Bottom Navigation Bar — capped at 4 core tabs + Menú, per touch-nav best practice */}
-      <div className="xl:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-surface)] border-t border-[var(--border-subtle)] px-2 py-2 pb-[calc(8px+env(safe-area-inset-bottom,0px))] shadow-xl">
-        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-around">
+      {/* ── Bottom tab bar (phones & tablets) ────────────────────────────
+          72px tall with a pill behind the active icon, so the current
+          screen is obvious at a glance and every target clears 48px. */}
+      <nav
+        className="xl:hidden fixed bottom-0 left-0 right-0 z-50 spa-blur border-t border-[var(--border-subtle)] shadow-[var(--shadow-nav)] pb-[env(safe-area-inset-bottom,0px)]"
+        aria-label="Navegación principal"
+      >
+        <div className="h-[var(--tabbar-h)] px-2 flex items-stretch justify-around max-w-xl mx-auto">
           {primaryNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentTab === item.id;
@@ -268,127 +289,164 @@ export default function Navbar({
               <button
                 key={item.id}
                 onClick={() => setCurrentTab(item.id)}
-                className={`relative flex flex-col items-center justify-center py-1 px-1.5 rounded transition-all min-w-[56px] ${
-                  isActive ? 'text-[var(--accent-primary-text)] font-bold' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-                }`}
+                aria-current={isActive ? 'page' : undefined}
+                className="relative flex-1 flex flex-col items-center justify-center gap-1 pt-2 pb-1.5 spa-pressable"
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[60px]">{item.label}</span>
-                {item.badge && (
-                  <span className="absolute top-0 right-1.5 w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                )}
+                <span
+                  className={`relative flex items-center justify-center h-8 w-14 rounded-full transition-all duration-200 ${
+                    isActive
+                      ? 'bg-[var(--accent-primary)] text-white'
+                      : 'text-[var(--text-muted)]'
+                  }`}
+                >
+                  <Icon className="w-[1.15rem] h-[1.15rem]" />
+                  {item.badge && (
+                    <span className={`absolute top-0.5 right-2.5 w-2 h-2 rounded-full ring-2 ${
+                      isActive ? 'bg-white ring-[var(--accent-primary)]' : 'bg-[var(--accent-rose)] ring-[var(--bg-surface)]'
+                    }`} />
+                  )}
+                </span>
+                <span className={`text-[10px] leading-none tracking-tight ${
+                  isActive ? 'font-black text-[var(--text-primary)]' : 'font-bold text-[var(--text-muted)]'
+                }`}>
+                  {item.label}
+                </span>
               </button>
             );
           })}
+
           <button
             onClick={() => setIsMenuOpen(true)}
-            className={`relative flex flex-col items-center justify-center py-1 px-1.5 rounded transition-all min-w-[56px] ${
-              isSecondaryTabActive ? 'text-[var(--accent-primary-text)] font-bold' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-            }`}
-            aria-haspopup="true"
+            aria-haspopup="dialog"
             aria-expanded={isMenuOpen}
-            aria-label="Abrir menú de navegación"
+            className="relative flex-1 flex flex-col items-center justify-center gap-1 pt-2 pb-1.5 spa-pressable"
           >
-            <Menu className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5 tracking-tight">Menú</span>
+            <span className={`flex items-center justify-center h-8 w-14 rounded-full transition-all duration-200 ${
+              isSecondaryTabActive ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-muted)]'
+            }`}>
+              <Menu className="w-[1.15rem] h-[1.15rem]" />
+            </span>
+            <span className={`text-[10px] leading-none tracking-tight ${
+              isSecondaryTabActive ? 'font-black text-[var(--text-primary)]' : 'font-bold text-[var(--text-muted)]'
+            }`}>
+              Menú
+            </span>
           </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Full Navigation Menu Drawer — every screen, grouped, always reachable */}
+      {/* ── Navigation drawer ────────────────────────────────────────────
+          Every screen, grouped, with tall rows that describe themselves. */}
       {isMenuOpen && (
         <div className="fixed inset-0 z-[90]" role="dialog" aria-modal="true" aria-label="Menú de navegación">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in-backdrop"
+            className="absolute inset-0 bg-black/65 backdrop-blur-sm animate-in-backdrop"
             onClick={() => setIsMenuOpen(false)}
           />
-          <div className="absolute top-0 left-0 h-full w-[85vw] sm:w-[380px] bg-[var(--bg-surface)] border-r border-[var(--border-subtle)] shadow-2xl flex flex-col animate-in-panel">
 
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-subtle)] flex-shrink-0">
-              <h2 className="font-heading font-black text-lg text-[var(--text-primary)]">Menú</h2>
+          <div className="absolute top-0 left-0 h-full w-[88vw] max-w-[400px] bg-[var(--bg-surface)] border-r border-[var(--border-subtle)] shadow-2xl flex flex-col animate-in-panel">
+
+            {/* Profile header doubles as the profile switcher */}
+            <div className="flex-shrink-0 px-4 pt-[calc(1rem+env(safe-area-inset-top,0px))] pb-4 border-b border-[var(--border-subtle)]">
+              <div className="flex items-center justify-between mb-4">
+                <span className="spa-eyebrow">Menú</span>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="spa-tile-sm bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] spa-pressable"
+                  aria-label="Cerrar menú"
+                >
+                  <CloseIcon className="w-4 h-4" />
+                </button>
+              </div>
+
               <button
-                onClick={() => setIsMenuOpen(false)}
-                className="p-2 rounded bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)]"
-                aria-label="Cerrar menú"
+                onClick={() => { onOpenLogin(); setIsMenuOpen(false); }}
+                className="w-full flex items-center gap-3.5 p-3 min-h-[4.25rem] rounded-2xl bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] transition-colors text-left spa-pressable"
               >
-                <CloseIcon className="w-4.5 h-4.5" />
+                <img src={currentUser?.avatar} alt="" className="w-12 h-12 rounded-full flex-shrink-0" />
+                <span className="flex-1 min-w-0">
+                  <span className="block font-heading font-black text-base text-[var(--text-primary)] truncate">
+                    {currentUser?.name}
+                  </span>
+                  <span className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary-text)] mt-0.5">
+                    <RoleIcon className="w-3 h-3" />
+                    {roleMeta.label} · Cambiar perfil
+                  </span>
+                </span>
+                <ChevronRight className="w-3.5 h-3.5 text-[var(--text-muted)] flex-shrink-0" />
               </button>
+
+              <div className="flex items-center justify-center gap-2 mt-3 text-xs font-mono text-[var(--text-muted)]">
+                <span>CDMX <strong className="text-[var(--text-secondary)]">{cdmxTime}</strong></span>
+                <span className="text-[var(--border-medium)]">·</span>
+                <span>NYC <strong className="text-[var(--accent-primary-text)]">{nycTime}</strong></span>
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 py-5 space-y-6">
+            <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))]">
+
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] px-2">Tu Viaje</span>
-                {[...primaryNavItems, ...secondaryNavItems].map((item) => {
-                  const Icon = item.icon;
-                  const isActive = currentTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => goTo(item.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-colors ${
-                        isActive
-                          ? 'bg-[var(--accent-primary)] text-white'
-                          : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface-elevated)] hover:text-[var(--text-primary)]'
-                      }`}
-                    >
-                      <Icon className="w-4.5 h-4.5 flex-shrink-0" />
-                      <span className="flex-1 text-left">{item.label}</span>
-                      {item.badge && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-500 text-white">
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+                <span className="spa-eyebrow px-2">Tu viaje</span>
+                {[...primaryNavItems, ...secondaryNavItems].map((item) => (
+                  <DrawerRow
+                    key={item.id}
+                    item={item}
+                    isActive={currentTab === item.id}
+                    onClick={() => goTo(item.id)}
+                  />
+                ))}
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] px-2">Administración</span>
-                {adminNavItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = currentTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => goTo(item.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold transition-colors ${
-                        isActive
-                          ? 'bg-[var(--accent-primary)] text-white'
-                          : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface-elevated)] hover:text-[var(--text-primary)]'
-                      }`}
-                    >
-                      <Icon className="w-4.5 h-4.5 flex-shrink-0" />
-                      <span className="flex-1 text-left">{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="space-y-1.5 pt-2 border-t border-[var(--border-subtle)]">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] px-2">Accesos Rápidos</span>
-                <button
-                  onClick={() => { setCurrentTab('printable'); setIsMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-surface-elevated)] hover:text-[var(--text-primary)] transition-colors"
-                >
-                  <Printer className="w-4.5 h-4.5 flex-shrink-0" />
-                  <span className="flex-1 text-left">Reporte Imprimible / PDF</span>
-                </button>
-                <button
+                <span className="spa-eyebrow px-2">Herramientas</span>
+                <DrawerRow
+                  item={{ label: 'Ficha Taxi & Hotel', hint: 'Muéstrasela al taxista', icon: Car }}
+                  tone="var(--accent-amber-text)"
+                  isActive={false}
                   onClick={() => { onOpenEmergency(); setIsMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 transition-colors"
-                >
-                  <Car className="w-4.5 h-4.5 flex-shrink-0" />
-                  <span className="flex-1 text-left">Ficha Taxi & Hotel</span>
-                </button>
-                <button
-                  onClick={() => { onOpenLogin(); setIsMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-surface-elevated)] hover:text-[var(--text-primary)] transition-colors"
-                >
-                  <img src={currentUser?.avatar} alt="" className="w-4.5 h-4.5 rounded-full flex-shrink-0" />
-                  <span className="flex-1 text-left">Perfil: {currentUser?.name}</span>
-                </button>
+                />
+                <DrawerRow
+                  item={{ label: 'Reporte imprimible', hint: 'Versión PDF de todo el viaje', icon: Printer }}
+                  isActive={currentTab === 'printable'}
+                  onClick={() => goTo('printable')}
+                />
+                <DrawerRow
+                  item={{
+                    label: isDark ? 'Modo claro' : 'Modo oscuro',
+                    hint: `Ahora: ${isDark ? 'oscuro' : 'claro'}`,
+                    icon: isDark ? Sun : Moon
+                  }}
+                  tone={isDark ? 'var(--accent-amber-text)' : 'var(--accent-indigo-text)'}
+                  isActive={false}
+                  onClick={toggleTheme}
+                />
+                <DrawerRow
+                  item={{ label: 'Tamaño de letra', hint: `Ahora: ${getFontSizeLabel()}`, icon: Type }}
+                  isActive={false}
+                  onClick={cycleFontSize}
+                />
               </div>
+
+              <div className="space-y-1.5">
+                <span className="spa-eyebrow px-2">Administración</span>
+                {adminNavItems.map((item) => (
+                  <DrawerRow
+                    key={item.id}
+                    item={item}
+                    isActive={currentTab === item.id}
+                    onClick={() => goTo(item.id)}
+                  />
+                ))}
+                {/* Always available: sessions are real Google sign-ins now,
+                    and logging out returns to the sign-in gate. */}
+                <DrawerRow
+                  item={{ label: 'Cerrar sesión', hint: `Salir de la cuenta de ${currentUser?.name}`, icon: LogOut }}
+                  tone="var(--accent-rose-text)"
+                  isActive={false}
+                  onClick={() => { logout(); setIsMenuOpen(false); }}
+                />
+              </div>
+
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import LiveTripCompanion from './components/LiveTripCompanion';
 import ItineraryView from './components/ItineraryView';
 import ActivityModal from './components/ActivityModal';
 import PendingModal from './components/PendingModal';
+import PendingListView from './components/PendingListView';
 import RecommendationsView from './components/RecommendationsView';
 import RecommendationModal from './components/RecommendationModal';
 import ImportExportModal from './components/ImportExportModal';
@@ -338,138 +339,94 @@ function MainAppContent() {
 
       {/* Daily reminder banner — visible on every tab from 8pm CDMX until dismissed for the day */}
       {showMomReminder && (
-        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-          <div className="spa-card p-4 sm:p-5 border-l-4 border-l-rose-500 bg-rose-500/5 flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-3">
-              <span className="p-2 rounded-full bg-rose-500/10 text-rose-500 flex-shrink-0">
-                <Phone className="w-4 h-4" />
-              </span>
-              <p className="text-sm font-bold text-[var(--text-primary)]">
-                Ya son las 8pm en CDMX — no olvides llamar a la mamita preciosa
-              </p>
-            </div>
+        <div className="page-x pt-5">
+          <div className="spa-card p-4 flex items-center gap-3.5 border-[color-mix(in_srgb,var(--accent-rose)_35%,transparent)] bg-[color-mix(in_srgb,var(--accent-rose)_8%,var(--bg-surface))]">
+            <span className="spa-tile flex-shrink-0 bg-[color-mix(in_srgb,var(--accent-rose)_16%,transparent)] text-[var(--accent-rose-text)]">
+              <Phone className="w-4 h-4" />
+            </span>
+            <p className="flex-1 text-[13px] sm:text-sm font-bold text-[var(--text-primary)] leading-snug">
+              Ya son las 8pm en CDMX — no olvides llamar a la mamita preciosa
+            </p>
             <button
               onClick={() => { dismissReminderForToday(); setShowMomReminder(false); }}
-              className="px-3.5 py-2 rounded bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors flex-shrink-0 flex items-center gap-1.5"
+              className="spa-btn spa-btn-ghost h-10 min-h-0 px-4 text-xs flex-shrink-0"
             >
-              <Check className="w-3.5 h-3.5" />
-              Ya le hablé
+              <Check className="w-3.5 h-3.5 text-[var(--accent-emerald-text)]" />
+              <span className="hidden xs:inline">Ya le hablé</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* Main Container - 95% Centered Layout (w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8) */}
-      <main className="flex-1 w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-16 sm:space-y-20 mobile-safe-bottom">
+      {/* Main container — `page-x` owns horizontal rhythm app-wide, `stack`
+          owns the breathing room between top-level sections. */}
+      <main className="flex-1 page-x py-7 sm:py-12 stack mobile-safe-bottom">
 
         {/* Tab 1: Itinerary — the "En Vivo" companion has its own dedicated
             tab, so it isn't duplicated here; this screen stays focused on
             the trip overview + day-by-day plan instead of stacking both. */}
         {currentTab === 'itinerary' && (
-          <div className="space-y-16 sm:space-y-20 w-full">
-            <section>
-              <HeroDashboard
-                tripData={tripData}
-                onOpenNewActivity={() => handleOpenNewActivity(1)}
-                onOpenTasks={() => setIsPendingModalOpen(true)}
-                onNavigateTab={setCurrentTab}
-              />
-            </section>
+          <div className="stack w-full">
+            <HeroDashboard
+              tripData={tripData}
+              onOpenNewActivity={() => handleOpenNewActivity(1)}
+              onOpenTasks={() => setIsPendingModalOpen(true)}
+              onNavigateTab={setCurrentTab}
+            />
 
-            <section>
-              <ItineraryView
-                tripData={tripData}
-                onChangeActivityStatus={handleChangeActivityStatus}
-                onEditActivity={handleEditActivity}
-                onDeleteActivity={handleDeleteActivity}
-                onMoveActivity={handleMoveActivity}
-                onAddActivityToDay={(dayNum) => handleOpenNewActivity(dayNum)}
-              />
-            </section>
+            <ItineraryView
+              tripData={tripData}
+              onChangeActivityStatus={handleChangeActivityStatus}
+              onEditActivity={handleEditActivity}
+              onDeleteActivity={handleDeleteActivity}
+              onMoveActivity={handleMoveActivity}
+              onAddActivityToDay={(dayNum) => handleOpenNewActivity(dayNum)}
+            />
           </div>
         )}
 
         {/* Tab 2: En Vivo Dedicated View */}
         {currentTab === 'live' && (
-          <div className="space-y-12 w-full">
-            <LiveTripCompanion
-              tripData={tripData}
-              onChangeActivityStatus={handleChangeActivityStatus}
-              onEditActivity={handleEditActivity}
-              onNavigateToDay={(dayNum) => {}}
-            />
-          </div>
+          <LiveTripCompanion
+            tripData={tripData}
+            onChangeActivityStatus={handleChangeActivityStatus}
+            onEditActivity={handleEditActivity}
+          />
         )}
 
         {/* Tab 3: Pendientes */}
         {currentTab === 'pendientes' && (
-          <div className="space-y-12 w-full">
-            <div className="spa-card p-8 flex items-center justify-between">
-              <div>
-                <h2 className="font-heading font-black text-2xl sm:text-3xl text-[var(--text-primary)]">Pendientes & Reservas del Viaje</h2>
-                <p className="text-sm text-[var(--text-secondary)] mt-1">Requisitos antes de abordar el vuelo</p>
-              </div>
-              <button
-                onClick={() => setIsPendingModalOpen(true)}
-                className="px-5 py-2.5 bg-[var(--accent-primary)] text-white font-bold text-xs rounded shadow-sm"
-              >
-                Abrir Gestor Completo
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tripData.urgentTasks.map((t) => (
-                <div
-                  key={t.id}
-                  onClick={() => handleToggleTask(t.id)}
-                  className={`spa-card p-5 cursor-pointer transition-all flex items-start gap-4 ${
-                    t.completed ? 'opacity-60' : 'hover:border-[var(--border-medium)]'
-                  }`}
-                >
-                  <div className={`mt-0.5 w-5 h-5 rounded flex items-center justify-center text-xs ${
-                    t.completed ? 'bg-emerald-500 text-white font-bold' : 'border border-[var(--border-strong)]'
-                  }`}>
-                    {t.completed && <Check className="w-3 h-3" />}
-                  </div>
-                  <div>
-                    <span className={`font-bold text-sm text-[var(--text-primary)] block ${t.completed ? 'line-through text-[var(--text-muted)]' : ''}`}>
-                      {t.text}
-                    </span>
-                    <span className="text-xs text-[var(--text-muted)] font-mono mt-1 block">{t.details}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <PendingListView
+            tasks={tripData.urgentTasks}
+            onToggleTask={handleToggleTask}
+            onDeleteTask={handleDeleteTask}
+            onOpenManager={() => setIsPendingModalOpen(true)}
+          />
         )}
 
         {/* Tab 4: Recommendations */}
         {currentTab === 'recommendations' && (
-          <div className="space-y-12 w-full">
-            <RecommendationsView
-              recommendations={tripData.recommendations}
-              onToggleVisited={handleToggleVisitedRec}
-              onDeleteRecommendation={handleDeleteRecommendation}
-              onOpenNewRec={() => setIsRecModalOpen(true)}
-              onOpenImportExport={() => setIsImportExportModalOpen(true)}
-            />
-          </div>
+          <RecommendationsView
+            recommendations={tripData.recommendations}
+            onToggleVisited={handleToggleVisitedRec}
+            onDeleteRecommendation={handleDeleteRecommendation}
+            onOpenNewRec={() => setIsRecModalOpen(true)}
+            onOpenImportExport={() => setIsImportExportModalOpen(true)}
+          />
         )}
 
         {/* Tab 5: US Open & Pases */}
         {currentTab === 'usopen' && (
-          <div className="space-y-12 w-full">
-            <USOpenPassView
-              tripData={tripData}
-              onUpdateHoneyDeuce={handleUpdateHoneyDeuce}
-              onToggleGoCityAttraction={handleToggleGoCityAttraction}
-            />
-          </div>
+          <USOpenPassView
+            tripData={tripData}
+            onUpdateHoneyDeuce={handleUpdateHoneyDeuce}
+            onToggleGoCityAttraction={handleToggleGoCityAttraction}
+          />
         )}
 
         {/* Tab 6: Admin Panel / CMS */}
         {currentTab === 'admin' && (
-          <div className="space-y-12 w-full">
+          <div className="w-full">
             <AdminPanel
               tripData={tripData}
               onChangeActivityStatus={handleChangeActivityStatus}
@@ -493,16 +450,14 @@ function MainAppContent() {
 
         {/* Tab 7: Users & Permisos (Administración de Usuarios) */}
         {currentTab === 'users' && (
-          <div className="space-y-12 w-full">
-            <UserManagementView
-              onOpenLoginModal={() => setIsLoginModalOpen(true)}
-            />
-          </div>
+          <UserManagementView
+            onOpenLoginModal={() => setIsLoginModalOpen(true)}
+          />
         )}
 
         {/* Tab 8: Guía Pro */}
         {currentTab === 'guide' && (
-          <div className="space-y-16 w-full">
+          <div className="stack w-full">
             <SurvivalGuideView />
             <BooksTechView
               books={tripData.strandBooksList || []}
@@ -515,22 +470,21 @@ function MainAppContent() {
 
         {/* Tab 9: Budget */}
         {currentTab === 'budget' && (
-          <div className="space-y-12 w-full">
-            <BudgetView
-              expenses={tripData.budgetExpenses || []}
-              onAddExpense={handleAddExpense}
-              onDeleteExpense={handleDeleteExpense}
-            />
-          </div>
+          <BudgetView
+            expenses={tripData.budgetExpenses || []}
+            onAddExpense={handleAddExpense}
+            onDeleteExpense={handleDeleteExpense}
+          />
         )}
 
       </main>
 
-      {/* Footer 95% Centered */}
-      <footer className="w-full border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] py-12 text-center text-xs text-[var(--text-muted)] space-y-1.5 mt-16">
-        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="font-medium text-sm text-[var(--text-secondary)]">NYC · US Open 2026 · Lalo & Fefe · 4–10 septiembre</p>
-          <p className="text-xs text-[var(--text-muted)]">PWA Offline Enabled · Todos los cambios se guardan automáticamente en tu dispositivo</p>
+      {/* Footer — hidden behind the tab bar on phones, so it only shows where
+          there's room for it. */}
+      <footer className="hidden xl:block w-full border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] py-10 mt-10">
+        <div className="page-x text-center space-y-1.5">
+          <p className="font-bold text-sm text-[var(--text-secondary)]">NYC · US Open 2026 · Lalo &amp; Fefe · 4–10 septiembre</p>
+          <p className="text-xs text-[var(--text-muted)]">PWA offline · Todos los cambios se guardan automáticamente en tu dispositivo</p>
         </div>
       </footer>
 

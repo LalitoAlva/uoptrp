@@ -256,8 +256,11 @@ function toSpot(rec, extra = {}) {
  * detour is small relative to the trip itself — otherwise on a long haul
  * (Manhattan → Flushing) the corridor would sweep up half of Queens.
  *
- * Results are ranked by detour cost, not raw distance: the question is "how
- * much extra walking does this cost me", not "how close is it to my hotel".
+ * Ranked by plain distance from where you are — nearest first, like every
+ * other list in this feature. The detour cost is still computed and shown on
+ * each row, since it's the thing that tells you whether a stop is worth it,
+ * but it isn't what decides the order: when you're standing on a corner
+ * deciding where to go, "closest" is the ordering you expect.
  */
 export function findRouteSpots(recommendations = [], from, to, { corridorKm = 1, limit = 5, excludeIds = [] } = {}) {
   if (!from || !to) return [];
@@ -282,7 +285,7 @@ export function findRouteSpots(recommendations = [], from, to, { corridorKm = 1,
       return toSpot(rec, { km: distanceKm(from, coords), offRouteKm, detourKm });
     })
     .filter(Boolean)
-    .sort((a, b) => a.detourKm - b.detourKm)
+    .sort((a, b) => a.km - b.km)
     .slice(0, limit);
 }
 

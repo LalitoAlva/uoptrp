@@ -10,7 +10,6 @@ import {
 } from '../utils/icons';
 import { sanitizeUrl } from '../utils/sanitize';
 import { STATUS_ORDER, STATUS_CONFIG, getStatus, getStatusConfig, getCategory } from '../utils/activityMeta';
-import NearbyAlerts from './NearbyAlerts';
 import confetti from 'canvas-confetti';
 
 /**
@@ -189,9 +188,6 @@ export default function LiveTripCompanion({ tripData, onChangeActivityStatus, on
           <p className="text-sm text-[var(--text-muted)]">Todas las paradas están marcadas.</p>
         </div>
       )}
-
-      {/* ── What's around me right now ───────────────────────────────── */}
-      <NearbyAlerts recommendations={tripData.recommendations} day={currentDay} />
 
       {/* ── Up next ──────────────────────────────────────────────────── */}
       {upNext.length > 0 && (

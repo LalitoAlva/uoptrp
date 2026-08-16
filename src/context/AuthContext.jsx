@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { notify } from '../utils/alerts';
 import { decodeGoogleCredential } from '../config/googleAuth';
 
@@ -30,6 +30,49 @@ const INITIAL_USERS = [
 ];
 
 const VALID_ROLES = ['admin', 'editor', 'viewer'];
+
+/**
+ * Session lifetime.
+ *
+ * Modelled as an *idle* timeout: any real interaction pushes the deadline
+ * back to 30 minutes out. The last 2 minutes are the warning window, where
+ * ordinary activity deliberately stops renewing and only the explicit
+ * "Seguir aquí" button does — otherwise a stray scroll would silently
+ * dismiss the warning and the countdown would never mean anything.
+ */
+export const SESSION_DURATION_MS = 30 * 60 * 1000;
+export const SESSION_WARNING_MS = 2 * 60 * 1000;
+
+const SESSION_DEADLINE_KEY = 'nyc_session_deadline_v1';
+
+/**
+ * The deadline as stored, or null when there is no live session.
+ *
+ * Returns null for anything missing, unparseable, or already past, so the
+ * single check `readStoredDeadline() === null` covers "no session" and
+ * "expired while the app was closed" identically.
+ */
+function readStoredDeadline() {
+  try {
+    const raw = localStorage.getItem(SESSION_DEADLINE_KEY);
+    if (!raw) return null;
+    const ts = Number(raw);
+    if (!Number.isFinite(ts) || ts <= Date.now()) return null;
+    return ts;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredDeadline(ts) {
+  try {
+    if (ts === null) localStorage.removeItem(SESSION_DEADLINE_KEY);
+    else localStorage.setItem(SESSION_DEADLINE_KEY, String(ts));
+  } catch {
+    // Without persistence the session still expires in-tab; it just won't
+    // survive a reload, which fails safe (towards logged out).
+  }
+}
 
 /**
  * Shapes one stored user record.
@@ -76,13 +119,30 @@ export function AuthProvider({ children }) {
 
   // No default profile: a fresh device (or after logout) starts with no
   // active session, so the app can gate all content behind picking one.
+  //
+  // The stored session is only honoured if its deadline hasn't passed —
+  // otherwise closing the laptop for an hour and reopening it would restore
+  // a session that should have expired.
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('nyc_current_user_v2');
-      return saved ? sanitizeUser(JSON.parse(saved)) : null;
+      if (!saved) return null;
+      if (readStoredDeadline() === null) {
+        localStorage.removeItem('nyc_current_user_v2');
+        localStorage.removeItem(SESSION_DEADLINE_KEY);
+        return null;
+      }
+      return sanitizeUser(JSON.parse(saved));
     } catch {
       return null;
     }
+  });
+
+  /** Epoch ms at which the session dies if nothing renews it. */
+  const [deadline, setDeadline] = useState(() => readStoredDeadline());
+  const [msLeft, setMsLeft] = useState(() => {
+    const d = readStoredDeadline();
+    return d === null ? 0 : d - Date.now();
   });
 
   useEffect(() => {
@@ -130,15 +190,87 @@ export function AuthProvider({ children }) {
     };
     setUsers(prev => prev.map(u => (u.id === updated.id ? updated : u)));
     setCurrentUser(updated);
+    // Signing in starts the 30-minute clock.
+    const next = Date.now() + SESSION_DURATION_MS;
+    setDeadline(next);
+    setMsLeft(SESSION_DURATION_MS);
+    writeStoredDeadline(next);
     return updated;
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     // Clear the session entirely — no silent fallback to a guest profile.
     // The app gates all content behind the login screen until someone
     // signs in with Google again.
     setCurrentUser(null);
-  };
+    setDeadline(null);
+    setMsLeft(0);
+    writeStoredDeadline(null);
+  }, []);
+
+  /** Pushes the deadline out to a full session from now. */
+  const extendSession = useCallback(() => {
+    const next = Date.now() + SESSION_DURATION_MS;
+    setDeadline(next);
+    setMsLeft(SESSION_DURATION_MS);
+    writeStoredDeadline(next);
+  }, []);
+
+  // Tick while signed in: drives the countdown and performs the expiry.
+  useEffect(() => {
+    if (!currentUser || deadline === null) return undefined;
+
+    const tick = () => {
+      const remaining = deadline - Date.now();
+      setMsLeft(remaining);
+      if (remaining <= 0) {
+        logout();
+        notify('Tu sesión expiró por inactividad. Vuelve a iniciar sesión.', 'warning');
+      }
+    };
+
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [currentUser, deadline, logout]);
+
+  // Ordinary interaction renews the session — but not once the warning is
+  // up, where renewing is an explicit decision (see the note on the
+  // constants above). Writes are throttled to once every 30s so a scroll
+  // doesn't hammer localStorage on every frame.
+  useEffect(() => {
+    if (!currentUser) return undefined;
+
+    let lastRenew = 0;
+    const onActivity = () => {
+      const now = Date.now();
+      if (now - lastRenew < 30000) return;
+      if (deadline !== null && deadline - now <= SESSION_WARNING_MS) return;
+      lastRenew = now;
+      const next = now + SESSION_DURATION_MS;
+      setDeadline(next);
+      writeStoredDeadline(next);
+    };
+
+    const events = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach(evt => window.addEventListener(evt, onActivity, { passive: true }));
+    return () => events.forEach(evt => window.removeEventListener(evt, onActivity));
+  }, [currentUser, deadline]);
+
+  // Coming back to a backgrounded tab: timers are throttled or frozen there,
+  // so re-check against the wall clock rather than trusting the interval.
+  useEffect(() => {
+    if (!currentUser) return undefined;
+    const onVisible = () => {
+      if (document.hidden) return;
+      if (readStoredDeadline() === null) {
+        logout();
+        notify('Tu sesión expiró por inactividad. Vuelve a iniciar sesión.', 'warning');
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [currentUser, logout]);
 
   /**
    * Grants someone access. Adding a row here is what lets that Gmail account
@@ -203,7 +335,11 @@ export function AuthProvider({ children }) {
       logout,
       addUser,
       updateUserRole,
-      deleteUser
+      deleteUser,
+      // Session lifetime
+      sessionMsLeft: msLeft,
+      isSessionExpiring: Boolean(currentUser) && deadline !== null && msLeft > 0 && msLeft <= SESSION_WARNING_MS,
+      extendSession
     }}>
       {children}
     </AuthContext.Provider>

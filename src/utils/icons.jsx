@@ -115,7 +115,9 @@ import {
   faStopwatch,
   faMugHot,
   faPersonWalking,
-  faGear
+  faGear,
+  faVolumeHigh,
+  faStop
 } from '@fortawesome/free-solid-svg-icons';
 
 // Font Awesome injects its stylesheet into <head> at runtime, *unlayered*.
@@ -246,6 +248,8 @@ export const Stopwatch = makeIcon(faStopwatch, 'Stopwatch');
 export const MugHot = makeIcon(faMugHot, 'MugHot');
 export const Walking = makeIcon(faPersonWalking, 'Walking');
 export const Gear = makeIcon(faGear, 'Gear');
+export const Volume = makeIcon(faVolumeHigh, 'Volume');
+export const Stop = makeIcon(faStop, 'Stop');
 
 // Maps the emoji glyphs already stored in initialData.js's extraCards.icon
 // field to a Font Awesome component, so content data doesn't need a rewrite

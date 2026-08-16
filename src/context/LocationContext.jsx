@@ -37,6 +37,7 @@ export function LocationProvider({ children }) {
   const [status, setStatus] = useState('idle'); // idle | locating | ready | denied | unavailable | off
   const [updatedAt, setUpdatedAt] = useState(null);
   const [optedOut, setOptedOut] = useState(readOptOut);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const watchIdRef = useRef(null);
 
@@ -81,6 +82,40 @@ export function LocationProvider({ children }) {
     setStatus('locating');
     startWatching();
   }, [startWatching]);
+
+  /**
+   * Forces a fresh fix right now.
+   *
+   * A one-shot `getCurrentPosition` rather than restarting the watch: the
+   * watch is already open in the normal case, and `startWatching` bails out
+   * when it is, so re-calling it would do nothing at all. `maximumAge: 0` is
+   * the point of the whole function — it refuses the browser's cached
+   * position, which is what makes the button actually move the numbers after
+   * you've walked a few blocks.
+   */
+  const refresh = useCallback(() => {
+    if (!('geolocation' in navigator) || isRefreshing) return;
+
+    setIsRefreshing(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy });
+        setUpdatedAt(new Date());
+        setStatus('ready');
+        setIsRefreshing(false);
+      },
+      (err) => {
+        // A failed manual refresh shouldn't tear down a watch that still
+        // works — only a hard permission denial changes the status.
+        if (err.code === err.PERMISSION_DENIED) {
+          setStatus('denied');
+          clearWatch();
+        }
+        setIsRefreshing(false);
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+    );
+  }, [isRefreshing, clearWatch]);
 
   /** Stops tracking and remembers the choice across reloads. */
   const disableLocation = useCallback(() => {
@@ -159,8 +194,10 @@ export function LocationProvider({ children }) {
       coords,
       status,
       updatedAt,
+      isRefreshing,
       isTracking: status === 'ready',
       requestLocation,
+      refresh,
       disableLocation
     }}>
       {children}

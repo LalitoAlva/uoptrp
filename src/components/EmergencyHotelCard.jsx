@@ -1,25 +1,59 @@
-import React, { useState } from 'react';
-import { 
-  X, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Copy, 
-  Check, 
-  Navigation, 
-  ShieldAlert, 
-  Plane, 
+import React, { useState, useEffect } from 'react';
+import {
+  X,
+  Copy,
+  Check,
+  Navigation,
+  ShieldAlert,
   ExternalLink,
-  Car
+  Car,
+  Volume,
+  Stop
 } from '../utils/icons';
+import { speak, stopSpeaking, isSpeechSupported, warmUpVoices } from '../utils/speech';
 
 export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
   const [copiedHotel, setCopiedHotel] = useState(false);
   const [copiedChris, setCopiedChris] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // Never leave a voice talking into an empty room after the card closes.
+  // Opening the card also warms the voice list, so the very first tap on
+  // "Reproducir" already gets the good voice instead of the default.
+  useEffect(() => {
+    if (isOpen) {
+      warmUpVoices();
+    } else {
+      stopSpeaking();
+      setIsSpeaking(false);
+    }
+    return () => stopSpeaking();
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const hotelAddressEN = "New York Marriott Marquis, 1535 Broadway (between 45th & 46th St), Times Square, New York, NY 10036";
+
+  // Phrased as a full sentence a driver can act on, and written the way it
+  // should be *heard*: "forty-fifth" rather than "45th", which most engines
+  // read as "forty-five th".
+  const spokenInstruction =
+    "Please take me to the New York Marriott Marquis hotel, "
+    + "fifteen thirty-five Broadway, between forty-fifth and forty-sixth street, "
+    + "in Times Square. Thank you.";
+
+  const handleSpeak = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+      setIsSpeaking(false);
+      return;
+    }
+    const started = speak(spokenInstruction, {
+      lang: 'en-US',
+      onEnd: () => setIsSpeaking(false)
+    });
+    if (started) setIsSpeaking(true);
+  };
 
   const handleCopyHotel = () => {
     navigator.clipboard.writeText(hotelAddressEN);
@@ -86,6 +120,25 @@ export default function EmergencyHotelCard({ isOpen, onClose, tripData }) {
                 1535 Broadway (between 45th & 46th St), Times Square"
               </p>
             </div>
+
+            {/* Play it out loud: easier than handing over the phone in
+                traffic, and it gets the address said in the driver's
+                language instead of read aloud with a Spanish accent. */}
+            {isSpeechSupported() && (
+              <button
+                onClick={handleSpeak}
+                aria-pressed={isSpeaking}
+                className={`spa-btn w-full min-h-[3.25rem] text-[15px] ${
+                  isSpeaking
+                    ? 'bg-[color-mix(in_srgb,var(--accent-rose)_16%,transparent)] text-[var(--accent-rose-text)]'
+                    : 'bg-amber-500 text-white hover:bg-amber-600'
+                }`}
+              >
+                {isSpeaking
+                  ? <><Stop className="w-4 h-4" /> Detener audio</>
+                  : <><Volume className="w-4 h-4" /> Reproducir para el chofer</>}
+              </button>
+            )}
 
             <div className="flex items-center justify-between pt-1">
               <a

@@ -22,7 +22,8 @@ import {
   Eye,
   LogOut,
   ChevronRight,
-  Phone
+  Phone,
+  Navigation
 } from '../utils/icons';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -35,7 +36,10 @@ export default function Navbar({
   onOpenEmergency,
   onOpenLogin,
   onOpenReminderSettings,
-  reminderMessage
+  reminderMessage,
+  onOpenNearby,
+  nearbyCount = 0,
+  nearbyActive = false
 }) {
   const { isDark, toggleTheme, fontSize, cycleFontSize } = useTheme();
   const { currentUser, logout } = useAuth();
@@ -212,9 +216,11 @@ export default function Navbar({
               <span className="text-[var(--accent-primary-text)] font-bold">NYC <strong>{nycTime}</strong></span>
             </div>
 
+            {/* Hidden on phones: the header now carries nearby + taxi, which
+                are street tools, and type size is one tap away in the drawer. */}
             <button
               onClick={cycleFontSize}
-              className="spa-tile-sm bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] transition-colors spa-pressable"
+              className="hidden sm:flex spa-tile-sm bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] transition-colors spa-pressable"
               title={`Tamaño de letra: ${getFontSizeLabel()}`}
               aria-label={`Cambiar tamaño de letra. Actual: ${getFontSizeLabel()}`}
             >
@@ -232,9 +238,30 @@ export default function Navbar({
               {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
             </button>
 
+            {/* "Cerca de ti" — opens the location suggestions popup. The dot
+                signals that something from the list is actually around. */}
+            <button
+              onClick={onOpenNearby}
+              className={`relative spa-tile-sm transition-colors spa-pressable ${
+                nearbyActive
+                  ? 'bg-[var(--accent-primary-soft)] text-[var(--accent-primary-text)]'
+                  : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)]'
+              }`}
+              title="Qué tengo cerca"
+              aria-label={nearbyCount > 0 ? `Cerca de ti: ${nearbyCount} lugares` : 'Qué tengo cerca'}
+            >
+              <Navigation className="w-4 h-4" />
+              {nearbyCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--accent-emerald)] ring-2 ring-[var(--bg-surface)]" />
+              )}
+            </button>
+
+            {/* Taxi card. Visible on phones too — showing the driver the
+                hotel address is a street task, so hiding it below `md` was
+                exactly backwards. */}
             <button
               onClick={onOpenEmergency}
-              className="hidden md:flex spa-tile-sm bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 transition-colors spa-pressable"
+              className="spa-tile-sm bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 transition-colors spa-pressable"
               title="Ficha para el taxista"
               aria-label="Ficha Taxi y Hotel"
             >

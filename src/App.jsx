@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Navbar from './components/Navbar';
 import HeroDashboard from './components/HeroDashboard';
 import LiveTripCompanion from './components/LiveTripCompanion';
@@ -6,7 +6,8 @@ import ItineraryView from './components/ItineraryView';
 import ActivityModal from './components/ActivityModal';
 import PendingModal from './components/PendingModal';
 import PendingListView from './components/PendingListView';
-import NearbyAlerts from './components/NearbyAlerts';
+import NearbySheet from './components/NearbySheet';
+import { useNearby } from './hooks/useNearby';
 import RecommendationsView from './components/RecommendationsView';
 import RecommendationModal from './components/RecommendationModal';
 import ImportExportModal from './components/ImportExportModal';
@@ -28,6 +29,7 @@ import { LocationProvider } from './context/LocationContext';
 import { loadTripData, saveTripData } from './utils/storage';
 import { confirmAction, notify } from './utils/alerts';
 import ReminderSettingsSheet from './components/ReminderSettingsSheet';
+import SessionWarningModal from './components/SessionWarningModal';
 import {
   isReminderDueToday,
   dismissReminderForToday,
@@ -55,6 +57,7 @@ function MainAppContent() {
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isReminderSheetOpen, setIsReminderSheetOpen] = useState(false);
+  const [isNearbySheetOpen, setIsNearbySheetOpen] = useState(false);
   const [reminderSettings, setReminderSettings] = useState(() => getReminderSettings());
   const [showMomReminder, setShowMomReminder] = useState(() => isReminderDueToday());
 
@@ -337,8 +340,26 @@ function MainAppContent() {
 
   const urgentCount = tripData.urgentTasks.filter(t => !t.completed).length;
 
-  // Hard gate: nothing renders — not even the printable report — until a
-  // profile is chosen. Closing this modal isn't possible (mandatory).
+  // Which day the location suggestions reason about. Prefers the trip day
+  // that matches today's real date; outside the trip window it falls back to
+  // the first day that still has something pending, so the "de camino" list
+  // has a destination to aim at instead of going blank.
+  const activeDay = useMemo(() => {
+    const todayKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
+    const matched = tripData.days.find(d => d.isoDate === todayKey);
+    if (matched) return matched;
+    return tripData.days.find(d => d.timeline.some(t => !t.completed && t.status !== 'hecho'))
+      || tripData.days[0];
+  }, [tripData.days]);
+
+  // Mounted here, above the popup, so the proximity alerts keep firing even
+  // while the "cerca de ti" sheet is closed.
+  const nearbyData = useNearby(tripData.recommendations, activeDay);
+
+  // Hard gate: nothing renders — not even the printable report — until
+  // there's a live session. This is also the expiry path: when the session
+  // times out AuthContext clears currentUser, so the whole tree unmounts
+  // back to the sign-in screen rather than leaving content on screen.
   if (!currentUser) {
     return <LoginModal isOpen={true} onClose={() => {}} mandatory />;
   }
@@ -365,6 +386,9 @@ function MainAppContent() {
         onOpenLogin={() => setIsLoginModalOpen(true)}
         onOpenReminderSettings={() => setIsReminderSheetOpen(true)}
         reminderMessage={reminderSettings.message}
+        onOpenNearby={() => setIsNearbySheetOpen(true)}
+        nearbyCount={nearbyData.total}
+        nearbyActive={nearbyData.status === 'ready'}
       />
 
       {/* Daily reminder banner — visible on every tab from 8pm CDMX until dismissed for the day */}
@@ -408,13 +432,6 @@ function MainAppContent() {
               onNavigateTab={setCurrentTab}
             />
 
-            {/* Condensed location suggestions. The full three-section version
-                lives on En Vivo; here it's a nudge, not the main event. */}
-            <NearbyAlerts
-              recommendations={tripData.recommendations}
-              day={tripData.days[0]}
-              variant="compact"
-            />
 
             <ItineraryView
               tripData={tripData}
@@ -585,6 +602,15 @@ function MainAppContent() {
         settings={reminderSettings}
         onSave={handleSaveReminder}
       />
+
+      <NearbySheet
+        isOpen={isNearbySheetOpen}
+        onClose={() => setIsNearbySheetOpen(false)}
+        data={nearbyData}
+      />
+
+      {/* Renders itself only during the last two minutes of the session. */}
+      <SessionWarningModal />
 
     </div>
   );

@@ -603,6 +603,21 @@ html.light body {
 }
 .animate-soft-pulse { animation: softPulse 2s ease-in-out infinite; }
 
+/* Counter-clockwise, to match the direction the refresh arrow points. */
+@keyframes spinBack {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+.animate-spin-back { animation: spinBack 0.9s linear infinite; }
+
+/* Collapsible sections: the content fades and slides in rather than
+   appearing instantly, so expanding doesn't jolt the page. */
+@keyframes expandIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-expand { animation: expandIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
 /* Print Styles */
 @media print {
   body {

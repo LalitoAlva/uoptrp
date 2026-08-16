@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* ThemeContext toggles a real `.dark` class on <html> (alongside `.light`),
+   so pin Tailwind's `dark:` variant to that class explicitly. Without this,
+   `dark:` falls back to `prefers-color-scheme`, which can disagree with the
+   app's own sun/moon toggle whenever the OS theme differs from it. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* Ultra High Contrast Dark Mode */
   --bg-app: #090D16;

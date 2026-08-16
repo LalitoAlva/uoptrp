@@ -301,43 +301,47 @@ export default function DayCard({
 
                 </div>
 
-                {/* Row 2: Compact icon-only status switcher — one glance, one tap */}
-                <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between gap-3 flex-wrap">
-                  <span className={`flex items-center gap-1.5 text-xs font-bold font-mono ${
-                    currentStatus === 'hecho' ? 'text-emerald-500' :
-                    currentStatus === 'fijo' ? 'text-indigo-500' :
-                    currentStatus === 'opcional' ? 'text-amber-500' :
-                    currentStatus === 'no_hecho' ? 'text-rose-500' : 'text-[var(--text-muted)]'
-                  }`}>
-                    {(() => {
-                      const CurrentIcon = STATUS_CONFIG[currentStatus].icon;
-                      return <CurrentIcon className="w-3.5 h-3.5" />;
-                    })()}
-                    {STATUS_CONFIG[currentStatus].label}
-                  </span>
-
+                {/* Row 2: Compact icon-only status switcher — grouped as one
+                    unit instead of stretched edge-to-edge, so it doesn't read
+                    as an empty spreadsheet row on wide screens. */}
+                <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-end gap-3 flex-wrap">
                   <div
                     role="group"
                     aria-label="Cambiar estado de esta parada"
-                    className="inline-flex items-center gap-0.5 p-1 rounded-lg bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)]"
+                    className="flex items-center gap-2 pl-1"
                   >
-                    {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => handleSetStatus(item.id, key)}
-                        title={cfg.label}
-                        aria-label={cfg.label}
-                        aria-pressed={currentStatus === key}
-                        className={`w-10 h-10 rounded-md flex items-center justify-center transition-all active:scale-90 ${
-                          currentStatus === key
-                            ? cfg.activeClass
-                            : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface-hover)] hover:text-[var(--text-primary)]'
-                        }`}
-                      >
-                        <cfg.icon className="w-4 h-4" />
-                      </button>
-                    ))}
+                    <span className={`flex items-center gap-1.5 text-xs font-bold font-mono ${
+                      currentStatus === 'hecho' ? 'text-emerald-500' :
+                      currentStatus === 'fijo' ? 'text-indigo-500' :
+                      currentStatus === 'opcional' ? 'text-amber-500' :
+                      currentStatus === 'no_hecho' ? 'text-rose-500' : 'text-[var(--text-muted)]'
+                    }`}>
+                      {(() => {
+                        const CurrentIcon = STATUS_CONFIG[currentStatus].icon;
+                        return <CurrentIcon className="w-3.5 h-3.5" />;
+                      })()}
+                      {STATUS_CONFIG[currentStatus].label}
+                    </span>
+
+                    <div className="inline-flex items-center gap-0.5 p-1 rounded-lg bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)]">
+                      {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => handleSetStatus(item.id, key)}
+                          title={cfg.label}
+                          aria-label={cfg.label}
+                          aria-pressed={currentStatus === key}
+                          className={`w-9 h-9 rounded-md flex items-center justify-center transition-all active:scale-90 ${
+                            currentStatus === key
+                              ? cfg.activeClass
+                              : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface-hover)] hover:text-[var(--text-primary)]'
+                          }`}
+                        >
+                          <cfg.icon className="w-3.5 h-3.5" />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

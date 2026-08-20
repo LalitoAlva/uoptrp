@@ -37,19 +37,19 @@ export const initialTripData = {
   urgentTasks: [
     {
       id: "task-1",
-      priority: "red",
-      text: "Confirmar con Chris Wetzel que el traslado aplica desde EWR",
-      details: "chris@sportstraveler.net · 773-881-0076 ext.105",
-      completed: false,
+      priority: "green",
+      text: "Traslado EWR confirmado",
+      details: "Sports Traveler confirma llegada y salida desde EWR · chofer manda SMS al aterrizar · tel: +1-212-404-7491 · emergencias Chris Wetzel: 610-823-3838",
+      completed: true,
       tag: "Traslado / Logística"
     },
     {
       id: "task-2",
       priority: "red",
-      text: "Verificar Go City Pass en la app móvil",
-      details: "Confirmar atracciones disponibles (Intrepid, Top of the Rock, MoMA)",
+      text: "Tickets US Open — Mobile Entry",
+      details: "Aceptar tickets por email (link ACCEPT TICKETS) · descargar app \"2026 US Open Tennis\" · iniciar sesión con el mismo email · los tickets llegan 3-5 días antes del partido",
       completed: false,
-      tag: "Pases"
+      tag: "Tickets"
     },
     {
       id: "task-3",
@@ -166,14 +166,14 @@ export const initialTripData = {
       { session: "Sesión 15", name: "Round of 16 (Octavos) — Día", date: "Domingo 6 de septiembre", time: "11:00", stadium: "Arthur Ashe Stadium · Nivel 300 (Promenade), filas A-L" },
       { session: "Sesión 16", name: "Round of 16 (Octavos) — Noche", date: "Domingo 6 de septiembre", time: "19:00", stadium: "Arthur Ashe Stadium · Nivel 200 (Loge)" },
       { session: "Sesión 17", name: "Cuartos de Final — Día", date: "Lunes 7 de septiembre (Labor Day)", time: "11:00", stadium: "Arthur Ashe Stadium · Nivel 300 (Promenade), filas A-L" },
-      { session: "Sesión 18", name: "Cuartos de Final — Tarde", date: "Lunes 7 de septiembre (Labor Day)", time: "16:30", stadium: "Arthur Ashe Stadium · Nivel 200 (Loge)" }
+      { session: "Sesión 18", name: "Cuartos de Final — Noche", date: "Lunes 7 de septiembre (Labor Day)", time: "19:00", stadium: "Arthur Ashe Stadium · Nivel 200 (Loge)" }
     ],
     includes: [
       { id: "pkg-1", icon: "🎾", title: "Sesión 15 US Open", desc: "Dom 6 sep, mañana (Nivel 300, filas A-L) — Arthur Ashe" },
       { id: "pkg-2", icon: "🎾", title: "Sesión 16 US Open", desc: "Dom 6 sep, noche (Nivel 200, Loge) — Arthur Ashe" },
       { id: "pkg-3", icon: "🎾", title: "Sesión 17 US Open", desc: "Lun 7 sep, mañana (Nivel 300, filas A-L) — Arthur Ashe" },
-      { id: "pkg-4", icon: "🎾", title: "Sesión 18 US Open", desc: "Lun 7 sep, tarde (Nivel 200, Loge) — Arthur Ashe" },
-      { id: "pkg-5", icon: "🚗", title: "Traslado Privado EWR", desc: "Ida y vuelta aeropuerto Newark (⚠️ confirmar con Chris Wetzel)" },
+      { id: "pkg-4", icon: "🎾", title: "Sesión 18 US Open", desc: "Lun 7 sep, 7:00pm (Nivel 200, Loge) — Arthur Ashe" },
+      { id: "pkg-5", icon: "🚗", title: "Traslado Privado EWR", desc: "✅ Confirmado · chofer manda SMS al aterrizar · tel: +1-212-404-7491 · emergencias Chris Wetzel: 610-823-3838" },
       { id: "pkg-6", icon: "🚇", title: "Metro Ilimitado", desc: "Tarjeta / OMNY para transporte ilimitado toda la estancia" },
       { id: "pkg-7", icon: "🎟️", title: "Go City Explorer Pass", desc: "Pase digital para 3 atracciones principales" },
       { id: "pkg-8", icon: "🎁", title: "Regalo Oficial US Open", desc: "Kit de bienvenida oficial y guía de visitantes" }
@@ -202,8 +202,8 @@ export const initialTripData = {
         {
           id: "d1-2",
           time: "14:08",
-          title: "Llegada EWR · Traslado privado al hotel",
-          sub: "Newark Liberty International Airport → Marriott Marquis Times Square (~45-60 min).",
+          title: "Llegada EWR · esperar SMS del chofer",
+          sub: "White Rose Transfers → Marriott Marquis Times Square · tel: +1-212-404-7491 · ✅ traslado confirmado.",
           category: "logistics",
           status: "fijo", // Inamovible
           completed: false,
@@ -212,8 +212,8 @@ export const initialTripData = {
         {
           id: "d1-3",
           time: "16:00",
-          title: "Check-in Marriott Marquis · Descanso breve",
-          sub: "1535 Broadway, Times Square. Dejar maletas, refrescarse (no más de 45 min para vencer jet lag).",
+          title: "Check-in Marriott Marquis — Eduardo Alva",
+          sub: "1535 Broadway. Reserva confirmada y pre-pagada · recoger pases de metro y regalo de bienvenida en la recepción.",
           category: "logistics",
           status: "fijo", // Inamovible
           completed: false,
@@ -243,8 +243,8 @@ export const initialTripData = {
         {
           id: "d1-6",
           time: "20:00",
-          title: "🍽️ Cena — Westway Diner o Nook",
-          sub: "En la 9na Avenida. Westway Diner (típico diner neoyorquino) o The Nook (comida reconfortante).",
+          title: "🍽️ Cena — Westway Diner (614 9na Ave)",
+          sub: "Clásico neoyorquino 24hrs · sin reserva · hamburguesas, pasta, de todo · primer día sin complicaciones.",
           category: "food",
           status: "opcional", // Se puede cambiar o quitar
           completed: false,
@@ -271,7 +271,7 @@ export const initialTripData = {
           items: [
             "<strong>Yankees Clubhouse Shop (745 7th Ave, esq 49th St)</strong> — a 5 min del hotel. Jerseys, gorras 59FIFTY, memorabilia, bobbleheads. La más cercana al Marriott.",
             "<strong>Yankees Clubhouse Shop (110 E 59th St)</strong> — cerca de Apple Store y Rockefeller. Ideal para combinar el Día 2.",
-            "<strong>Tour del Yankee Stadium (El Bronx)</strong> — 60 min, Monument Park + museo. ~25 min en metro (B, D o 4). Reservar en mlb.com/yankees/ballpark/tours."
+            "<strong>Tour del Yankee Stadium (El Bronx)</strong> — 60 min, Monument Park + museo. ~25 min en metro (B, D o 4). NO queda de paso — requiere salida específica. Reservar en mlb.com/yankees/ballpark/tours."
           ]
         },
         {
@@ -308,6 +308,16 @@ export const initialTripData = {
           mapsUrl: "https://maps.google.com/?q=Bodega+9th+Ave+NYC"
         },
         {
+          id: "d2-1b",
+          time: "08:00",
+          title: "🥯 Desayuno alterno — Ess-a-Bagel (831 3rd Ave)",
+          sub: "El bagel más famoso de NYC · pedir 'everything' con lox y cream cheese · abre temprano.",
+          category: "food",
+          status: "opcional",
+          completed: false,
+          mapsUrl: "https://maps.google.com/?q=Ess-a-Bagel+3rd+Ave+NYC"
+        },
+        {
           id: "d2-2",
           time: "10:00",
           title: "⚓ Intrepid Sea, Air & Space Museum",
@@ -330,12 +340,12 @@ export const initialTripData = {
         {
           id: "d2-4",
           time: "14:00",
-          title: "🌮 Almuerzo en 9na Avenida",
-          sub: "Opciones rápidas y deliciosas de comida mexicana o street food local.",
+          title: "🌮 Almuerzo — Los Tacos No. 1 (Chelsea Market)",
+          sub: "Los mejores tacos de la ciudad · sin reserva · económico y delicioso.",
           category: "food",
           status: "pendiente",
           completed: false,
-          mapsUrl: "https://maps.google.com/?q=9th+Avenue+Hells+Kitchen+Restaurants"
+          mapsUrl: "https://maps.google.com/?q=Los+Tacos+No+1+Chelsea+Market"
         },
         {
           id: "d2-5",
@@ -417,7 +427,8 @@ export const initialTripData = {
             "<strong>Staff Engineer</strong> — Will Larson (liderazgo técnico avanzado)",
             "<strong>Mastering Bitcoin</strong> — Andreas Antonopoulos (perspectiva cripto y mining)",
             "<strong>The Bitcoin Standard</strong> — Saifedean Ammous (fundamentos monetarios)",
-            "<strong>Quantum Computing: An Applied Approach</strong> — Jack Hidary (Python + Qiskit)"
+            "<strong>Quantum Computing: An Applied Approach</strong> — Jack Hidary (Python + Qiskit)",
+            "⚠️ <em>Cava y Marc Vidal solo publican en español — no se consiguen en NYC.</em>"
           ]
         },
         {
@@ -447,6 +458,16 @@ export const initialTripData = {
             "Excelente para accesorios MagSafe, correas de Apple Watch o AirTags.",
             "<em>Nota: las Mac y iPads tienen precios similares y garantías con particularidades locales.</em>"
           ]
+        },
+        {
+          title: "🎾 Vanderbilt Tennis Club — Grand Central Terminal",
+          icon: "🎾",
+          items: [
+            "<strong>El club de tenis más exclusivo de Manhattan</strong> — escondido en el piso 4 de Grand Central. Courts indoor de hard court, abierto al público sin membresía.",
+            "<strong>Cómo llegar:</strong> Entrar por 'The Campbell Bar' (toldo rojo en Vanderbilt Ave entre 42nd y 43rd) → elevadores al 4to piso.",
+            "<strong>Reservar cancha:</strong> vanderbilttennisclub.com · tel: (212) 599-6500 · 1 cancha regulation + 2 practice courts.",
+            "<strong>Cuándo ir:</strong> Día 6 (miércoles) — Grand Central es el punto de salida al tren del Hudson Valley, ideal verlo antes de tomar el Metro North."
+          ]
         }
       ]
     },
@@ -462,22 +483,32 @@ export const initialTripData = {
         {
           id: "d3-1",
           time: "07:30",
-          title: "🥯 Bodega Breakfast grab-and-go",
-          sub: "Bacon, egg & cheese y café rápido antes de tomar el metro hacia Queens.",
+          title: "🍳 Desayuno — Tick Tock Diner (481 8th Ave)",
+          sub: "Diner clásico 24hrs a 5 min del hotel · huevos, pancakes, café · comer bien antes del día largo.",
           category: "food",
           status: "pendiente",
           completed: false,
-          mapsUrl: "https://maps.google.com/?q=Marriott+Marquis+Times+Square"
+          mapsUrl: "https://maps.google.com/?q=Tick+Tock+Diner+8th+Ave+NYC"
         },
         {
           id: "d3-2",
-          time: "09:30",
+          time: "09:00",
           title: "🚇 Metro Línea 7 Express → Flushing",
-          sub: "Times Square-42nd St → Mets-Willets Point (~35 min). El tren icónico del tenis.",
+          sub: "Hotel (7a Ave y 45th) → caminar 3 bloques → Times Sq-42 St Station → Línea 7 → Mets-Willets Point (17 paradas, ~35 min).",
           category: "logistics",
           status: "fijo", // Inamovible
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Mets-Willets+Point+Station"
+        },
+        {
+          id: "d3-2b",
+          time: "09:30",
+          title: "Se abren las puertas — Arthur Ashe Stadium",
+          sub: "Llegar temprano para evitar filas en el screening de seguridad.",
+          category: "logistics",
+          status: "fijo",
+          completed: false,
+          mapsUrl: "https://maps.google.com/?q=Arthur+Ashe+Stadium"
         },
         {
           id: "d3-3",
@@ -523,7 +554,7 @@ export const initialTripData = {
           id: "d3-7",
           time: "22:30",
           title: "🚇 Regreso en Metro Línea 7 al hotel",
-          sub: "Mets-Willets Point directo a Times Square. Flujo constante de trenes al terminar la sesión nocturna.",
+          sub: "34 St-Hudson Yards → bajar en Times Sq-42 St (19 paradas) → caminar 3 bloques a 45th.",
           category: "logistics",
           status: "fijo",
           completed: false,
@@ -531,10 +562,12 @@ export const initialTripData = {
         }
       ],
       tips: [
-        "Chamarra o sudadera: la sesión nocturna en Arthur Ashe puede descender a ~15°C con brisa.",
-        "Lentes de sol oscuros + protector solar SPF 50 para la sesión diurna.",
-        "Política de mochilas: tamaño máximo permitido ~35 x 30 x 15 cm. No mochilas grandes ni botellas de vidrio.",
-        "Heineken y cócteles disponibles en todos los bares de la explanada."
+        "Tickets: Mobile Entry únicamente vía app \"2026 US Open Tennis\" — aceptar por email antes de llegar.",
+        "Bolsa: UNA por persona, máximo 12\"W × 12\"H × 16\"L. Sin mochila (solo drawstring bag de un compartimento).",
+        "Prohibido: laptops, drones, selfie sticks, raquetas, alcohol, cámaras de video, latas, botellas de vidrio.",
+        "Permitido: botella reutilizable de agua ≤24 oz (metal o plástico), celular, cámara SLR sin video dedicado.",
+        "Lentes de sol oscuros + protector solar SPF 50 para la sesión diurna. Chamarra para la nocturna (~15°C).",
+        "Llegar temprano: hay screening de seguridad en todas las puertas, puede haber fila."
       ],
       extraCards: [
         {
@@ -560,18 +593,18 @@ export const initialTripData = {
         {
           id: "d4-1",
           time: "08:30",
-          title: "🥐 Desayuno grab-and-go",
-          sub: "Café y pan dulce para salida rápida hacia Queens.",
+          title: "🥑 Desayuno — Little Collins (667 Lexington Ave)",
+          sub: "Australiano, favorito de locales · pedir el Green Eggs & Damn (omelette de espinaca con queso de cabra) · puede haber fila corta.",
           category: "food",
           status: "pendiente",
           completed: false,
-          mapsUrl: "https://maps.google.com/?q=Times+Square+NYC"
+          mapsUrl: "https://maps.google.com/?q=Little+Collins+Lexington+Ave+NYC"
         },
         {
           id: "d4-2",
-          time: "10:00",
+          time: "09:00",
           title: "🚇 Metro Línea 7 Express → Flushing",
-          sub: "Hacia Mets-Willets Point para estar antes de que inicien los partidos.",
+          sub: "Hacia Mets-Willets Point · puertas de Arthur Ashe abren 9:30am.",
           category: "logistics",
           status: "fijo",
           completed: false,
@@ -609,9 +642,9 @@ export const initialTripData = {
         },
         {
           id: "d4-6",
-          time: "16:30",
-          title: "🎾 Sesión 18 — Arthur Ashe Stadium (Tarde)",
-          sub: "Nivel 200, Loge. Cuartos de final sesión vespertina/nocturna.",
+          time: "19:00",
+          title: "🎾 Sesión 18 — Arthur Ashe Stadium (Noche)",
+          sub: "Nivel 200, Loge · puertas abren 18:00 · Cuartos de final, sesión nocturna · ticket mobile en US Open App.",
           category: "tennis",
           status: "fijo", // Inamovible
           completed: false,
@@ -619,16 +652,6 @@ export const initialTripData = {
         },
         {
           id: "d4-7",
-          time: "20:30",
-          title: "🚇 Regreso a Manhattan",
-          sub: "Línea 7 express a Times Square.",
-          category: "logistics",
-          status: "fijo",
-          completed: false,
-          mapsUrl: "https://maps.google.com/?q=New+York+Marriott+Marquis"
-        },
-        {
-          id: "d4-8",
           time: "21:30",
           title: "🎷 Birdland Jazz Club — o — 🎸 The Red Lion",
           sub: "Opción Jazz: Birdland (315 W 44th St, birdlandjazz.com, a pasos del hotel). Opción Rock: The Red Lion (Bleecker St en Greenwich Village, bandas de rock en vivo).",
@@ -636,6 +659,16 @@ export const initialTripData = {
           status: "opcional", // Opcional
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Birdland+Jazz+Club+NYC"
+        },
+        {
+          id: "d4-8",
+          time: "22:30",
+          title: "🚇 Regreso a Manhattan",
+          sub: "Línea 7 express a Times Square.",
+          category: "logistics",
+          status: "fijo",
+          completed: false,
+          mapsUrl: "https://maps.google.com/?q=New+York+Marriott+Marquis"
         }
       ],
       tips: [
@@ -660,18 +693,18 @@ export const initialTripData = {
       date: "Martes 8 de septiembre",
       badge: "🏛️ CULTURA & GASTRONOMÍA",
       badgeColor: "purple",
-      title: "MoMA · Levain · Central Park · Joe's Pizza · Keens · Village Vanguard",
-      summary: "El gran día gastronómico y cultural: obras maestras del MoMA, galleta en Levain, paseo por Central Park, pizza de Spider-Man, Keens Steakhouse y jazz legendario.",
+      title: "MoMA · Wall Street · Memorial 9/11 · Keens · Jazz",
+      summary: "El gran día gastronómico y cultural: obras maestras del MoMA, galleta en Levain, Wall Street y el Memorial 9/11, pizza de Spider-Man, Keens Steakhouse y jazz legendario.",
       timeline: [
         {
           id: "d5-1",
-          time: "08:30",
-          title: "☕ Desayuno — Bluestone Lane cerca del MoMA",
-          sub: "Café flat white australiano y tostadas de aguacate para iniciar con energía.",
+          time: "09:00",
+          title: "🥐 Desayuno — Buvette (42 Grove St, West Village)",
+          sub: "Bistró parisino íntimo · croque madame o waffle sandwich con mantequilla · ir entre semana para evitar fila.",
           category: "food",
           status: "opcional",
           completed: false,
-          mapsUrl: "https://maps.google.com/?q=Bluestone+Lane+Coffee+5th+Ave+NYC"
+          mapsUrl: "https://maps.google.com/?q=Buvette+Grove+St+NYC"
         },
         {
           id: "d5-2",
@@ -715,19 +748,29 @@ export const initialTripData = {
         },
         {
           id: "d5-6",
-          time: "16:00",
-          title: "🌳 Paseo por Central Park",
-          sub: "Bow Bridge, Bethesda Terrace & Fountain, Strawberry Fields (memorial John Lennon), The Mall (~45 min).",
+          time: "15:30",
+          title: "🐂 Wall Street · Bajo Manhattan",
+          sub: "Metro desde Midtown → Bowling Green. Charging Bull, Fearless Girl, NYSE, Trinity Church, Federal Hall — todo a pie (~1.5h tranquilas).",
           category: "sights",
           status: "pendiente",
           completed: false,
-          mapsUrl: "https://maps.google.com/?q=Bethesda+Terrace+Central+Park"
+          mapsUrl: "https://maps.google.com/?q=Charging+Bull+Bowling+Green+NYC"
+        },
+        {
+          id: "d5-6b",
+          time: "17:00",
+          title: "🕊️ Memorial 9/11",
+          sub: "Piscinas muy emotivas · paseo exterior (30-40 min) · a 5 min a pie de Wall Street.",
+          category: "culture",
+          status: "opcional",
+          completed: false,
+          mapsUrl: "https://maps.google.com/?q=911+Memorial+Pools+NYC"
         },
         {
           id: "d5-7",
-          time: "17:30",
+          time: "18:00",
           title: "Regreso al hotel · Descanso y cambio de ropa",
-          sub: "Ducha y alistarse para la noche de gala gastronómica.",
+          sub: "Metro desde Fulton St → Times Sq (~20 min) · descanso antes de la noche.",
           category: "logistics",
           status: "fijo",
           completed: false,
@@ -772,22 +815,12 @@ export const initialTripData = {
           status: "fijo", // Reserva
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Village+Vanguard+NYC"
-        },
-        {
-          id: "d5-12",
-          time: "00:30",
-          title: "🍔 Corner Bistro (Late night opcional)",
-          sub: "331 W 4th St (West Village). Abierto hasta las 4am. La mejor hamburguesa 'old school' de 8oz (Bistro Burger) en ambiente de taberna vintage. Solo efectivo 💵.",
-          category: "food",
-          status: "opcional", // Opcional
-          completed: false,
-          mapsUrl: "https://maps.google.com/?q=Corner+Bistro+West+Village"
         }
       ],
       tips: [
         "Joe's Pizza: 100% solo efectivo. Comer de pie en la calle como auténtico neoyorquino.",
         "Keens Steakhouse: No aceptan American Express (solo Visa/MasterCard). Reservar con semanas de anticipación en keens.com.",
-        "Comprar boletos de Metro North hoy en la app MTA TrainTime para el viaje a Hudson Valley de mañana."
+        "Corner Bistro (331 W 4th St): opción late-night, efectivo, abierto hasta las 4am — la mejor hamburguesa 'old school' de NYC si quieren cerrar la noche."
       ],
       extraCards: [
         {
@@ -804,9 +837,7 @@ export const initialTripData = {
           title: "🎥 Tech — B&H Photo Video",
           icon: "🎥",
           items: [
-            "<strong>B&H Photo Video (9na Ave y 34th St):</strong> La tienda de fotografía y tecnología más impresionante del planeta.",
-            "<strong>Insta360 GO Ultra ($449.99 USD):</strong> Sensor 1/1.28\", 4K 60fps, 53g, sumergible IPX8, incluye Action Pod magnético.",
-            "Ideal para documentar el viaje como equipo personal libre de impuestos en aduana (mucho más práctico que un drone con las restricciones de NYC)."
+            "<strong>B&H Photo Video (9na Ave y 34th St):</strong> La tienda de fotografía y tecnología más impresionante del planeta — vale la pena una vuelta rápida."
           ]
         }
       ]
@@ -913,12 +944,12 @@ export const initialTripData = {
         {
           id: "d6-10",
           time: "20:00",
-          title: "🍜 Cena tranquila en Hell's Kitchen",
-          sub: "Ramen, noodles o comfort food cerca del hotel.",
+          title: "🍜 Cena — Jack's Wife Freda (50 Carmine St)",
+          sub: "Mediterráneo-neoyorquino · shakshuka, waffles de rosewater, peri-peri chicken · ambiente relajado, sin reserva.",
           category: "food",
           status: "pendiente",
           completed: false,
-          mapsUrl: "https://maps.google.com/?q=Hells+Kitchen+NYC+Restaurants"
+          mapsUrl: "https://maps.google.com/?q=Jacks+Wife+Freda+Carmine+St+NYC"
         }
       ],
       tips: [
@@ -945,74 +976,74 @@ export const initialTripData = {
       date: "Jueves 10 de septiembre",
       badge: "✈️ DÍA DE REGRESO",
       badgeColor: "rose",
-      title: "Katz's Deli · Wall Street · Puente de Brooklyn · DUMBO · Vuelo a MEX",
-      summary: "Último gran día en NYC: pastrami en Katz's Delicatessen, distrito financiero, caminata sobre el Brooklyn Bridge, foto en DUMBO, cerveza en Williamsburg y vuelo de vuelta.",
+      title: "Russ & Daughters · Puente de Brooklyn · DUMBO · Katz's · Vuelo a MEX",
+      summary: "Último día, salida temprano: desayuno judío en Russ & Daughters, caminata sobre el Brooklyn Bridge, foto en DUMBO, pastrami opcional en Katz's, check-out y vuelo de vuelta.",
       timeline: [
         {
           id: "d7-1",
-          time: "08:00",
-          title: "☕ Desayuno tranquilo cerca del hotel",
-          sub: "Último café en Times Square y check de maletas listas en bell desk.",
+          time: "07:00",
+          title: "🥂 Desayuno — Russ & Daughters Cafe (127 Orchard St)",
+          sub: "El desayuno judío histórico de NYC · salmón ahumado + bagel + cream cheese + latkes · más de 100 años · sin reserva, llegar temprano.",
           category: "food",
           status: "pendiente",
           completed: false,
-          mapsUrl: "https://maps.google.com/?q=Times+Square+NYC"
+          mapsUrl: "https://maps.google.com/?q=Russ+and+Daughters+Cafe+Orchard+St"
         },
         {
           id: "d7-2",
-          time: "09:00",
-          title: "🥩 Katz's Delicatessen — Desde 1888",
-          sub: "205 E Houston St (Lower East Side). ⚠️ ¡NO PERDER EL TICKET DE ENTRADA! Pedir sándwich de Pastrami 'juicy' cortado a mano con mostaza y pepinillos ($28.95 USD). Dejar propina al cortador.",
-          category: "food",
-          status: "fijo", // Imperdible
-          completed: false,
-          mapsUrl: "https://maps.google.com/?q=Katzs+Delicatessen+205+E+Houston+St"
-        },
-        {
-          id: "d7-3",
-          time: "10:30",
-          title: "🐂 Wall Street & Distrito Financiero",
-          sub: "Charging Bull (Toro de Wall Street), Fearless Girl, Trinity Church (tumba de Alexander Hamilton), Federal Hall y Bolsa de NY (NYSE).",
-          category: "sights",
-          status: "pendiente",
-          completed: false,
-          mapsUrl: "https://maps.google.com/?q=Charging+Bull+Bowling+Green+NYC"
-        },
-        {
-          id: "d7-4",
-          time: "11:30",
-          title: "🌉 Cruzar el Brooklyn Bridge a pie → DUMBO",
-          sub: "Caminar por la pasarela de madera sobre el East River. Fotos icónicas de los arcos góticos y el skyline (~40 min).",
+          time: "07:45",
+          title: "🌉 Brooklyn Bridge a pie — Manhattan → Brooklyn",
+          sub: "La luz de la mañana en el puente es espectacular · sin multitudes (~30 min caminando).",
           category: "sights",
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Brooklyn+Bridge+Pedestrian+Walkway"
         },
         {
-          id: "d7-5",
-          time: "12:30",
-          title: "🛍️ Brooklyn Flea (DUMBO) · 🍺 Brooklyn Brewery",
-          sub: "80 Pearl St en DUMBO (mercado vintage/arte). Foto del Manhattan Bridge en Washington St. Luego Uber rápido a N 11th St Williamsburg para última cerveza de despedida en Brooklyn Brewery Taproom.",
-          category: "shopping",
+          id: "d7-3",
+          time: "08:30",
+          title: "📸 DUMBO — foto del Manhattan Bridge",
+          sub: "Washington St entre Front y Water · la foto más icónica de Brooklyn.",
+          category: "sights",
+          status: "pendiente",
+          completed: false,
+          mapsUrl: "https://maps.google.com/?q=DUMBO+Brooklyn+Washington+St"
+        },
+        {
+          id: "d7-4",
+          time: "09:15",
+          title: "☕ Café en DUMBO · descanso breve",
+          sub: "Brooklyn Roasting Company o cualquier café del barrio.",
+          category: "food",
           status: "opcional",
           completed: false,
-          mapsUrl: "https://maps.google.com/?q=Brooklyn+Flea+DUMBO+80+Pearl+St"
+          mapsUrl: "https://maps.google.com/?q=Brooklyn+Roasting+Company+DUMBO"
+        },
+        {
+          id: "d7-5",
+          time: "09:45",
+          title: "Uber o metro de regreso al hotel",
+          sub: "~15-20 min de regreso a Times Square.",
+          category: "logistics",
+          status: "fijo",
+          completed: false,
+          mapsUrl: "https://maps.google.com/?q=New+York+Marriott+Marquis"
         },
         {
           id: "d7-6",
-          time: "14:00",
-          title: "🕊️ 9/11 Memorial (Paseo exterior)",
-          sub: "Las dos fuentes reflectantes en las huellas de las Torres Gemelas y The Oculus.",
-          category: "culture",
+          time: "10:30",
+          title: "🥩 Katz's Delicatessen (opcional si hay tiempo)",
+          sub: "205 E Houston St. ⚠️ NO perder el ticket de entrada. Pastrami 'juicy' cortado a mano ($28.95). Queda de paso al regresar de DUMBO.",
+          category: "food",
           status: "opcional",
           completed: false,
-          mapsUrl: "https://maps.google.com/?q=911+Memorial+Pools+NYC"
+          mapsUrl: "https://maps.google.com/?q=Katzs+Delicatessen+205+E+Houston+St"
         },
         {
           id: "d7-7",
-          time: "15:00",
-          title: "Check-out · Traslado privado a EWR",
-          sub: "Recoger maletas en Marriott Marquis y tomar traslado hacia el aeropuerto Newark (~45-60 min).",
+          time: "11:00",
+          title: "Check-out Marriott Marquis",
+          sub: "El hotel puede guardar el equipaje · recogerlo antes de las 11:30.",
           category: "logistics",
           status: "fijo", // Inamovible
           completed: false,
@@ -1020,6 +1051,16 @@ export const initialTripData = {
         },
         {
           id: "d7-8",
+          time: "11:30",
+          title: "🚗 Chofer frente al hotel → EWR",
+          sub: "⚠️ Estar en el lobby 10 min antes · NO llegar tarde · White Rose Transfers · tel: +1-212-404-7491.",
+          category: "logistics",
+          status: "fijo", // Inamovible
+          completed: false,
+          mapsUrl: "https://maps.google.com/?q=New+York+Marriott+Marquis"
+        },
+        {
+          id: "d7-9",
           time: "17:25",
           title: "✈️ Vuelo EWR → MEX · United Airlines",
           sub: "Vuelo directo UA · 5h 20min · Llegada estimada a CDMX: 20:45.",
@@ -1030,26 +1071,30 @@ export const initialTripData = {
         }
       ],
       tips: [
-        "Katz's Deli: El ticket de papel que te dan en la puerta se entrega obligatoriamente al cajero al salir (si se pierde cobran multa de $50).",
-        "Brooklyn Flea: Aceptan tarjeta pero es mejor llevar algo de efectivo para regateo en antigüedades.",
-        "Dejar espacio en la maleta para libros de Strand y souvenirs oficiales del US Open."
+        "Katz's: no perder el ticket · pedir pastrami \"juicy\" · efectivo o tarjeta.",
+        "Brooklyn Flea: efectivo preferido si hay tiempo de pasar · vintage, antigüedades, arte local.",
+        "Maletas listas desde la noche anterior · dejar espacio para libros de Strand y souvenirs.",
+        "Coordinar traslado al aeropuerto con el hotel la noche del miércoles."
       ],
       extraCards: [
         {
-          title: "🥞 Desayunos Famosos en el Lower East Side",
-          icon: "🥞",
+          title: "🍽️ Comidas del día",
+          icon: "🍽️",
           items: [
-            "<strong>Clinton Street Baking Company (4 Clinton St):</strong> A 2 min de Katz's. Las mejores hot cakes de arándano salvaje con mantequilla de maple.",
-            "<strong>Russ & Daughters Cafe (127 Orchard St):</strong> El templo del salmón ahumado, caviar y bagels judíos con más de 100 años de historia."
+            "<strong>Desayuno:</strong> Russ & Daughters Cafe (127 Orchard St) — el desayuno judío más histórico de NYC · salmón ahumado + bagel + latkes · llegar 7am para evitar fila.",
+            "<strong>Almuerzo:</strong> Katz's Deli (205 E Houston St) — pastrami 'juicy' · no perder el ticket al entrar · $28.95."
           ]
         },
         {
-          title: "👀 Puntos Clave Wall Street y DUMBO",
+          title: "👀 Qué ver en Wall Street y Brooklyn Bridge",
           icon: "👀",
           items: [
-            "<strong>Trinity Church:</strong> Iglesia de 1846 con el cementerio histórico de Alexander Hamilton.",
-            "<strong>Federal Hall:</strong> Primer capitolio donde George Washington juró como presidente.",
-            "<strong>DUMBO Foto Icónica:</strong> Washington St entre Front y Water St (el Manhattan Bridge enmarcando el Empire State al fondo)."
+            "<strong>Trinity Church:</strong> Iglesia anglicana de 1846 · cementerio donde está enterrado Alexander Hamilton.",
+            "<strong>Federal Hall:</strong> Donde Washington tomó juramento como primer presidente, frente al NYSE.",
+            "<strong>Charging Bull:</strong> Instalado ilegalmente en 1989 por el artista Arturo Di Modica · símbolo del optimismo de Wall Street.",
+            "<strong>Fearless Girl:</strong> Instalada en 2017 frente al toro · símbolo de liderazgo femenino en finanzas.",
+            "<strong>Brooklyn Bridge:</strong> Cables de acero, torres de granito y arcos góticos · ingeniería del siglo XIX todavía funcional · inaugurado en 1883.",
+            "<strong>DUMBO Foto Icónica:</strong> Washington St entre Front y Water St, el Manhattan Bridge enmarcado en la calle."
           ]
         },
         {
@@ -1344,7 +1389,7 @@ export const initialTripData = {
       mapsUrl: "https://maps.google.com/?q=BH+Photo+Video+NYC",
       price: "$$$",
       paymentMethod: "both",
-      mustOrder: "Insta360 GO Ultra ($449.99 USD) o accesorios de cámara",
+      mustOrder: "Cámaras, accesorios y gadgets de foto/video",
       tips: "Fascinante sistema de rieles aéreos en el techo que transporta los pedidos hasta la caja. Cerrado los viernes en la tarde y sábados.",
       daySuggested: 5,
       visited: false
@@ -1362,6 +1407,96 @@ export const initialTripData = {
       mustOrder: "Salas monumentales de Richard Serra, Michael Heizer y Dan Flavin",
       tips: "A 10 minutos a pie de la estación de tren de Beacon. Luz cenital natural en una fábrica de los años 1920.",
       daySuggested: 6,
+      visited: false
+    },
+    {
+      id: "rec-21",
+      name: "Ess-a-Bagel",
+      category: "food",
+      subcategory: "Bagels",
+      zone: "Midtown East",
+      address: "831 3rd Ave, New York, NY 10022",
+      mapsUrl: "https://maps.google.com/?q=Ess-a-Bagel+3rd+Ave+NYC",
+      price: "$",
+      paymentMethod: "both",
+      mustOrder: "Everything bagel con lox y cream cheese",
+      tips: "El bagel más famoso de Nueva York. Abre temprano — ideal como desayuno alterno antes del Intrepid.",
+      daySuggested: 2,
+      visited: false
+    },
+    {
+      id: "rec-22",
+      name: "Tick Tock Diner",
+      category: "food",
+      subcategory: "Diner Clásico",
+      zone: "Hell's Kitchen",
+      address: "481 8th Ave, New York, NY 10001",
+      mapsUrl: "https://maps.google.com/?q=Tick+Tock+Diner+8th+Ave+NYC",
+      price: "$$",
+      paymentMethod: "both",
+      mustOrder: "Huevos, pancakes y café — desayuno completo antes de un día largo",
+      tips: "Diner clásico 24hrs a 5 min del hotel. Ideal para cargar energía antes de la sesión de tenis.",
+      daySuggested: 3,
+      visited: false
+    },
+    {
+      id: "rec-23",
+      name: "Little Collins",
+      category: "food",
+      subcategory: "Café Australiano",
+      zone: "Midtown East",
+      address: "667 Lexington Ave, New York, NY 10022",
+      mapsUrl: "https://maps.google.com/?q=Little+Collins+Lexington+Ave+NYC",
+      price: "$$",
+      paymentMethod: "both",
+      mustOrder: "Green Eggs & Damn — omelette de espinaca con queso de cabra",
+      tips: "Favorito de los locales. Puede haber fila corta, calcular tiempo antes de salir hacia Flushing.",
+      daySuggested: 4,
+      visited: false
+    },
+    {
+      id: "rec-24",
+      name: "Buvette",
+      category: "food",
+      subcategory: "Bistró Francés",
+      zone: "West Village",
+      address: "42 Grove St, New York, NY 10014",
+      mapsUrl: "https://maps.google.com/?q=Buvette+Grove+St+NYC",
+      price: "$$",
+      paymentMethod: "both",
+      mustOrder: "Croque madame o waffle sandwich con mantequilla",
+      tips: "Bistró parisino íntimo con mucho encanto. Ir entre semana para evitar fila.",
+      daySuggested: 5,
+      visited: false
+    },
+    {
+      id: "rec-25",
+      name: "Jack's Wife Freda",
+      category: "food",
+      subcategory: "Mediterráneo-Neoyorquino",
+      zone: "Greenwich Village",
+      address: "50 Carmine St, New York, NY 10014",
+      mapsUrl: "https://maps.google.com/?q=Jacks+Wife+Freda+Carmine+St+NYC",
+      price: "$$",
+      paymentMethod: "both",
+      mustOrder: "Shakshuka, waffles de rosewater o peri-peri chicken",
+      tips: "Ambiente relajado, sin reserva. Buena opción de cena al regresar de Hudson Valley.",
+      daySuggested: 6,
+      visited: false
+    },
+    {
+      id: "rec-26",
+      name: "Russ & Daughters Cafe",
+      category: "food",
+      subcategory: "Desayuno Judío / Ahumados",
+      zone: "Lower East Side",
+      address: "127 Orchard St, New York, NY 10002",
+      mapsUrl: "https://maps.google.com/?q=Russ+and+Daughters+Cafe+Orchard+St",
+      price: "$$",
+      paymentMethod: "both",
+      mustOrder: "Salmón ahumado + bagel + cream cheese + latkes",
+      tips: "El desayuno judío más histórico de NYC, más de 100 años. Llegar a las 7am para evitar fila el día de salida.",
+      daySuggested: 7,
       visited: false
     }
   ],

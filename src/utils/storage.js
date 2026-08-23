@@ -14,6 +14,58 @@ function safeArray(value, fallback) {
   return Array.isArray(value) ? value : fallback;
 }
 
+/** Editable flags a visitor can flip on a shipped item, without touching its content. */
+const EDITABLE_ITEM_KEYS = ['completed', 'status', 'visited', 'acquired'];
+
+/**
+ * Merges a list the app ships (fresh content: times, text, prices) with the
+ * copy saved in localStorage (the visitor's own progress on it).
+ *
+ * A previous version stored these lists verbatim, so once someone opened the
+ * app once, every future edit to the trip content (a corrected flight time, a
+ * newly added restaurant) was invisible to them forever — their browser kept
+ * replaying the list from their first visit. This instead always starts from
+ * the shipped list (so updates always show) and only carries over the few
+ * fields the visitor actually controls, matched by `id`. Items the visitor
+ * added themselves (an `id` not in the shipped list) ride along unchanged.
+ */
+function mergeById(freshList, savedList) {
+  if (!Array.isArray(savedList) || savedList.length === 0) return freshList;
+
+  const freshIds = new Set(freshList.map((item) => item?.id));
+  const savedById = new Map(
+    savedList.filter((item) => item && typeof item === 'object' && item.id != null).map((item) => [item.id, item])
+  );
+
+  const refreshed = freshList.map((item) => {
+    const saved = savedById.get(item.id);
+    if (!saved) return item;
+    const overlay = {};
+    for (const key of EDITABLE_ITEM_KEYS) {
+      if (key in saved) overlay[key] = saved[key];
+    }
+    return { ...item, ...overlay };
+  });
+
+  const custom = savedList.filter((item) => item && typeof item === 'object' && item.id != null && !freshIds.has(item.id));
+  return [...custom, ...refreshed];
+}
+
+/** Same idea as `mergeById`, one level deeper: each day's own `timeline`. */
+function mergeDays(freshDays, savedDays) {
+  if (!Array.isArray(savedDays)) return freshDays;
+  const savedByDayNumber = new Map(savedDays.filter((d) => d && typeof d === 'object').map((d) => [d.dayNumber, d]));
+
+  return freshDays.map((day) => {
+    const saved = savedByDayNumber.get(day.dayNumber);
+    const timeline = mergeById(day.timeline, saved?.timeline);
+    // Custom stops are appended by `mergeById`, out of chronological order;
+    // put the day back in time order the way adding a stop in the app does.
+    timeline.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+    return { ...day, timeline };
+  });
+}
+
 /**
  * Reads the saved trip.
  *
@@ -28,21 +80,20 @@ export function normalizeTripData(parsed) {
   if (!parsed || typeof parsed !== 'object') return initialTripData;
 
   return {
-      metadata: { ...initialTripData.metadata, ...safeObject(parsed.metadata) },
-      urgentTasks: safeArray(parsed.urgentTasks, initialTripData.urgentTasks),
-      goCityPass: {
-        ...initialTripData.goCityPass,
-        ...safeObject(parsed.goCityPass),
-        attractions: safeArray(parsed.goCityPass?.attractions, initialTripData.goCityPass.attractions)
-      },
-      sportsTravelerPackage: {
-        ...initialTripData.sportsTravelerPackage,
-        ...safeObject(parsed.sportsTravelerPackage),
-        sessions: safeArray(parsed.sportsTravelerPackage?.sessions, initialTripData.sportsTravelerPackage.sessions)
-      },
-      days: safeArray(parsed.days, initialTripData.days),
-      recommendations: safeArray(parsed.recommendations, initialTripData.recommendations),
-      strandBooksList: safeArray(parsed.strandBooksList, initialTripData.strandBooksList),
+    // Nothing in the app ever edits metadata or the sports package — they're
+    // pure shipped content, so always use this build's copy rather than
+    // whatever got frozen into localStorage on an earlier visit.
+    metadata: initialTripData.metadata,
+    sportsTravelerPackage: initialTripData.sportsTravelerPackage,
+
+    urgentTasks: mergeById(initialTripData.urgentTasks, safeArray(parsed.urgentTasks, [])),
+    goCityPass: {
+      ...initialTripData.goCityPass,
+      attractions: mergeById(initialTripData.goCityPass.attractions, safeArray(parsed.goCityPass?.attractions, []))
+    },
+    days: mergeDays(initialTripData.days, safeArray(parsed.days, [])),
+    recommendations: mergeById(initialTripData.recommendations, safeArray(parsed.recommendations, [])),
+    strandBooksList: mergeById(initialTripData.strandBooksList, safeArray(parsed.strandBooksList, [])),
     honeyDeuceTracker: { ...initialTripData.honeyDeuceTracker, ...safeObject(parsed.honeyDeuceTracker) },
     budgetExpenses: safeArray(parsed.budgetExpenses, initialTripData.budgetExpenses)
   };

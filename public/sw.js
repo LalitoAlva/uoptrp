@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nyc-usopen-2026-v2';
+const CACHE_NAME = 'nyc-usopen-2026-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -54,6 +54,31 @@ self.addEventListener('fetch', (event) => {
 
   const isNavigation = request.mode === 'navigate';
 
+  // The HTML shell (and anything requested by exact path rather than a
+  // content-hashed filename) decides which JS/CSS bundle a client loads.
+  // Serving a cached copy of *that* first is what made every deploy invisible
+  // until a second reload: the first load kept getting yesterday's index.html,
+  // which points at yesterday's still-cached bundle. Bundles under
+  // /assets/ are hashed by Vite (a new build = a new filename), so those stay
+  // cache-first for speed; the shell goes network-first so a new deploy is
+  // visible on the very next load, with the cache only as an offline fallback.
+  const isAppShell = isNavigation || request.url.endsWith('/index.html');
+
+  if (isAppShell) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(request).then((cached) => cached || caches.match('/index.html')))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -79,15 +104,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, responseToCache));
           return response;
         })
-        .catch(() => {
-          // Only fall back to the cached app shell for page navigations —
-          // never for JS/CSS/asset requests, or the browser ends up trying
-          // to execute index.html as a module script (wrong MIME type).
-          if (isNavigation) {
-            return caches.match('/index.html');
-          }
-          return Response.error();
-        });
+        .catch(() => Response.error());
     })
   );
 });

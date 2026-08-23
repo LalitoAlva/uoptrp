@@ -155,8 +155,21 @@ export default function DayCard({
               const StatusIcon = statusCfg.icon;
               const isSkipped = status === 'no_hecho';
 
+              const TravelIcon = item.travelFromPrev ? iconForEmoji(item.travelFromPrev.icon) : null;
+
               return (
                 <li key={item.id} className="relative">
+                  {item.travelFromPrev && (
+                    <div className="flex items-center gap-2 pl-[3.25rem] pb-1.5 pr-2 text-[11px] text-[var(--text-muted)]">
+                      <span
+                        className="relative z-10 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ring-4 ring-[var(--bg-surface)] bg-[var(--bg-sunken)]"
+                        title="Cómo llegar desde la parada anterior"
+                      >
+                        <TravelIcon className="w-2.5 h-2.5" />
+                      </span>
+                      <span className="leading-snug line-clamp-1">{item.travelFromPrev.text}</span>
+                    </div>
+                  )}
                   <button
                     onClick={() => setDetailIndex(index)}
                     className={`w-full flex items-start gap-3 sm:gap-4 py-3.5 px-2 rounded-2xl text-left transition-colors spa-pressable hover:bg-[var(--bg-surface-elevated)] ${

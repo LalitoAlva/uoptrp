@@ -9,7 +9,8 @@ import {
   ChevronDown,
   Clock,
   Banknote,
-  ExternalLink
+  ExternalLink,
+  iconForEmoji
 } from '../utils/icons';
 import { sanitizeUrl } from '../utils/sanitize';
 import { STATUS_ORDER, STATUS_CONFIG, getCategory, getStatus } from '../utils/activityMeta';
@@ -43,6 +44,8 @@ export default function ActivityDetailSheet({
 
   const canMoveUp = typeof index === 'number' && index > 0;
   const canMoveDown = typeof index === 'number' && typeof total === 'number' && index < total - 1;
+
+  const TravelIcon = activity.travelFromPrev ? iconForEmoji(activity.travelFromPrev.icon) : null;
 
   return (
     <BottomSheet
@@ -92,6 +95,18 @@ export default function ActivityDetailSheet({
           <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed">
             {activity.sub}
           </p>
+        )}
+
+        {activity.travelFromPrev && (
+          <div className="flex items-start gap-3 p-4 rounded-2xl bg-[var(--bg-surface-elevated)]">
+            <span className="spa-tile-sm flex-shrink-0 bg-[var(--accent-primary-soft)] text-[var(--accent-primary-text)]">
+              <TravelIcon className="w-3.5 h-3.5" />
+            </span>
+            <span className="min-w-0">
+              <span className="block spa-eyebrow mb-1">Cómo llegar desde la parada anterior</span>
+              <span className="text-sm text-[var(--text-secondary)] leading-snug">{activity.travelFromPrev.text}</span>
+            </span>
+          </div>
         )}
 
         {activity.address && (

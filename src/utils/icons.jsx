@@ -257,6 +257,7 @@ export const Stop = makeIcon(faStop, 'Stop');
 const EMOJI_ICON_MAP = {
   '⚓': Anchor,
   '⚾': Baseball,
+  '✈️': Plane,
   '🍎': Apple,
   '🎁': Gift,
   '🎟️': Ticket,
@@ -265,10 +266,13 @@ const EMOJI_ICON_MAP = {
   '🎾': TennisBall,
   '🏙️': City,
   '👀': Eye,
+  '📍': MapPin,
   '📚': BookOpen,
   '🗽': Landmark,
   '🚇': Subway,
+  '🚕': Car, // no dedicated taxi glyph in the set — the car icon reads fine for it
   '🚗': Car,
+  '🚶': Walking,
   '🛍️': ShoppingBag,
   '🥞': BowlFood,
   '🥟': BowlRice

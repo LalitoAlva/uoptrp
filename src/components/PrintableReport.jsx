@@ -1,5 +1,5 @@
 import React from 'react';
-import { Printer, ArrowLeft, MapPin, AlertTriangle, TennisBall, Ticket, Lock, Lightbulb, Check, BookOpen } from '../utils/icons';
+import { Printer, ArrowLeft, MapPin, AlertTriangle, TennisBall, Ticket, Lock, Lightbulb, Check, BookOpen, iconForEmoji } from '../utils/icons';
 
 export default function PrintableReport({ tripData, onBack }) {
   const handlePrint = () => {
@@ -138,12 +138,19 @@ export default function PrintableReport({ tripData, onBack }) {
               <div className="border border-slate-300 rounded-xl overflow-hidden divide-y divide-slate-200 text-xs">
                 {day.timeline.map((item) => {
                   const currentStatus = item.status || (item.completed ? 'hecho' : 'pendiente');
+                  const TravelIcon = item.travelFromPrev ? iconForEmoji(item.travelFromPrev.icon) : null;
                   return (
                     <div key={item.id} className="p-2.5 flex items-start gap-2.5 hover:bg-slate-50">
                       <span className="font-mono font-bold text-slate-900 w-12 flex-shrink-0">
                         {item.time}
                       </span>
                       <div className="flex-1 min-w-0">
+                        {item.travelFromPrev && (
+                          <div className="text-[10px] text-slate-500 mb-1 flex items-center gap-1">
+                            <TravelIcon className="w-2.5 h-2.5 text-slate-400 flex-shrink-0" />
+                            <span>{item.travelFromPrev.text}</span>
+                          </div>
+                        )}
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <h4 className="font-bold text-slate-950 text-xs">
                             {item.title}

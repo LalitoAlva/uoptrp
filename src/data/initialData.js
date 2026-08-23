@@ -305,13 +305,14 @@ export const initialTripData = {
         {
           id: "d2-1",
           time: "07:45",
-          title: "🥯 Desayuno en Bodega — Bacon, Egg & Cheese",
-          sub: "Cualquier bodega de la 8va o 9na Ave. Pedir 'Bacon, egg & cheese on a roll' y café regular (~$7 por persona).",
+          title: "🥯 Desayuno rápido — Hell's Kitchenette Gourmet Deli",
+          sub: "375 W 48th St (esq. 9na Ave). Deli de barrio bien calificado por su bacon, egg & cheese — pedirlo 'on a roll' y café regular (~$7 por persona). Alterna igual de cerca: Hell's Kitchen Deli, 535 9th Ave (~7 min más al sur). Entras, pides en el mostrador de la parrilla (no hay que sentarse) y pagas en caja — así funciona cualquier deli/bodega de Nueva York si luego quieres probar otra.",
+          address: "375 W 48th St, New York, NY 10036",
           category: "food",
           status: "pendiente",
           completed: false,
-          mapsUrl: "https://maps.google.com/?q=Bodega+9th+Ave+NYC",
-          travelFromPrev: { icon: "🚶", text: "A pie desde el hotel, cualquier bodega de camino (2-5 min)." }
+          mapsUrl: "https://maps.google.com/?q=Hell%27s+Kitchenette+Gourmet+Deli+375+W+48th+St+NYC",
+          travelFromPrev: { icon: "🚶", text: "4 min caminando desde el hotel, cruzando Broadway hacia el oeste por la 48th St." }
         },
         {
           id: "d2-1b",
@@ -427,7 +428,8 @@ export const initialTripData = {
       tips: [
         "Usar tenis súper cómodos: se caminan fácil más de 18,000 pasos.",
         "Llevar chamarra para la terraza del Top of the Rock (el viento a esa altura refresca bastante).",
-        "Tener el iPhone bien cargado y powerbank listo para fotos del atardecer."
+        "Tener el iPhone bien cargado y powerbank listo para fotos del atardecer.",
+        "Qué es una 'bodega': la tienda de la esquina abierta 24/7 con mostrador y parrilla al fondo. No hay que sentarse — pides directo al cocinero ('bacon, egg and cheese on a roll, please'), te lo envuelven en papel aluminio y pagas en la caja. Si Hell's Kitchenette está cerrada, cualquier bodega con parrilla visible en la 8va o 9na Ave sirve lo mismo."
       ],
       extraCards: [
         {

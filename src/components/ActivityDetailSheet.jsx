@@ -46,6 +46,7 @@ export default function ActivityDetailSheet({
   const canMoveDown = typeof index === 'number' && typeof total === 'number' && index < total - 1;
 
   const TravelIcon = activity.travelFromPrev ? iconForEmoji(activity.travelFromPrev.icon) : null;
+  const TipIcon = activity.insiderTip ? iconForEmoji(activity.insiderTip.icon) : null;
 
   return (
     <BottomSheet
@@ -113,6 +114,18 @@ export default function ActivityDetailSheet({
           <div className="flex items-start gap-3 p-4 rounded-2xl bg-[var(--bg-surface-elevated)]">
             <MapPin className="w-4 h-4 text-[var(--accent-primary-text)] flex-shrink-0 mt-0.5" />
             <span className="text-sm text-[var(--text-secondary)] leading-snug">{activity.address}</span>
+          </div>
+        )}
+
+        {activity.insiderTip && (
+          <div className="flex items-start gap-3 p-4 rounded-2xl bg-[var(--bg-surface-elevated)]">
+            <span className="spa-tile-sm flex-shrink-0" style={{ backgroundColor: STATUS_CONFIG.opcional.soft, color: 'var(--accent-amber-text)' }}>
+              <TipIcon className="w-3.5 h-3.5" />
+            </span>
+            <span className="min-w-0">
+              <span className="block spa-eyebrow mb-1">Tip para no locales</span>
+              <span className="text-sm text-[var(--text-secondary)] leading-snug">{activity.insiderTip.text}</span>
+            </span>
           </div>
         )}
 

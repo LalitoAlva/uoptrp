@@ -139,6 +139,7 @@ export default function PrintableReport({ tripData, onBack }) {
                 {day.timeline.map((item) => {
                   const currentStatus = item.status || (item.completed ? 'hecho' : 'pendiente');
                   const TravelIcon = item.travelFromPrev ? iconForEmoji(item.travelFromPrev.icon) : null;
+                  const TipIcon = item.insiderTip ? iconForEmoji(item.insiderTip.icon) : null;
                   return (
                     <div key={item.id} className="p-2.5 flex items-start gap-2.5 hover:bg-slate-50">
                       <span className="font-mono font-bold text-slate-900 w-12 flex-shrink-0">
@@ -180,6 +181,12 @@ export default function PrintableReport({ tripData, onBack }) {
                           <div className="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
                             <MapPin className="w-2.5 h-2.5 text-slate-500" />
                             <span>{item.address}</span>
+                          </div>
+                        )}
+                        {item.insiderTip && (
+                          <div className="text-[10px] text-amber-700 mt-0.5 flex items-center gap-1">
+                            <TipIcon className="w-2.5 h-2.5 text-amber-600 flex-shrink-0" />
+                            <span>{item.insiderTip.text}</span>
                           </div>
                         )}
                       </div>

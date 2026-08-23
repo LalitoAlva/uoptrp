@@ -197,7 +197,8 @@ export const initialTripData = {
           category: "logistics",
           status: "fijo", // Inamovible
           completed: false,
-          mapsUrl: "https://maps.google.com/?q=Aeropuerto+Internacional+de+la+Ciudad+de+Mexico"
+          mapsUrl: "https://maps.google.com/?q=Aeropuerto+Internacional+de+la+Ciudad+de+Mexico",
+          insiderTip: { icon: "⏰", text: "Llegar 2h antes por ser vuelo doméstico dentro de México — documentar equipaje y pasar control con tiempo." }
         },
         {
           id: "d1-2",
@@ -208,7 +209,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Newark+Liberty+International+Airport",
-          travelFromPrev: { icon: "✈️", text: "Sigues en el mismo vuelo UA MEX→EWR (4h 58min) hasta aterrizar en Newark." }
+          travelFromPrev: { icon: "✈️", text: "Sigues en el mismo vuelo UA MEX→EWR (4h 58min) hasta aterrizar en Newark." },
+          insiderTip: { icon: "💡", text: "Sigan los letreros a \"Immigration\" — como turistas pasan con oficial (no hay quiosco automático), luego recogen maleta y salen por \"Ground Transportation\"." }
         },
         {
           id: "d1-3",
@@ -219,7 +221,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible
           completed: false,
           mapsUrl: "https://maps.google.com/?q=New+York+Marriott+Marquis",
-          travelFromPrev: { icon: "🚗", text: "Traslado privado White Rose Transfers desde EWR (~45-60 min por el Lincoln Tunnel, chofer ya confirmado)." }
+          travelFromPrev: { icon: "🚗", text: "Traslado privado White Rose Transfers desde EWR (~45-60 min por el Lincoln Tunnel, chofer ya confirmado)." },
+          insiderTip: { icon: "💡", text: "Pidan piso alto al hacer check-in (a veces lo dan sin costo) y confirmen ahí mismo la hora de check-out del día 7." }
         },
         {
           id: "d1-4",
@@ -230,7 +233,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Times+Square+New+York",
-          travelFromPrev: { icon: "🚶", text: "A pie: el hotel está en pleno Times Square (1 min, cruzando la puerta)." }
+          travelFromPrev: { icon: "🚶", text: "A pie: el hotel está en pleno Times Square (1 min, cruzando la puerta)." },
+          insiderTip: { icon: "👀", text: "Los personajes disfrazados (Elmo, Minions, etc.) cobran por foto aunque no la pidan — mejor evitar el contacto si no quieren pagar." }
         },
         {
           id: "d1-5",
@@ -242,7 +246,8 @@ export const initialTripData = {
           completed: false,
           address: "665 9th Ave, New York, NY 10036",
           mapsUrl: "https://maps.google.com/?q=Craft+Carry+Hells+Kitchen+NYC",
-          travelFromPrev: { icon: "🚶", text: "~12 min caminando hacia el oeste por la 44th St hasta la 9na Ave." }
+          travelFromPrev: { icon: "🚶", text: "~12 min caminando hacia el oeste por la 44th St hasta la 9na Ave." },
+          insiderTip: { icon: "🍺", text: "El sampleo es real: pidan una charola de shots (flight) antes de comprometerse a una pinta completa." }
         },
         {
           id: "d1-6",
@@ -253,7 +258,8 @@ export const initialTripData = {
           status: "opcional", // Se puede cambiar o quitar
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Westway+Diner+9th+Ave+NYC",
-          travelFromPrev: { icon: "🚶", text: "A pie, 1-2 cuadras sobre la misma 9na Ave (~3 min)." }
+          travelFromPrev: { icon: "🚶", text: "A pie, 1-2 cuadras sobre la misma 9na Ave (~3 min)." },
+          insiderTip: { icon: "💡", text: "En diners clásicos puedes pedir refill de café gratis las veces que quieras — solo hay que levantar la taza." }
         }
       ],
       tips: [
@@ -312,7 +318,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Hell%27s+Kitchenette+Gourmet+Deli+375+W+48th+St+NYC",
-          travelFromPrev: { icon: "🚶", text: "4 min caminando desde el hotel, cruzando Broadway hacia el oeste por la 48th St." }
+          travelFromPrev: { icon: "🚶", text: "4 min caminando desde el hotel, cruzando Broadway hacia el oeste por la 48th St." },
+          insiderTip: { icon: "💡", text: "El café \"regular\" de deli viene con leche y azúcar por default — si lo quieren negro, pidan \"black, no sugar\"." }
         },
         {
           id: "d2-1b",
@@ -323,7 +330,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Ess-a-Bagel+3rd+Ave+NYC",
-          travelFromPrev: { icon: "🚕", text: "Alterna a la bodega: taxi/metro cruzando a la 3rd Ave (~15 min) — luego hay que regresar al oeste para el Intrepid." }
+          travelFromPrev: { icon: "🚕", text: "Alterna a la bodega: taxi/metro cruzando a la 3rd Ave (~15 min) — luego hay que regresar al oeste para el Intrepid." },
+          insiderTip: { icon: "⏰", text: "Se forma fila desde temprano; el bagel se pide tostado o no, y para llevar se dice \"to go\"." }
         },
         {
           id: "d2-2",
@@ -334,7 +342,8 @@ export const initialTripData = {
           status: "fijo", // Activación Go City
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Intrepid+Museum+Pier+86+NYC",
-          travelFromPrev: { icon: "🚶", text: "~18 min caminando hacia el río por la 46th St, o taxi/Uber corto (~7 min)." }
+          travelFromPrev: { icon: "🚶", text: "~18 min caminando hacia el río por la 46th St, o taxi/Uber corto (~7 min)." },
+          insiderTip: { icon: "🎫", text: "Activen el Go City Pass mostrando el código QR de la app en taquilla — no hace falta imprimir nada." }
         },
         {
           id: "d2-3",
@@ -345,7 +354,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=New+York+Beer+Dispensary+10th+Ave",
-          travelFromPrev: { icon: "🚶", text: "3 min caminando desde el Intrepid, mismo rumbo por la 10th Ave." }
+          travelFromPrev: { icon: "🚶", text: "3 min caminando desde el Intrepid, mismo rumbo por la 10th Ave." },
+          insiderTip: { icon: "🍺", text: "Es autoservicio: pagan por onza con una tarjeta prepago que recargan en la máquina y sirven ustedes mismos del grifo." }
         },
         {
           id: "d2-4",
@@ -356,7 +366,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Los+Tacos+No+1+Chelsea+Market",
-          travelFromPrev: { icon: "🚇", text: "~10 min en metro (líneas A/C/E, 42 St → 14 St) + caminata corta, o ~30 min caminando hacia el sur." }
+          travelFromPrev: { icon: "🚇", text: "~10 min en metro (líneas A/C/E, 42 St → 14 St) + caminata corta, o ~30 min caminando hacia el sur." },
+          insiderTip: { icon: "💡", text: "La fila se mueve rápido: pagan al ordenar y les dan un número, no hay mesero que atienda mesa." }
         },
         {
           id: "d2-5",
@@ -367,7 +378,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=The+High+Line+NYC",
-          travelFromPrev: { icon: "🚇", text: "Subir de regreso al norte: metro 7 a Hudson Yards-34 St (~5 min), o 20 min caminando por la 10th Ave." }
+          travelFromPrev: { icon: "🚇", text: "Subir de regreso al norte: metro 7 a Hudson Yards-34 St (~5 min), o 20 min caminando por la 10th Ave." },
+          insiderTip: { icon: "👀", text: "Es un parque angosto elevado sobre vías de tren — pueden entrar y salir por cualquier escalera en cada cruce de calle." }
         },
         {
           id: "d2-6",
@@ -378,7 +390,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Strand+Bookstore+828+Broadway",
-          travelFromPrev: { icon: "🚶", text: "~14 min caminando al este, cruzando el Meatpacking District hasta Broadway." }
+          travelFromPrev: { icon: "🚶", text: "~14 min caminando al este, cruzando el Meatpacking District hasta Broadway." },
+          insiderTip: { icon: "💡", text: "Los libros usados llevan el precio a lápiz en la primera página; el sótano tiene los más baratos y raros." }
         },
         {
           id: "d2-7",
@@ -389,7 +402,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible / Reserva
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Top+of+the+Rock+Observation+Deck",
-          travelFromPrev: { icon: "🚇", text: "Metro desde Union Square (líneas N/Q/R/W, ~20 min) hasta 49 St-Rockefeller Center." }
+          travelFromPrev: { icon: "🚇", text: "Metro desde Union Square (líneas N/Q/R/W, ~20 min) hasta 49 St-Rockefeller Center." },
+          insiderTip: { icon: "⏰", text: "Lleguen 15 min antes de su hora reservada — si llegan tarde pueden perder el acceso a esa franja." }
         },
         {
           id: "d2-8",
@@ -400,7 +414,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Other+Half+Brewing+Rockefeller+Center",
-          travelFromPrev: { icon: "🚶", text: "En el mismo Rockefeller Center, unos pasos desde la salida del mirador." }
+          travelFromPrev: { icon: "🚶", text: "En el mismo Rockefeller Center, unos pasos desde la salida del mirador." },
+          insiderTip: { icon: "🍺", text: "Pidan el flight de 4 muestras para probar variedad sin comprometerse a una pinta completa." }
         },
         {
           id: "d2-9",
@@ -411,7 +426,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Chelsea+Market+NYC",
-          travelFromPrev: { icon: "🚇", text: "Metro línea 1 (50 St → 14 St, ~15 min) de regreso a Chelsea Market." }
+          travelFromPrev: { icon: "🚇", text: "Metro línea 1 (50 St → 14 St, ~15 min) de regreso a Chelsea Market." },
+          insiderTip: { icon: "💡", text: "Es un mercado de puestos independientes: pueden comprar en varios y sentarse donde quieran, sin quedarse fijos en uno." }
         },
         {
           id: "d2-10",
@@ -422,7 +438,8 @@ export const initialTripData = {
           status: "opcional", // Muy opcional
           completed: false,
           mapsUrl: "https://maps.google.com/?q=55+Bar+Christopher+St+NYC",
-          travelFromPrev: { icon: "🚶", text: "~15 min caminando hacia el sur, o una parada más en la línea 1 hasta Christopher St." }
+          travelFromPrev: { icon: "🚶", text: "~15 min caminando hacia el sur, o una parada más en la línea 1 hasta Christopher St." },
+          insiderTip: { icon: "💵", text: "El cover se paga en efectivo directo en la puerta, no hay opción de pagarlo en línea antes." }
         }
       ],
       tips: [
@@ -507,7 +524,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Tick+Tock+Diner+8th+Ave+NYC",
-          travelFromPrev: { icon: "🚶", text: "5 min a pie desde el hotel." }
+          travelFromPrev: { icon: "🚶", text: "5 min a pie desde el hotel." },
+          insiderTip: { icon: "💡", text: "Si van con prisa, pidan la cuenta desde que los sientan — en diners no la traen sola al terminar." }
         },
         {
           id: "d3-2",
@@ -518,7 +536,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Mets-Willets+Point+Station",
-          travelFromPrev: { icon: "🚶", text: "~10 min caminando de regreso a Times Sq-42 St para tomar la Línea 7." }
+          travelFromPrev: { icon: "🚶", text: "~10 min caminando de regreso a Times Sq-42 St para tomar la Línea 7." },
+          insiderTip: { icon: "💡", text: "Busquen el letrero verde \"Express\" en el andén: el 7 Express salta paradas y llega más rápido a Flushing." }
         },
         {
           id: "d3-2b",
@@ -529,7 +548,8 @@ export const initialTripData = {
           status: "fijo",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Arthur+Ashe+Stadium",
-          travelFromPrev: { icon: "🚶", text: "Bajar en Mets-Willets Point y cruzar el puente peatonal hacia la entrada de seguridad (~10 min)." }
+          travelFromPrev: { icon: "🚶", text: "Bajar en Mets-Willets Point y cruzar el puente peatonal hacia la entrada de seguridad (~10 min)." },
+          insiderTip: { icon: "🎫", text: "La revisión es como en aeropuerto: detector de metal y bolsa transparente — saquen objetos metálicos antes de llegar a la fila." }
         },
         {
           id: "d3-3",
@@ -540,7 +560,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible / Boletos
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Arthur+Ashe+Stadium",
-          travelFromPrev: { icon: "🚶", text: "Ya dentro del complejo: caminar a tu entrada asignada en Arthur Ashe (Nivel 300)." }
+          travelFromPrev: { icon: "🚶", text: "Ya dentro del complejo: caminar a tu entrada asignada en Arthur Ashe (Nivel 300)." },
+          insiderTip: { icon: "🎫", text: "El boleto mobile solo se activa 1-2 horas antes del partido en la app — ábranlo antes de llegar a la entrada." }
         },
         {
           id: "d3-4",
@@ -551,7 +572,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=USTA+Billie+Jean+King+National+Tennis+Center",
-          travelFromPrev: { icon: "🚶", text: "A la salida de tu sección, los bares de Honey Deuce están en los pasillos del mismo estadio." }
+          travelFromPrev: { icon: "🚶", text: "A la salida de tu sección, los bares de Honey Deuce están en los pasillos del mismo estadio." },
+          insiderTip: { icon: "💵", text: "Se compra en cualquier bar de concesiones del estadio, sin fila especial — guarden el vaso, es coleccionable." }
         },
         {
           id: "d3-5",
@@ -562,7 +584,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=USTA+National+Tennis+Center+Food+Village",
-          travelFromPrev: { icon: "🚶", text: "Caminar por los jardines del complejo hacia las canchas exteriores (~10 min)." }
+          travelFromPrev: { icon: "🚶", text: "Caminar por los jardines del complejo hacia las canchas exteriores (~10 min)." },
+          insiderTip: { icon: "👀", text: "Las canchas exteriores son de entrada libre con su boleto del día — pueden entrar y salir sin boleto extra." }
         },
         {
           id: "d3-6",
@@ -573,7 +596,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible / Boletos
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Arthur+Ashe+Stadium",
-          travelFromPrev: { icon: "🚶", text: "Regresar a Arthur Ashe Stadium, entrada Nivel 200 (Loge)." }
+          travelFromPrev: { icon: "🚶", text: "Regresar a Arthur Ashe Stadium, entrada Nivel 200 (Loge)." },
+          insiderTip: { icon: "💡", text: "De noche baja la temperatura rápido — lleven la chamarra aunque salgan con calor de la tarde." }
         },
         {
           id: "d3-7",
@@ -584,7 +608,8 @@ export const initialTripData = {
           status: "fijo",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=New+York+Marriott+Marquis",
-          travelFromPrev: { icon: "🚶", text: "Salir con la multitud hacia Mets-Willets Point y tomar la Línea 7 de regreso." }
+          travelFromPrev: { icon: "🚶", text: "Salir con la multitud hacia Mets-Willets Point y tomar la Línea 7 de regreso." },
+          insiderTip: { icon: "⏰", text: "Salgan con calma: miles de personas salen a la vez y el andén puede tardar 10-15 min extra en despejarse." }
         }
       ],
       tips: [
@@ -625,7 +650,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Little+Collins+Lexington+Ave+NYC",
-          travelFromPrev: { icon: "🚇", text: "Metro E/M o taxi corto desde el hotel (~10 min) hasta Lexington Ave." }
+          travelFromPrev: { icon: "🚇", text: "Metro E/M o taxi corto desde el hotel (~10 min) hasta Lexington Ave." },
+          insiderTip: { icon: "💡", text: "Es australiano de verdad: el \"flat white\" es más fuerte y con menos espuma que un latte normal." }
         },
         {
           id: "d4-2",
@@ -636,7 +662,8 @@ export const initialTripData = {
           status: "fijo",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Mets-Willets+Point",
-          travelFromPrev: { icon: "🚇", text: "Caminar a Grand Central-42 St (~8 min) y tomar la Línea 7 Express hacia Flushing." }
+          travelFromPrev: { icon: "🚇", text: "Caminar a Grand Central-42 St (~8 min) y tomar la Línea 7 Express hacia Flushing." },
+          insiderTip: { icon: "💡", text: "Mismo truco de ayer: busquen el letrero \"Express\" en el andén para no parar en cada estación." }
         },
         {
           id: "d4-3",
@@ -647,7 +674,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Arthur+Ashe+Stadium",
-          travelFromPrev: { icon: "🚶", text: "Directo del andén a tu entrada asignada en Arthur Ashe (Nivel 300)." }
+          travelFromPrev: { icon: "🚶", text: "Directo del andén a tu entrada asignada en Arthur Ashe (Nivel 300)." },
+          insiderTip: { icon: "⏰", text: "Día festivo (Labor Day) = más gente — lleguen con margen extra para el filtro de seguridad." }
         },
         {
           id: "d4-4",
@@ -658,7 +686,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Golden+Mall+Flushing+NY",
-          travelFromPrev: { icon: "🚇", text: "Una parada de metro en la Línea 7 (Mets-Willets Point → Flushing-Main St, ~5 min)." }
+          travelFromPrev: { icon: "🚇", text: "Una parada de metro en la Línea 7 (Mets-Willets Point → Flushing-Main St, ~5 min)." },
+          insiderTip: { icon: "💵", text: "El Golden Mall es un sótano de puestos chiquitos — señalar el platillo con el dedo si no saben el nombre funciona perfecto." }
         },
         {
           id: "d4-5",
@@ -669,7 +698,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Flushing+Main+St+Queens",
-          travelFromPrev: { icon: "📍", text: "Mismo lugar: pedir la cerveza junto con los dumplings." }
+          travelFromPrev: { icon: "📍", text: "Mismo lugar: pedir la cerveza junto con los dumplings." },
+          insiderTip: { icon: "🍺", text: "Muchos puestos no tienen licencia de alcohol — cómprenla en la tienda de junto y llévenla a la mesa." }
         },
         {
           id: "d4-6",
@@ -680,7 +710,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Arthur+Ashe+Stadium",
-          travelFromPrev: { icon: "🚇", text: "Línea 7 de regreso a Mets-Willets Point (~5 min) para la sesión nocturna." }
+          travelFromPrev: { icon: "🚇", text: "Línea 7 de regreso a Mets-Willets Point (~5 min) para la sesión nocturna." },
+          insiderTip: { icon: "⏰", text: "Las puertas abren 18:00 para la sesión nocturna — no confundir con la hora del partido (19:00)." }
         },
         {
           id: "d4-7",
@@ -691,7 +722,8 @@ export const initialTripData = {
           status: "opcional", // Opcional
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Birdland+Jazz+Club+NYC",
-          travelFromPrev: { icon: "🚇", text: "Línea 7 Express de regreso a Times Square (~25-30 min); Birdland está a pasos de la estación." }
+          travelFromPrev: { icon: "🚇", text: "Línea 7 Express de regreso a Times Square (~25-30 min); Birdland está a pasos de la estación." },
+          insiderTip: { icon: "💵", text: "Birdland suele pedir consumo mínimo en mesa aparte del cover — pregunten el monto al reservar." }
         },
         {
           id: "d4-8",
@@ -702,7 +734,8 @@ export const initialTripData = {
           status: "fijo",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=New+York+Marriott+Marquis",
-          travelFromPrev: { icon: "🚶", text: "Si fueron a Birdland ya están a 2 cuadras del hotel; si fueron a The Red Lion, línea 1/A/C/E hasta Times Square." }
+          travelFromPrev: { icon: "🚶", text: "Si fueron a Birdland ya están a 2 cuadras del hotel; si fueron a The Red Lion, línea 1/A/C/E hasta Times Square." },
+          insiderTip: { icon: "💡", text: "La última corrida del 7 Express es tarde, pero después de medianoche puede volverse \"local\" (para en todas las estaciones)." }
         }
       ],
       tips: [
@@ -739,7 +772,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Buvette+Grove+St+NYC",
-          travelFromPrev: { icon: "🚇", text: "Metro línea 1 o A/C/E desde Times Sq-42 St hasta Christopher St-Sheridan Sq (~20 min) + 3 min a pie." }
+          travelFromPrev: { icon: "🚇", text: "Metro línea 1 o A/C/E desde Times Sq-42 St hasta Christopher St-Sheridan Sq (~20 min) + 3 min a pie." },
+          insiderTip: { icon: "💡", text: "Es diminuto: si no hay mesa, se puede comer parado en la barra — así lo hacen los locales." }
         },
         {
           id: "d5-2",
@@ -750,7 +784,8 @@ export const initialTripData = {
           status: "fijo", // Pase Go City
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Museum+of+Modern+Art+NYC",
-          travelFromPrev: { icon: "🚇", text: "Metro línea E/M desde West 4th St hasta 5th Ave-53 St (~20-25 min)." }
+          travelFromPrev: { icon: "🚇", text: "Metro línea E/M desde West 4th St hasta 5th Ave-53 St (~20-25 min)." },
+          insiderTip: { icon: "👀", text: "Descarguen el mapa del museo en la app antes de entrar — son 6 pisos y es fácil perderse buscando una sala." }
         },
         {
           id: "d5-3",
@@ -761,7 +796,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=The+Abby+Aldrich+Rockefeller+Sculpture+Garden",
-          travelFromPrev: { icon: "🚶", text: "Dentro del mismo museo, en la planta baja." }
+          travelFromPrev: { icon: "🚶", text: "Dentro del mismo museo, en la planta baja." },
+          insiderTip: { icon: "💡", text: "Entrada libre con el mismo boleto del museo, no necesitan boleto aparte para el jardín." }
         },
         {
           id: "d5-4",
@@ -772,7 +808,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Burger+Joint+56th+St+NYC",
-          travelFromPrev: { icon: "🚶", text: "~8 min caminando hacia el oeste por la 56th St." }
+          travelFromPrev: { icon: "🚶", text: "~8 min caminando hacia el oeste por la 56th St." },
+          insiderTip: { icon: "👀", text: "La entrada está literal detrás de una cortina roja en el lobby del hotel Le Parker Meridien — parece que no hay nada ahí." }
         },
         {
           id: "d5-5",
@@ -783,7 +820,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Levain+Bakery+Upper+West+Side",
-          travelFromPrev: { icon: "🚇", text: "Metro línea B/C o ~25 min caminando bordeando Central Park hacia el Upper West Side." }
+          travelFromPrev: { icon: "🚇", text: "Metro línea B/C o ~25 min caminando bordeando Central Park hacia el Upper West Side." },
+          insiderTip: { icon: "⏰", text: "Puede haber fila en la calle — se mueve rápido, la venden solo para llevar." }
         },
         {
           id: "d5-6",
@@ -794,7 +832,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Charging+Bull+Bowling+Green+NYC",
-          travelFromPrev: { icon: "🚇", text: "Metro línea 2/3 Express desde 72 St hasta Wall St (~35-40 min) — el trayecto más largo del día." }
+          travelFromPrev: { icon: "🚇", text: "Metro línea 2/3 Express desde 72 St hasta Wall St (~35-40 min) — el trayecto más largo del día." },
+          insiderTip: { icon: "👀", text: "El Charging Bull siempre tiene fila para foto — el mejor ángulo con menos gente es desde atrás." }
         },
         {
           id: "d5-6b",
@@ -805,7 +844,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=911+Memorial+Pools+NYC",
-          travelFromPrev: { icon: "🚶", text: "5 min a pie desde Wall Street/Bowling Green." }
+          travelFromPrev: { icon: "🚶", text: "5 min a pie desde Wall Street/Bowling Green." },
+          insiderTip: { icon: "💵", text: "Las piscinas conmemorativas son gratis; el museo interior sí cuesta y pide boleto aparte." }
         },
         {
           id: "d5-7",
@@ -816,7 +856,8 @@ export const initialTripData = {
           status: "fijo",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=New+York+Marriott+Marquis",
-          travelFromPrev: { icon: "🚇", text: "Metro línea 2/3 o A/C desde Fulton St hasta Times Sq (~20 min)." }
+          travelFromPrev: { icon: "🚇", text: "Metro línea 2/3 o A/C desde Fulton St hasta Times Sq (~20 min)." },
+          insiderTip: { icon: "💡", text: "Aprovechen para cargar el celular durante el descanso — la noche todavía sigue larga." }
         },
         {
           id: "d5-8",
@@ -827,7 +868,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Joes+Pizza+7+Carmine+St+NYC",
-          travelFromPrev: { icon: "🚇", text: "Metro línea 1 desde Times Sq hasta Christopher St (~15 min) + 2 min a pie." }
+          travelFromPrev: { icon: "🚇", text: "Metro línea 1 desde Times Sq hasta Christopher St (~15 min) + 2 min a pie." },
+          insiderTip: { icon: "💵", text: "Solo efectivo, y se come parados en la banqueta doblando la rebanada por la mitad — así se come una pizza neoyorquina." }
         },
         {
           id: "d5-9",
@@ -838,7 +880,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible / Reserva
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Keens+Steakhouse+NYC",
-          travelFromPrev: { icon: "🚕", text: "Taxi o Uber corto (~15 min); el metro exige transbordo y no vale la pena en ese tramo." }
+          travelFromPrev: { icon: "🚕", text: "Taxi o Uber corto (~15 min); el metro exige transbordo y no vale la pena en ese tramo." },
+          insiderTip: { icon: "⏰", text: "El Mutton Chop es gigante, para compartir entre dos; lleguen puntuales, la reserva se puede perder pasados 15 min." }
         },
         {
           id: "d5-10",
@@ -849,7 +892,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Magnolia+Bakery+Bleecker+St",
-          travelFromPrev: { icon: "🚇", text: "Metro línea 1 desde 34 St-Penn Station hasta Christopher St (~20 min)." }
+          travelFromPrev: { icon: "🚇", text: "Metro línea 1 desde 34 St-Penn Station hasta Christopher St (~20 min)." },
+          insiderTip: { icon: "💡", text: "El Banana Pudding se pide en vasito individual — pidan tamaño \"small\" si no quieren el grande." }
         },
         {
           id: "d5-11",
@@ -860,7 +904,8 @@ export const initialTripData = {
           status: "fijo", // Reserva
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Village+Vanguard+NYC",
-          travelFromPrev: { icon: "🚶", text: "5-8 min caminando; ambos clubes están a unas cuadras sobre la 7th Ave." }
+          travelFromPrev: { icon: "🚶", text: "5-8 min caminando; ambos clubes están a unas cuadras sobre la 7th Ave." },
+          insiderTip: { icon: "💵", text: "Cover más consumo mínimo de una bebida en la entrada — llegar 20-30 min antes, se llena rápido." }
         }
       ],
       tips: [
@@ -906,7 +951,8 @@ export const initialTripData = {
           status: "fijo",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Grand+Central+Terminal",
-          travelFromPrev: { icon: "🚶", text: "15 min caminando hacia el este por la 42nd St, o metro shuttle S (Times Sq → Grand Central, 1 parada)." }
+          travelFromPrev: { icon: "🚶", text: "15 min caminando hacia el este por la 42nd St, o metro shuttle S (Times Sq → Grand Central, 1 parada)." },
+          insiderTip: { icon: "💵", text: "Compren el boleto en la app MTA TrainTime antes de subir — es más barato que comprarlo con el conductor en el tren." }
         },
         {
           id: "d6-2",
@@ -917,7 +963,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Hudson+Hils+Cafe+Cold+Spring",
-          travelFromPrev: { icon: "🚶", text: "Bajar del tren y caminar 2-3 min al centro del pueblo." }
+          travelFromPrev: { icon: "🚶", text: "Bajar del tren y caminar 2-3 min al centro del pueblo." },
+          insiderTip: { icon: "💡", text: "Pueblo chiquito, todo se camina — no necesitan Uber para nada dentro de Cold Spring." }
         },
         {
           id: "d6-3",
@@ -928,7 +975,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Main+St+Cold+Spring+NY",
-          travelFromPrev: { icon: "🚶", text: "A pie, mismo Main Street." }
+          travelFromPrev: { icon: "🚶", text: "A pie, mismo Main Street." },
+          insiderTip: { icon: "⏰", text: "Las tiendas de antigüedades cierran temprano entre semana (algunas a las 5pm) — revisen horario si algo les interesó." }
         },
         {
           id: "d6-4",
@@ -939,7 +987,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Breakneck+Ridge+Trailhead",
-          travelFromPrev: { icon: "🚕", text: "Taxi corto o ~30 min caminando por la orilla del río hacia el norte (Route 9D)." }
+          travelFromPrev: { icon: "🚕", text: "Taxi corto o ~30 min caminando por la orilla del río hacia el norte (Route 9D)." },
+          insiderTip: { icon: "👀", text: "El sendero completo exige escalar con manos — si solo quieren la vista fácil, quédense en el primer mirador junto al río." }
         },
         {
           id: "d6-5",
@@ -950,7 +999,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Foundry+Cafe+Cold+Spring",
-          travelFromPrev: { icon: "🚶", text: "Regresar caminando o en taxi a Cold Spring (mismo trayecto en sentido contrario)." }
+          travelFromPrev: { icon: "🚶", text: "Regresar caminando o en taxi a Cold Spring (mismo trayecto en sentido contrario)." },
+          insiderTip: { icon: "💵", text: "Pueblo pequeño: llevar efectivo siempre es bienvenido aunque acepten tarjeta." }
         },
         {
           id: "d6-6",
@@ -961,7 +1011,8 @@ export const initialTripData = {
           status: "fijo",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Beacon+Train+Station+NY",
-          travelFromPrev: { icon: "🚶", text: "3 min a pie a la estación de Cold Spring." }
+          travelFromPrev: { icon: "🚶", text: "3 min a pie a la estación de Cold Spring." },
+          insiderTip: { icon: "💡", text: "Revisen el andén correcto en la pantalla — Cold Spring y Beacon están en la misma línea pero en sentido opuesto a Manhattan." }
         },
         {
           id: "d6-7",
@@ -972,7 +1023,8 @@ export const initialTripData = {
           status: "opcional", // Opcional
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Dia+Beacon+Museum",
-          travelFromPrev: { icon: "🚶", text: "10 min caminando desde la estación de Beacon." }
+          travelFromPrev: { icon: "🚶", text: "10 min caminando desde la estación de Beacon." },
+          insiderTip: { icon: "🎫", text: "Compren el boleto en línea antes de llegar y se saltan la fila de taquilla." }
         },
         {
           id: "d6-8",
@@ -983,7 +1035,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Hudson+Valley+Brewery+Beacon+NY",
-          travelFromPrev: { icon: "🚶", text: "10 min caminando de regreso hacia Main St." }
+          travelFromPrev: { icon: "🚶", text: "10 min caminando de regreso hacia Main St." },
+          insiderTip: { icon: "🍺", text: "Pidan el flight de 4-6 muestras — sus Sour IPA son intensas, mejor probar antes de pedir una pinta completa." }
         },
         {
           id: "d6-9",
@@ -994,7 +1047,8 @@ export const initialTripData = {
           status: "fijo",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Beacon+Station+to+Grand+Central",
-          travelFromPrev: { icon: "🚶", text: "5 min a pie a la estación de Beacon." }
+          travelFromPrev: { icon: "🚶", text: "5 min a pie a la estación de Beacon." },
+          insiderTip: { icon: "⏰", text: "Revisen el horario exacto en la app antes de salir del bar — los trenes de noche son menos frecuentes." }
         },
         {
           id: "d6-10",
@@ -1005,7 +1059,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Jacks+Wife+Freda+Carmine+St+NYC",
-          travelFromPrev: { icon: "🚇", text: "Metro línea 1 o 6 desde Grand Central/Times Sq hasta Houston St (~20-25 min) tras dejar maletas en el hotel." }
+          travelFromPrev: { icon: "🚇", text: "Metro línea 1 o 6 desde Grand Central/Times Sq hasta Houston St (~20-25 min) tras dejar maletas en el hotel." },
+          insiderTip: { icon: "💡", text: "Sin reserva, puede haber espera — dejan su nombre y avisan por mensaje de texto cuando hay mesa." }
         }
       ],
       tips: [
@@ -1044,7 +1099,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Russ+and+Daughters+Cafe+Orchard+St",
-          travelFromPrev: { icon: "🚕", text: "Taxi/Uber directo desde el hotel (~15 min a esa hora, con poco tráfico)." }
+          travelFromPrev: { icon: "🚕", text: "Taxi/Uber directo desde el hotel (~15 min a esa hora, con poco tráfico)." },
+          insiderTip: { icon: "💡", text: "Si van con prisa, es más rápido y barato pedir \"to go\" en la tienda de al lado (Appetizing) que sentarse en el café." }
         },
         {
           id: "d7-2",
@@ -1055,7 +1111,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Brooklyn+Bridge+Pedestrian+Walkway",
-          travelFromPrev: { icon: "🚶", text: "~15 min caminando al suroeste por Canal St/Centre St hasta la entrada del puente." }
+          travelFromPrev: { icon: "🚶", text: "~15 min caminando al suroeste por Canal St/Centre St hasta la entrada del puente." },
+          insiderTip: { icon: "👀", text: "Caminen por el carril peatonal elevado en el centro del puente — el carril de bicis va a los lados, cuidado al cruzar." }
         },
         {
           id: "d7-3",
@@ -1066,7 +1123,8 @@ export const initialTripData = {
           status: "pendiente",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=DUMBO+Brooklyn+Washington+St",
-          travelFromPrev: { icon: "🚶", text: "Al final del puente, bajar hacia Washington St (~5 min)." }
+          travelFromPrev: { icon: "🚶", text: "Al final del puente, bajar hacia Washington St (~5 min)." },
+          insiderTip: { icon: "👀", text: "El ángulo icónico es parados en medio de Washington St mirando al puente — esperen el hueco entre autos para la foto." }
         },
         {
           id: "d7-4",
@@ -1077,7 +1135,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Brooklyn+Roasting+Company+DUMBO",
-          travelFromPrev: { icon: "🚶", text: "A la vuelta de la esquina, en el mismo DUMBO." }
+          travelFromPrev: { icon: "🚶", text: "A la vuelta de la esquina, en el mismo DUMBO." },
+          insiderTip: { icon: "💡", text: "Aprovechen para sentarse un momento — viene una caminata/traslado largo después." }
         },
         {
           id: "d7-5",
@@ -1088,7 +1147,8 @@ export const initialTripData = {
           status: "fijo",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=New+York+Marriott+Marquis",
-          travelFromPrev: { icon: "🚕", text: "Uber (~20 min sin tráfico) o metro F hasta York St + transbordo, más lento." }
+          travelFromPrev: { icon: "🚕", text: "Uber (~20 min sin tráfico) o metro F hasta York St + transbordo, más lento." },
+          insiderTip: { icon: "💡", text: "Pidan el Uber desde la app unos 10 min antes de salir del café para no esperar parados en la calle." }
         },
         {
           id: "d7-6",
@@ -1099,7 +1159,8 @@ export const initialTripData = {
           status: "opcional",
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Katzs+Delicatessen+205+E+Houston+St",
-          travelFromPrev: { icon: "🚕", text: "De paso en el Uber/metro de regreso: bajar en el LES antes de seguir al hotel." }
+          travelFromPrev: { icon: "🚕", text: "De paso en el Uber/metro de regreso: bajar en el LES antes de seguir al hotel." },
+          insiderTip: { icon: "💵", text: "No pierdan el ticket que les dan al entrar — sin él cobran una multa al salir aunque ya hayan pagado." }
         },
         {
           id: "d7-7",
@@ -1110,7 +1171,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible
           completed: false,
           mapsUrl: "https://maps.google.com/?q=New+York+Marriott+Marquis",
-          travelFromPrev: { icon: "🚕", text: "Uber o metro de regreso a Times Square (~15-20 min) para el check-out." }
+          travelFromPrev: { icon: "🚕", text: "Uber o metro de regreso a Times Square (~15-20 min) para el check-out." },
+          insiderTip: { icon: "💡", text: "El hotel guarda maletas gratis aunque ya hicieron check-out — pidan el ticket de resguardo." }
         },
         {
           id: "d7-8",
@@ -1121,7 +1183,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible
           completed: false,
           mapsUrl: "https://maps.google.com/?q=New+York+Marriott+Marquis",
-          travelFromPrev: { icon: "🚗", text: "El chofer recoge justo enfrente del lobby del hotel." }
+          travelFromPrev: { icon: "🚗", text: "El chofer recoge justo enfrente del lobby del hotel." },
+          insiderTip: { icon: "💡", text: "Tengan el teléfono con volumen alto — el chofer avisa por SMS o llamada que ya está afuera." }
         },
         {
           id: "d7-9",
@@ -1132,7 +1195,8 @@ export const initialTripData = {
           status: "fijo", // Inamovible
           completed: false,
           mapsUrl: "https://maps.google.com/?q=Newark+Airport+Terminal+C",
-          travelFromPrev: { icon: "✈️", text: "Traslado privado EWR (~40-50 min desde el hotel) directo a la terminal, documentar con tiempo." }
+          travelFromPrev: { icon: "✈️", text: "Traslado privado EWR (~40-50 min desde el hotel) directo a la terminal, documentar con tiempo." },
+          insiderTip: { icon: "⏰", text: "Lleguen 3h antes por ser vuelo internacional — documentar y pasar TSA en Newark puede tardar más que en México." }
         }
       ],
       tips: [

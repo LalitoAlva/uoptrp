@@ -224,6 +224,15 @@ export default function DayCard({
                                 Efectivo
                               </span>
                             )}
+                            {item.insiderTip && (
+                              <span
+                                className="flex items-center gap-1 text-[var(--accent-amber-text)]"
+                                title={item.insiderTip.text}
+                              >
+                                <Lightbulb className="w-3 h-3" />
+                                Tip
+                              </span>
+                            )}
                           </span>
                         </span>
                       </span>
